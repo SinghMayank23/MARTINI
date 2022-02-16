@@ -202,7 +202,30 @@ class MARTINI
         HydroInfo getHydroValues(double x, double y, double z, double t);
         /// for now this is where the whole evolution is done - this will change 
         void pythiaEvents();
-        /// routine for preparing and calling the fragmentation done by PYTHIA in a full event
+//Begin rewrote routines by CFY for HQ -- MS
+        /// calls the next MARTINI event. Only good for events with initial parton content from PYTHIA
+        vector<Parton>* next();
+        /// Samples the momentum fraction z for Peterson fragmentation of heavy quarks:
+        double SamplePetersonFunction(double M);
+        // Checks whether or not a heavy quark pair would be bound in the color evaporation model:
+        int isBound(int id1, int id2, double E_CM);
+        // Hadronizes a single heavy quark into an open heavy flavor meson:
+        void hadronizeOneHeavyQuark(int id, double *pmu, double M);
+        /// This hadronizes heavy quarks in a full event according to a simple thermal model by C. Young.
+        int hadronizeHeavyQuarks(vector<Parton> ** plist);
+        void hadronizeByColorEvaporation(int id1, int id2, double E_CM, double *p1mu, double *p2mu, double M1, double M2, int status);  
+        int generateEventHeavyQuarks(vector<Parton> *plist);
+        int evolveHeavyQuarks(vector<Parton>  **plist, int counter, int it);
+        int evolveAndHadronizeHeavyQuarks(vector<Parton>  **plist, int counter, int it);
+        double CornellPotential(double r);
+        double CornellPotential(double r, int id1, int id2);
+        double F(double r, double T);
+        double FCornell(double r);
+        double FCornell(double r, int id1, int id2);
+        void stepMomentumInCMFrame(double *ptot, double *pmu, double dt, double *deltax, double *pnew, double T);
+        double rInCMFrame(double *p1, double *p2, double *deltaX);
+//End rewrote routines by CFY for HQ -- MS
+	/// routine for preparing and calling the fragmentation done by PYTHIA in a full event
         int fragmentation(vector<Parton> * plist, int recoil = 0, int currentEvent = 1);
         /// This simply removes quarkonium from the PYTHIA event and then decays the remaining open heavy flavor hadrons:
         int decayOpenHeavyFlavor();
