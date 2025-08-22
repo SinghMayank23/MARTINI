@@ -1,0 +1,8 @@
+c=1
+while [ $c -le 200 ]
+do
+   main_jet_profile_lowersettings_var1=$c
+   export main_jet_profile_lowersettings_var1
+   msub -l nodes=1:ppn=1 main_jet_profile_lowersettings_recursivesubmit
+   (( c++ ))
+done

@@ -1,0 +1,18 @@
+[Setup::Setup]: This is AMY energy loss Version 0.1
+                Names in [] indicate which function is writing the following output.
+                This is helpful for development and error tracking.
+                _________________________________________
+                Output is written to the following files:
+                1) usedparameters.dat (this file)
+                2) dEdt.dat
+                3) pcD.dat
+                4) EcD.dat
+                _________________________________________
+                Used input files with transition rates:  
+                1) ./rates/logEnDtrqq
+                2) ./rates/logEnDtrqg
+                3) ./rates/logEnDtrgq
+                4) ./rates/logEnDtrgg
+                5) ./rates/radgamma
+                _________________________________________
+

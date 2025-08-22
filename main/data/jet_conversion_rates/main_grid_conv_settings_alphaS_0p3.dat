@@ -1,0 +1,12 @@
+jet_momentum_grid_size 20
+temperature_grid_size 51
+transverse_k_grid_size 80
+longitudinal_k_grid_size 100
+jet_mom_min 2
+jet_mom_max 12
+temperature_min 0.14
+temperature_max 0.7
+kT_min 0
+kT_max 15 
+kZ_min -15
+kZ_max 25

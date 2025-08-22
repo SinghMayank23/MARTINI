@@ -1,0 +1,41 @@
+SHELL = /bin/sh
+
+-include ../pythia/config.mk
+include Makefile.inc
+
+INCLUDES   = -I./src -I../lhapdf/include -I../pythia/include
+PYTHIALIBDIR = pythia/lib/archive
+OBJECTS	= main.o main2.o main3.o
+DIRS = src
+OBJLIBS	= ./lib/libsrc.a
+LIBS	= -lgsl -lgslcblas -L./lib -L/usr/local/lib -L../lhapdf/lib -lLHAPDF   
+# includes gnu scientific library, pythia libs and local libs, as well as lLHAPDF
+EXECUTABLE = main main2 main3
+CXXFLAGS = -O3
+#CXXFLAGS = -g
+CXX = g++
+
+all: main main2 main3
+
+$(EXECUTABLE): $(OBJECTS) $(OBJLIBS) 
+	$(CXX) $(CXXFLAGS) $@.o $(LIBS) -o $@ -lsrc -L../$(PYTHIALIBDIR) -lpythia8 -llhapdfdummy
+
+main.o: $(OBJLIBS) main.cpp
+	$(CXX) -c $(INCLUDES) main.cpp 
+
+main2.o: $(OBJLIBS) main2.cpp
+	 $(CXX) -c $(INCLUDES) main2.cpp 
+
+main3.o: $(OBJLIBS) main3.cpp
+	 $(CXX) -c $(INCLUDES) main3.cpp 
+
+./lib/libsrc.a : force_look
+	cd src; $(MAKE) $(MFLAGS)
+
+.PHONY: clean # explicitly declare 'clean' to be PHONY
+clean :
+	-$(RM) -f $(EXECUTABLE) $(OBJECTS) $(OBJLIBS)
+	-for d in $(DIRS); do (cd $$d; $(MAKE) clean ); done
+
+force_look :
+	true

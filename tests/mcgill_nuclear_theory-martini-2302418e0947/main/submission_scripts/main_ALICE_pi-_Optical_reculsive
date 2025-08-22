@@ -1,0 +1,10 @@
+#!/bin/bash
+#PBS -S /bin/sh
+#PBS -l host=shai-hulud
+#PBS -l walltime=200:00:00
+#PBS -V
+#PBS -N MARTINI_test
+
+cd ~/New_MARTINI/main
+
+./main_ALICE_pi-_Optical 0-5% $c

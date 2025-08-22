@@ -1,0 +1,8 @@
+c=1
+while [ $c -le 1 ]
+do
+   main_Maxime_photons_var1=$c
+   export main_Maxime_photons_var1
+   qsub -l nodes=1:jessica:ppn=1 main_Maxime_photons_recursivesubmit
+   (( c++ ))
+done

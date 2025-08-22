@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_main_ALICE_charged.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main_ALICE_charged.out
+#PBS -V
+#PBS -N MARTINI_main_ALICE_charged
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+c=188
+while [ $c -le 189 ]
+do
+    ./main_ALICE_charged $c setup_main_ALICE_charged.dat
+    (( c++ ))
+done

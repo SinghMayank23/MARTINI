@@ -1,0 +1,19 @@
+<word name="Glauber:Target" default="Au">
+The name of the target nucleus <code>Glauber:Target</code> = Au
+</word>
+
+<word name="Glauber:Projectile" default="Au">
+The name of the projectile nucleus <code>Glauber:Projectile</code> = Au
+</word>
+
+<parm name="Glauber:SigmaNN" default="40.0" min="0.">
+total cross section in fm<code>Glauber:SigmaNN</code> = 40.0
+</parm>
+
+<mode name="Glauber:MaxInterpolationPoints" default="100" min="10">
+number of points for interpolation<code>Glauber:MaxInterpolationPoints</code> = 10
+</mode>
+
+<parm name="Glauber:b" default="0.0" min="0.0">
+impact parameter in fm<code>Glauber:b</code> = 0.0
+</parm>

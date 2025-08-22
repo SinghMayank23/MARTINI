@@ -1,0 +1,9 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_main5.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main5.out
+#PBS -V
+#PBS -N MARTINI_main5
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+./main5 1 setup.dat

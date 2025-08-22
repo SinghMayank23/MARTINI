@@ -1,0 +1,9 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_dijets.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_dijets.out
+#PBS -V
+#PBS -N MARTINI_dijets
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+./dijets_pp_celljet 9 setup_dijets_pp_celljet.dat

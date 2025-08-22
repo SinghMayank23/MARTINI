@@ -1,0 +1,63 @@
+#ifndef Control_h //avoids multiple inclusions of the header file
+#define Control_h
+#include <cmath>
+#include <string>
+#include <list>
+#include <fstream>
+#include <iostream>
+#include <vector>
+
+#include "tools/FileNames.h"
+#include "Evolution.h"
+
+
+class Control
+{
+ private:
+
+  static const double hbarc = 0.197327053;
+
+  double dt;
+  double dE;
+  double T;
+  double alphas;
+  int Nf;
+  double initialE;
+  double width;
+  double maxTime;
+  double maxEnergy;
+  int maxSteps;
+  int strate;
+  
+  double* Pq;
+  double* Pg;
+  double* PqA;
+  double* PgA;
+
+  ///arrays with transition rates:
+  /**
+     E=Emin+iE*stepE
+     T=Tmin+iT*stepT
+     omega=-Emax+iOmega*stepOmega
+     then
+     dGamma/(domega dt)_qq(E,T,omega)=trqq[iE*(Tsize*(omegaSize+1))+iT*(omegaSize+1)+iOmega]
+  **/
+
+  double* trqq;
+  double* trqg;
+  double* trgq;
+  double* trgg;
+
+  Evolution* timeEvolution;
+  const FileNames* controlsFileNameList;
+ public:
+  Control(const FileNames* fileList, double dt, double dE, double T, const double alphas, int Nf, const double initialE, const double width, const double maxTime, const double maxEnergy, const int strate, const int size=1, const int rank=0);
+  ~Control(){delete [] Pq; delete [] Pg; delete [] PqA; delete [] PgA;};
+  void evolve();
+
+  double* getPq(){return Pq;};
+  double* getPg(){return Pg;};
+
+};
+#endif
+

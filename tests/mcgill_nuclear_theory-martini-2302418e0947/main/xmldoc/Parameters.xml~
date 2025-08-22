@@ -1,0 +1,195 @@
+<aidx href="Hydro"><b>Hydro Settings</b></aidx><br/>
+<aidx href="Glauber"><b>Glauber Model Settings</b></aidx><br/>
+<aidx href="PDF"><b>Parton Distribution Function Settings</b></aidx><br/>
+
+<flag name="General:TrackPartons" default="off">
+Switches tracking of partons on or off.
+</flag>
+
+<flag name="General:pCutPropToT" default="off">
+if 'on' pCut will be set to 4*T, regardless of the value chosen for pCut.
+</flag>
+
+<flag name="General:TrackHistory" default="off">
+Switches tracking of partons' trajectory and energy-momentum loss on or off.
+</flag>
+
+<flag name="General:Evolution" default="off">
+Switches medium evolution on or off.
+</flag>
+
+<flag name="General:FullVacuumShower" default="on">
+Do a full PYTHIA vacuum shower (on) or cut off at scale Q=\sqrt{E/\tau_0}.
+</flag>
+
+<flag name="General:FixedEnergy" default="off">
+If on, fixed energy initial quark will be used.
+</flag>
+
+<flag name="General:RadiativeProcesses" default="on">
+If on, include radiative processes.
+</flag>
+
+<flag name="General:ElasticCollisions" default="off">
+If on, include elastic collisions.
+</flag>
+
+<flag name="General:TransferTransverseMomentum" default="on">
+If on, momentum broadening in elastic collisions is included.
+</flag>
+
+<flag name="General:FixedTemperature" default="off">
+If on, fixed temperature will be used.
+</flag>
+
+<flag name="General:Fragmentation" default="on">
+Do fragmentation or leave partons.
+</flag>
+
+<flag name="General:PhotonProduction" default="on">
+Include photon radiation and quark-photon conversion.
+</flag>
+
+<flag name="General:allFromCenter" default="off">
+If on all partons are produced at x=y=0.
+</flag>
+
+<parm name="General:MultiplyElasticRateBy" default="1." min="0.">
+Multiply the elastic rates by this factor. Typically just for testing.
+</parm>
+
+<parm name="General:cmEnergy" default="200." min="0.">
+Center of Mass energy (root(s)) in GeV <code>General:cmEnergy</code> = 200.
+</parm>
+
+<parm name="General:InitialXjet" default="0.">
+Initial x coordinate of a jet that is put in by hand (FixedEnergy=on).
+</parm>
+
+<parm name="General:InitialYjet" default="0.">
+Initial y coordinate of a jet that is put in by hand (FixedEnergy=on).
+</parm>
+
+<parm name="General:InitialPXjet" default="3.">
+Initial x-momentum of a jet that is put in by hand (FixedEnergy=on).
+</parm>
+
+<parm name="General:InitialPYjet" default="1.3">
+Initial y-momentum of a jet that is put in by hand (FixedEnergy=on).
+</parm>
+
+<parm name="General:Temperature" default="0.4" min="0.">
+Temperature in GeV for a static medium <code>General:Temperature</code> = 0.4
+</parm>
+
+<parm name="General:pCut" default="3." min="0.">
+Only radiated partons with p>pCut will be evolved <code>General:pCut</code> = 4.
+</parm>
+
+<parm name="General:MaxTime" default="2." min="0.">
+Maximal time of evolution in fm <code>General:MaxTime</code> = 2.
+</parm>
+
+<parm name="General:TimeStep" default="0.02" min="0.001" max="0.1">
+Time step in fm <code>General:TimeStep</code> = 0.02
+</parm>
+
+<parm name="General:AlphaS" default="0.3" min="0.15" max="0.42">
+Strong coupling constant for the evolution <code>General:AlphaS</code> = 0.3
+</parm>
+
+<flag name="General:RunningCoupling" default="off">
+If on, coupling constant for hard process is running. -CP
+</flag>
+
+<parm name="General:JetPTMin" default="2." min="0.">
+Lower momentum cutoff for the jets - used to calculate their cross section with PYTHIA <code>General:JetPTMin</code> = 2.0
+</parm>
+
+<parm name="General:JetPTMax" default="-1.">
+Upper momentum cutoff for the jets - used to calculate their cross section with PYTHIA. A value below JetPTMin means there is no upper limit. -CP <code>General:JetPTMax</code> = -1.0
+</parm>
+
+<parm name="General:totalHQXSec" default="0.5" min="0.">
+Total (charm+bottom) cross section for heavy quark production.
+</parm>
+
+<parm name="General:charmWidth" default="0.5" min="0.">
+Width in space of the distribution of charm pair separations, used to mimic fragmentation functions.
+</parm>
+
+<parm name="General:bottomWidth" default="0.5" min="0.">
+Width in space of the distribution of bottom pair separations, used to mimic fragmentation functions.
+</parm>
+
+<parm name="General:T_C_HQ" default="0.175" min="0.">
+Temperature of chemical freezeout for heavy quarks.
+</parm>
+
+<parm name="General:TwoPiTD_HQ" default="10." min="0.">
+Heavy quark diffusion coefficient.
+</parm>
+
+<word name="General:Name" default="MARTINI">
+The name of this program <code>General:Name</code> = MARTINI
+</word>
+
+<word name="General:evolution_name" default="evolution.dat">
+Name for the input file.
+</word>
+
+<modeopen name="General:Events" default="10000" min="1">
+Number of events to be simulated.
+</modeopen>
+
+<modeopen name="General:quarksEqualGluons" default="0" min="0">
+To test what happens if quark rates are mupltiplied by 9/4 (1) or gluon rates 
+are multiplied by 4/9 (2). Default is 0 so that no such modification is done.
+</modeopen>
+
+<modeopen name="General:Ldependence" default="0" min="0">
+Use original AMY (0), use parametrized L dependent rates (1). to be extended.
+</modeopen>
+
+<modeopen name="General:NumberOfFlavors" default="3" min="1">
+Number of flavors to be used in energy loss rates.
+</modeopen>
+
+<modeopen name="General:FullEvent" default="0" min="0">
+Full event with number of jets sampled using the Glauber model (1), or
+just one nucleus-nucleus collision per event (with its position sampled with the Glauber model (0).
+</modeopen>
+
+<modeopen name="General:RadiativeRateSet" default="1" min="1">
+Select the radiative rates to use: Standard AMY (1) AMY with cut for small k_T (only works for alpha_s=0.3 at this point) (2).
+</modeopen>
+
+<modeopen name="General:MoveBeforeTau0" default="1" min="0">
+Evolve the positions of the partons before tau_0 is reached in the local cell (1) or do not (0).
+</modeopen>
+
+<modeopen name="General:FragmentationMethod" default="1" min="1">
+Select the fragmentation method: color strings are only between jet partons as in pp (1)
+color strings are connected in the end including nearby medium partons (2)
+</modeopen>
+
+<modeopen name="General:Nbin_from_File" default="0" min="0">
+Select whether or not this is an averaged event or over FIC.
+</modeopen>
+
+<word name="General:Nbin_File_Name" default="x_y_binary.dat">
+Name for the binary collision list file.
+</word>
+
+<modeopen name="General:examineHQ" default="0" min="0">
+Select whether or not PYTHIA is optimized for examining heavy quarks: 0/1/2 off/heavy quarks/quarkonium .
+</modeopen>
+
+<modeopen name="General:setInitialPToZero" default="0" min="0">
+Select whether or not the momentum should simply be set initially to zero.
+</modeopen>
+
+<modeopen name="General:tauEtaCoordinates" default="0" min="0">
+Select whether or not the evolution file from MUSIC uses tau-eta coordinates.
+</modeopen>
+

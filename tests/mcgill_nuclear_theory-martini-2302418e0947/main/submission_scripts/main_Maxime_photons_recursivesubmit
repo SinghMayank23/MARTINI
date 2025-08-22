@@ -1,0 +1,13 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_main_Maxime_photons.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main_Maxime_photons.out
+#PBS -V
+#PBS -N MARTINI_main_Maxime_photons
+
+writing_dir=/scratch/$(uname -n)/cyoung
+echo $writing_dir
+mkdir $writing_dir
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+./main_Maxime_photons $main_Maxime_photons_var1 setup_main_Maxime_photons.dat $writing_dir

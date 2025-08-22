@@ -1,0 +1,91 @@
+# output filenames:
+output_file_name_1 = usedparameters.dat
+output_file_name_2 = dEdt.dat
+output_file_name_3 = pcD.dat
+output_file_name_4 = EcD.dat
+
+# input filenames of transition rates in subdirectory /rates:
+#logEDtr** for Djordjevic's version
+trqq_file = logEnDtrqq # replace by logEntrqq for method A
+trqg_file = logEnDtrqg # replace by logEntrqg for method A
+trgq_file = logEnDtrgq # replace by logEntrgq for method A
+trgg_file = logEnDtrgg # replace by logEntrgg for method A
+trrad_file = radgamma
+
+# switches #######################################
+# transition rate with delta function or smooth:
+#
+# 0: delta functions
+# 1: smooth from tabulated data
+#
+smooth_transition_rates = 1
+#--------------------------
+# include radiative energy loss:
+#
+# 0: no
+# 1: yes
+#
+do_rad = 0
+#---------
+# include collisional energy loss:
+#
+# 0: no
+# 1: yes
+#
+do_col = 1
+#---------
+# Bethe-Heitler limit:
+# 0: no
+# 1: yes
+#
+bethe_heitler = 0
+#----------------
+# BDMPS approximation:
+# 0: no
+# 1: yes
+#
+bdmps = 0
+#--------
+# create new data file with radiative transition rate:
+# WARNING: this is obsolete in the GUI version
+# there is a button for it.
+# 0: no
+# 1: do it (but you will be asked again..)
+#
+make_new_radiative_gamma = 1
+#---------------------------
+# End switches ###################################
+
+# Measurements per fermi:
+# determines how often per fermi the distributions are written to a file.
+#
+measurements_per_fermi = 1
+
+# Coupling constant:
+#alpha_s = 0.333333333333333333333
+alpha_s = 0.3
+
+# mumber of flavors:
+Nf = 3
+
+# temperature [GeV]:
+temperature = 0.3
+
+# timestep [fm]:
+# can use e.g. 0.01
+timestep = 0.01
+
+# Energy resolution [GeV] (use >=0.05 (the resolution in the data file) for smooth transition rates - otherwise the linear interpolation at small omega will not be valid):
+energy_resolution = 0.05
+
+# maximal time [fm]:
+max_time = 1
+
+# maximal energy [GeV]:
+max_energy = 20
+
+# Initial jet energy [GeV]:
+initial_energy = 10
+
+# initial jet width (sigma in a normal distribution):
+initial_width = 0.05

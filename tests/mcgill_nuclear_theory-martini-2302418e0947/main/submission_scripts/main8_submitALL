@@ -1,0 +1,8 @@
+c=201
+while [ $c -le 400 ]
+do
+   main8_var_1=$c
+   export main8_var_1
+   qsub -l nodes=1:atreides:ppn=1 main8_recursivesubmit
+   (( c++ ))
+done

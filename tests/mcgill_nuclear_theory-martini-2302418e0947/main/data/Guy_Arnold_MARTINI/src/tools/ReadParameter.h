@@ -1,0 +1,23 @@
+#include <string>
+#include <vector>
+
+class ReadParameter
+{
+ private:
+  std::string fname;
+  int lineposition;
+  std::vector<int> ifused;
+  std::vector<int> linepos;
+  std::vector<std::string> nameline;
+  std::vector<std::string> varline;
+ public:
+  ReadParameter(std::string fname);
+  ~ReadParameter();
+  void read();
+  int getParam(std::string templine);
+  void removeBlank(std::string& line);
+  void inputParam(std::string name,int& var);
+  void inputParam(std::string name,double& var);
+  void inputParam(std::string name,std::string& var);
+  void checkError();
+};

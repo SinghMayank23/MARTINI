@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_main5_ET07.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main5_ET07.out
+#PBS -V
+#PBS -N MARTINI_main5_5_ET07
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+c=1
+while [ $c -le 5 ]
+do
+    ./main5 $c setup.dat
+    (( c++ ))
+done

@@ -1,0 +1,10 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_main_ALICE_charged.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main_ALICE_charged.out
+#PBS -V
+#PBS -N MARTINI_main_ALICE_charged
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+./main_ALICE_charged $main_ALICE_charged_var1 setup_main_ALICE_charged.dat
+

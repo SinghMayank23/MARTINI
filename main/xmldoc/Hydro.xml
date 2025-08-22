@@ -1,0 +1,59 @@
+<modeopen name="Hydro:WhichHydro" default="1" min="1">
+Which Hydro evolution to use. 1=Kolb 2=Eskola 3=Nonaka 5=fKLN initial conditions
+</modeopen>
+
+<modeopen name="Hydro:Subset" default="1" min="1">
+Which subset of parameters for a given hydro evolution to use. Only has meaning for WhichHydro=4 at the moment.
+</modeopen>
+
+<flag name="Hydro:Viscous" default="off">
+Use viscous hydro if it is supported (currently only for Hydro:WhichHydro=5).
+</flag>
+
+<flag name="Hydro:fixedDistribution" default="off">
+Fix the distribution to the initial one over the whole time (no hydro evolution, just initial profile).
+</flag>
+
+<parm name="Hydro:tau0" default="0.6" min="0.">
+initial time for hydro evolution in fm/c <code>Hydro:tau0</code> = 0.6
+</parm>
+
+<parm name="Hydro:taumax" default="10.6" min="0.">
+maximal time of the hydro evolution in fm/c <code>Hydro:taumax</code> = 10.6
+</parm>
+
+<parm name="Hydro:dtau" default="0.04" min="0.">
+time step in the hydro evolution data files in fm/c <code>Hydro:dtau</code> = 0.04
+</parm>
+
+<parm name="Hydro:xmax" default="10.0" min="0.">
+half the lattice length in fm in the hydro evolution data file: [-xmax,xmax] in x and [-xmax,xmax] in y  <code>Hydro:xmax</code> = 10.
+</parm>
+
+<parm name="Hydro:zmax" default="20.0" min="0.">
+half the lattice length in fm in the hydro evolution data file: [-zmax,zmax] in z  <code>Hydro:zmax</code> = 20.
+</parm>
+
+<parm name="Hydro:dx" default="0.1" min="0.">
+step size in space in fm in the hydro evolution data file <code>Hydro:dx</code> = 0.1
+</parm>
+
+<parm name="Hydro:dz" default="0.5" min="0.">
+step size in space in fm in the z direction in the hydro evolution data file <code>Hydro:dz</code> = 0.5
+</parm>
+
+<parm name="Hydro:nskip_tau" default="1" min="0.">
+read in the hydro evolution information every nskip_tau step in tau direction
+</parm>
+
+<parm name="Hydro:nskip_x" default="1" min="0.">
+read in the hydro evolution information every nskip_x step in x direction
+</parm>
+
+<parm name="Hydro:nskip_z" default="1" min="0.">
+read in the hydro evolution information every nskip_z step in z direction
+</parm>
+
+<parm name="Hydro:Tfinal" default="0.16" min="0.11">
+temperature at which to stop the evolution of the jet <code>Hydro:Tfinal</code> = 0.16
+</parm>

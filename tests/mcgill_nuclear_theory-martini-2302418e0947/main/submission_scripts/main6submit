@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_main6.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main6.out
+#PBS -V
+#PBS -N MARTINI_main6
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+c=25
+while [ $c -le 30 ]
+do
+    ./main6 $c setup_main6.dat
+    (( c++ ))
+done

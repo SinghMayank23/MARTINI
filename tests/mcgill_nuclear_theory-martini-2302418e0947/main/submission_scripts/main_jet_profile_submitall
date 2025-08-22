@@ -1,0 +1,8 @@
+c=1
+while [ $c -le 40 ]
+do
+   main_jet_profile_var1=$c
+   export main_jet_profile_var1
+   qsub -l nodes=1:gurney:ppn=1 main_jet_profile_recursivesubmit
+   (( c++ ))
+done

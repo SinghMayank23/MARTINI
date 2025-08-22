@@ -1,0 +1,14 @@
+#PBS -N MARTINI_submit
+
+cd ~/New_MARTINI/main
+make clean
+make -j 4
+
+c=0
+while [ $c -le 4 ]
+do
+   export c
+   qsub runMARTINI_reculsive
+   (( c++ ))
+done
+rm MARTINI_submit.*

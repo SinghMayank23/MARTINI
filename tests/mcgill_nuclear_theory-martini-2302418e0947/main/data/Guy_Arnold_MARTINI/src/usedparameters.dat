@@ -1,0 +1,34 @@
+[Setup::Setup]: This is AMY energy loss Version 0.1
+                Names in [] indicate which function is writing the following output.
+                This is helpful for development and error tracking.
+                _________________________________________
+                Output is written to the following files:
+                1) usedparameters.dat (this file)
+                2) dEdt.dat
+                3) pcD.dat
+                4) EcD.dat
+                _________________________________________
+                Used input files with transition rates:  
+                1) ./rates/logEnDtrqq
+                2) ./rates/logEnDtrqg
+                3) ./rates/logEnDtrgq
+                4) ./rates/logEnDtrgg
+                5) ./rates/radgamma
+                _________________________________________
+
+
+[Control::Control]:
+                maximal time = 1 fm
+ 
+[Evolution::Evolution]: 
+                Temperature = 0.3 GeV
+                alpha_s = 0.3
+                dt = 0.0506773 GeV^(-1)
+                dE = 0.05 GeV
+                Nf = 3
+                initial jet energy = 10
+                initial jet width = 0.05
+                maximal energy = 20 GeV
+                Bethe-Heitler limit = 0
+                BDMPS approximation = 0
+

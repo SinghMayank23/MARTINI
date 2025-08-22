@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -S /bin/sh
+#PBS -l host=shai-hulud
+#PBS -l walltime=200:00:00
+#PBS -V
+#PBS -N MARTINI_dijet
+
+cd ~/New_MARTINI/main
+
+make clean
+make -j 8
+./main_CMS_dNdA 30-50%

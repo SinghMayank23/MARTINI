@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_main_jet_profile.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main_jet_profile.out
+#PBS -V
+#PBS -N MARTINI_main_jet_profile
+#PBS -l walltime=30:00:00
+
+writing_dir=noname
+
+cd /homes/jorgen//clinty/junkdir/MARTINI/main
+./main_jet_profile $main_jet_profile_var1 setup_main_jet_profile.dat $writing_dir

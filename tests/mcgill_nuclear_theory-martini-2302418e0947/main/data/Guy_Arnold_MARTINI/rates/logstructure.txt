@@ -1,0 +1,148 @@
+Hi, this is the README file that explains how the transition rate 
+data is stored in the logtr** files (where **={qq,qg,gq,gg}).
+First column is the energy E, 
+second is the temperature T, 
+third is the transferred energy omega 
+and the fourth is the value of dGamma/domega/dt at the values in the same row.
+
+The spacing is linear in the temperature 
+(as of now there is only one temperature),
+and logarithmic in E and omega. That means the following:
+
+E goes like 
+10^(LogEmin), 10^(LogEmin+1*LogStepE), ... , 10^(LogEmax)
+where 
+LogEmin=0.6
+LogEmax=5
+and LogStepE=0.1
+
+omega goes like
+-10^(LogEmax), -10^(LogEmax-1*LogStepE), ... , 10^(LogEmax)
+
+an example code snippet to read from these files:
+(doing interpolation for the trqq part and printing the result. ole ole)
+this assumes that the correct file names are already saved in controlsFileNames as number 5,6,7, and 8. this can easily be changed to your desires...
+
+      string path="../rates/";
+      string file[4];
+      ifstream fin[4];
+      
+      //open files with transition rates to read in:
+      for(int i=0; i<=3; i++)
+	{
+	  file[i] = path+controlsFileNameList->GetFN(i+5).c_str();
+	  fin[i].open(file[i].c_str(),ios::in);     
+	  if(!fin[i])
+	    {
+	      cerr << "[Control::Control]: ERROR: Unable to open file " << file[i] << endl;
+	      exit(1);
+	    }
+	}
+     
+      const double LogEmax=5;
+      const double LogEmin=0.6;
+      const double LogStepE=0.1;
+      const double LogOmegaMin=-5;
+      const double LogStepOmega=0.1;
+      const double Tmax=0.4;
+      const double Tmin=0.4;
+      const double stepT=1;
+
+      double temp[4];
+      int Esize=static_cast<int>((LogEmax-LogEmin)/LogStepE+1);
+      int Tsize=static_cast<int>((Tmax-Tmin)/stepT+1);
+      int omegaSize=static_cast<int>((2*(LogEmax-LogOmegaMin))/LogStepOmega+2);
+      vector<double> trqqvec;
+      vector<double> trqgvec;
+      vector<double> trgqvec;
+      vector<double> trggvec;
+
+      trqq = new double[(Esize)*Tsize*(omegaSize)];
+      trqg = new double[(Esize)*Tsize*(omegaSize)];
+      trgq = new double[(Esize)*Tsize*(omegaSize)];
+      trgg = new double[(Esize)*Tsize*(omegaSize)];
+      
+      int count=1;
+      
+      for(int j=0;j<4;j++)
+	{
+	  while ( !fin[j].eof() )
+	    {
+	      fin[j] >> temp[j];
+	      if(!(count%4)) 
+		{
+		  if(j==0) trqqvec.push_back( temp[0] ) ;
+		  if(j==1) trqgvec.push_back( temp[1] ) ;
+		  if(j==2) trgqvec.push_back( temp[2] ) ;
+		  if(j==3) trggvec.push_back( temp[3] ) ;
+		}
+	      count++;
+	    }
+	}
+
+      count=0;
+
+      //ofstream fout(controlsFileNameList->GetFN(9).c_str(),ios::out);     
+      for(int iE=0;iE<Esize;iE++)
+	for(int iT=0;iT<Tsize;iT++)
+	  for(int iOmega=0;iOmega<omegaSize;iOmega++)
+	    {
+	      trqq[iE*(Tsize*(omegaSize))+iT*(omegaSize)+iOmega]=trqqvec[count];
+	      trqg[iE*(Tsize*(omegaSize))+iT*(omegaSize)+iOmega]=trqgvec[count];
+	      trgq[iE*(Tsize*(omegaSize))+iT*(omegaSize)+iOmega]=trgqvec[count];
+	      trgg[iE*(Tsize*(omegaSize))+iT*(omegaSize)+iOmega]=trggvec[count];
+	      count++;
+	      /*cout << pow(10,LogEmin+iE*LogStepE) << " " 
+		   << Tmin+iT*stepT << " " 
+		   << " "
+		   << trgq[iE*(Tsize*omegaSize)+iT*omegaSize+iOmega] << endl;*/ // test ouput
+	    }
+      //fout.close();
+	     
+      //test interpolation:
+      
+      double En=3.99;
+      double T=0.4;
+      double omega=-100000;
+      int iE=floor((log10(En)-LogEmin)/LogStepE);
+      int iT=floor((T-Tmin)/stepT);
+      int iOmega;
+      if(omega>0) iOmega=floor((log10(omega)-LogOmegaMin+(LogEmax-LogOmegaMin))/LogStepOmega+1);
+      if(omega<0) iOmega=floor((-log10(-omega)+LogOmegaMin+(LogEmax-LogOmegaMin))/LogStepOmega);
+
+      double fracO;
+      if(omega>0) 
+	fracO=(omega-(pow(10,((iOmega-1)*LogStepOmega-(LogEmax-LogOmegaMin)+LogOmegaMin))))
+	  /(pow(10,((iOmega)*LogStepOmega-(LogEmax-LogOmegaMin)+LogOmegaMin))
+	    -pow(10,((iOmega-1)*LogStepOmega-(LogEmax-LogOmegaMin)+LogOmegaMin)));
+
+      if(omega<0) 
+	fracO=(omega-(-pow(10,(-(iOmega)*LogStepOmega+LogEmax))))
+	  /((pow(10,(-(iOmega)*LogStepOmega+LogEmax)))-pow(10,(-(iOmega+1)*LogStepOmega+LogEmax)));
+
+      double fracE=(En-pow(10,(LogEmin+iE*LogStepE)))/(pow(10,(LogEmin+(iE+1)*LogStepE))-pow(10,(LogEmin+iE*LogStepE)));
+
+      double trval=(1-fracE)*
+	((1-fracO)*trqq[iE*(Tsize*omegaSize)+iT*omegaSize+iOmega]
+	 +fracO*trqq[iE*(Tsize*omegaSize)+iT*omegaSize+(iOmega+1)])
+	+fracE*((1-fracO)*trqq[(iE+1)*(Tsize*omegaSize)+iT*omegaSize+iOmega]
+		+fracO*trqq[(iE+1)*(Tsize*omegaSize)+iT*omegaSize+(iOmega+1)]);
+      
+      if(omega>0)
+	{
+	  cout << "omega=" << omega << ", iOmega=" << iOmega 
+	       << ", value at iOmega=" << pow(10,((iOmega-1)*LogStepOmega-(LogEmax-LogOmegaMin)+LogOmegaMin)) 
+	       << ", trval=" << trval << ", fracE=" << fracE 
+	       << ", fracO=" << fracO << ", value at iOmega: " 
+	       << trqq[iE*(Tsize*omegaSize)+iT*omegaSize+iOmega] << endl;
+	}
+      else
+	{
+	  cout << "omega=" << omega << ", iOmega=" << iOmega 
+	       << ", value at iOmega=" << -pow(10,(-(iOmega)*LogStepOmega+LogEmax)) 
+	       << ", trval=" << trval << ", fracE=" << fracE 
+	       << ", fracO=" << fracO << ", value at iOmega: " 
+	       << trqq[iE*(Tsize*omegaSize)+iT*omegaSize+iOmega] 
+	       << ", value at iOmega+1: " <<  trqq[iE*(Tsize*omegaSize)+iT*omegaSize+(iOmega+1)] << endl;
+	}    
+

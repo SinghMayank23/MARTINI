@@ -1,0 +1,16 @@
+AC_INIT([AMY-energy loss], [0.1],
+        [Bjoern Schenke <schenke@physics-mcgill.ca>],
+        [eloss])
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(rsph,0.1)
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_RANLIB
+#CXXFLAGS="-g"
+CXXFLAGS=""
+
+AC_SUBST(CXXFLAGS)
+
+AC_PROG_INSTALL
+
+AC_OUTPUT(Makefile doc/Makefile src/Makefile src/tools/Makefile src/main/Makefile)

@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -o nohup_MARTINI_main_test_Maxime_photons_FIC.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main_test_Maxime_photons_FIC.out
+#PBS -V
+#PBS -N MARTINI_main_test_Maxime_photons_FIC
+#PBS -l walltime=30:00:00
+
+writing_dir=noname
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+./main_Maxime_photons_FIC $main_Maxime_photons_FIC_var1 setup_main_Maxime_photons_FIC.dat $writing_dir

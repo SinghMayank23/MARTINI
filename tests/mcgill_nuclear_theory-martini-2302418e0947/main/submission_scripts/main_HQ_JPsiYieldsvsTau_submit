@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -l nodes=1:atreides:ppn=1
+#PBS -o nohup_MARTINI_main_HQ_JPsiYieldsvsTau.out
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e errors_MARTINI_main_HQ_JPsiYieldsvsTau.out
+#PBS -V
+#PBS -N MARTINI_main_HQ_JPsiYieldsvsTau
+#PBS -t 1-1
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main
+./main_HQ_JPsiYieldsvsTau $PBS_ARRAYID
