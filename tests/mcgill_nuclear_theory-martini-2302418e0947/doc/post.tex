@@ -1,0 +1,191 @@
+\chapter{Post processing}
+\label{post}\index{Post processing}
+\section{When using the original main.cpp}
+At this point in time (svn revision 18, 2010/02/12), the output files of one set of runs are:\\
+~\\
+{\small
+\begin{boxedverbatim}
+distances.dat           distribution of travelled distances [fm] of quarks and gluons with errors   
+distancesGluonPhi.dat   as above for gluons, colums are phi bins=0-15 15-30 30-45 45-60 60-75 75-90
+distancesQuarkPhi.dat   same for quarks
+gluonphi.dat            distribution of gluons vs. p_T [GeV] in different phi bins with errors
+quarkphi.dat            same for quarks
+partons.dat             distributions of quarks, gluons vs. p_T (no error)
+pi0.dat                 p_T distribution of pi0's with error
+pi0phi.dat              p_T distribution of pi0's in phi bins with error  
+pi+.dat                 p_T distribution of pi+'s with error
+pi-.dat                 p_T distribution of pi-'s with error
+hplus.dat               p_T distribution of positive hadrons with error 
+hminus.dat              p_T distribution of negative hadrons with error
+protons.dat             p_T distribution of protons with error
+anti-protons.dat        p_T distribution of anti-protons with error
+photons.dat             p_T distribution of all photons with error
+K0.dat                  p_T distribution of K_0 with error
+K0S.dat                 p_T distribution of K_0 short with error 
+K0L.dat                 p_T distribution of K_0 long with error
+K+.dat                  p_T distribution of K_+ with error
+K-.dat                  p_T distribution of K_- with error 
+electrons.dat           p_T distribution of e- with error
+positrons.dat           p_T distribution of e+ with error
+mu.dat                  p_T distribution of mu- with error
+muplus.dat              p_T distribution of mu+ with error
+rho0.dat                p_T distribution of rho_0 with error
+omega.dat               p_T distribution of omega with error
+eta.dat                 p_T distribution of eta meson with error
+phi.dat                 p_T distribution of phi meson with error
+JPsi.dat                p_T distribution of J/Psi with error
+theta.dat               binning of quarks in theta=atan(pt/pl) bins 
+x.dat                   initial positions of all partons in x [fm]
+y.dat                   initial positions of all partons in y [fm]
+xy.dat                  same in y,x (in that order) and the initial momentum [GeV] in x-direction
+r.dat                   initial distance from x=y=0 [fm]
+test.dat                shows random seed and progress during the run (not very important)
+\end{boxedverbatim}
+}
+~\\
+
+There are several c-shell scripts to extract important information from these files.
+Note that what I called error above is actually just the sum of squares of entries from individual runs.
+It is used to compute the standard deviation in post-processing.
+
+Now about the scripts:
+\begin{itemize}
+  \item #makeplot.csh#: run #./makeplot.csh N#, where #N# is the number of ``sub-runs'' to combine into the final result.
+    So if you had started 10 actual runs with say 10000 events each, you will find sub-folders #1# to #10# have been created.
+    Now running #./makeplot.csh 10# will combine these 10, compute the standard deviation and write the output ($p_T$ spectrum of $\pi^0$s with standard 
+    deviation) into the file #pi0.dat#. This will be the average over all 100000 events.
+    Using a number smaller than ten will only include the folders up to that number.
+    Will also generate #pijoined# using the result for pp collisions stored in pi0-pp.dat that you have to copy into the current folder before.
+    This is just the #pi0.dat# that you obtained the same way in a pp run and renamed and copied it here.
+    #pijoined# has $p_T$ in GeV in the first column, then the pp result and the error in the second and third respectively, then 
+    $p_T$ in GeV again (column 4 = column 1 - make sure that that is true, otherwise the binning in the pp and the AA calculation was different), and
+    then the columns AA result as in #pi0.dat#.
+
+    Needs #template_plot.csh# and #add.awk# and will create #iplot.csh# and execute it.
+
+  \item #makeDistanceplot.csh#: same principle. no errors. output: #distances.dat#. columns: distance in [fm], quark distribution, gluon distribution
+
+    Needs #template_DistancePlot.csh# and #addDistances.awk#, creates #iDistancePlot.csh# and runs it.
+
+  \item #makeDistancephiplot.csh#: same principle. no errors. output: #distancesQuarkPhi.dat#. columns: distance in [fm], quark distribution in the 
+    different phi bins. 
+
+    Needs #template_Distancephiplot.csh# and #addDistancePhi.awk#, creates #iDistancephiplot.csh# and runs it.
+
+  \item #makeDistancephiplotGluon.csh#: same principle. no errors. output: #distancesGluonPhi.dat#. columns: distance in [fm], gluon distribution in the 
+    different phi bins. 
+
+    Needs #template_DistancephiplotGluon.csh# and #addDistancePhi.awk#,\\ creates #iDistancephiplotGluon.csh# and runs it.
+
+  \item #makeKaonPlot.csh#: like #makeplot.csh# but for $K^+$. creates #K+.dat#, and #kaonjoined# if #K+-pp.dat# is there 
+    (same as with #makeplot.csh#).
+    
+    Needs #template_kaon_plot.csh# and #add.awk# and will create #ikaonplot.csh# and execute it.
+
+  \item #makeK-Plot.csh#: like #makeplot.csh# but for $K^-$. creates #K-.dat#, and #K-joined# if #K--pp.dat# is there 
+    (same as with #makeplot.csh#).
+    
+    Needs #template_K-_plot.csh# and #add.awk# and will create #iK-plot.csh# and execute it.
+  
+  \item #makephiplot.csh#: same principle. Will combine the results for $\pi^0$ in phi bins. creates #pi0phi.dat#.
+    Will also generate #piphijoined# using the result for pp collisions stored in pi0-pp.dat that you have to copy into the current folder before.
+    #piphijoined# has $p_T$ in GeV in the first column, then the pp result and the error in the second and third respectively, then 
+    $p_T$ in GeV again (column 4 = column 1 - make sure that that is true, otherwise the binning in the pp and the AA calculation was different), and
+    then the columns with the different phi-bins as in #pi0phi.dat#.
+
+    Needs #template_phiplot.csh# and #addphi.awk# and will create #iphiplot.csh# and execute it. Includes columns with standard deviation.
+   
+  \item #makephotonplot.csh#: like #makeplot.csh# but for photons. creates #photons.dat#.
+    Will also generate #photonsjoined# using the result for pp collisions stored in photons-pp.dat that you have to copy into the current folder before.
+    #photonsjoined# has $p_T$ in GeV in the first column, then the pp result and the error in the second and third respectively, then 
+    $p_T$ in GeV again (column 4 = column 1 - make sure that that is true, otherwise the binning in the pp and the AA calculation was different), and
+    then the columns AA result as in #photons.dat#.
+    
+    Needs #template_photon_plot.csh# and #add.awk# and will create #iphotonplot.csh# and execute it.
+
+  \item #makePi+Plot.csh#: like #makeplot.csh# but for $\pi^+$. creates #pi+.dat#, and #pi+joined# if #pi+-pp.dat# is there 
+    (same as with #makeplot.csh#).
+    
+    Needs #template_pi+_plot.csh# and #add.awk# and will create #ipi+plot.csh# and execute it.
+\end{itemize}
+
+These are all routines so far. Now let me give an example on how to plot the results:
+This will plot the $R_{AA}$ for $\pi^0$ for two different impact parameters using #gnuplot#\\
+~\\
+{\small
+\begin{boxedverbatim}
+set term post eps enhanced color font "Helvetica,26"
+set output 'raa.eps'
+
+set key top left Left
+set key reverse
+set key box
+set key width -13
+set key spacing 1.2
+set xlabel 'p_T [GeV]'
+set xrange [0:14]
+set yrange [0.0000000001:1]
+set style fill transparent solid 0.3 noborder
+
+set size 1,1.3
+set multiplot
+set size 1,0.7
+set ytics (0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9)
+plot\
+ '../data/phenix-prl-pi0-raa-central.txt' u 1:2:5 w e t 
+ '{/Helvetica=22 PHENIX Au+Au 200 GeV, 0-10 % central}' pt 7 ps 2 lw 3 lt -1 lc -1,\
+'pijoinednonaka17r039ptmin4.dat' every ::7::34 u ($1):($5/$2):(0.25):(($6/$2+$3*$5/($2*$2))) 
+notitle w boxxyerrorbars lw 3 lt -1 lc rgbcolor "#44AA44",\
+ 'pijoinednonaka17r039ptmin4.dat'  every ::7::35 u ($1-0.25):($5/$2) 
+ t '{/Helvetica=22 AMY + 3+1D Hydro {/Symbol a}_s=0.39 b=2.4 fm}' 
+ w steps lw 6 lt 2 lc rgbcolor "#117711",\
+'pijoinednonaka17el03ptmin2.dat'  every ::7::11 u ($1):($5/$2):(0.25):(($6/$2+$3*$5/($2*$2))) 
+notitle w boxxyerrorbars lw 3 lt -1 lc rgbcolor "#BB4444",\
+ 'pijoinednonaka17el03ptmin2.dat'  every ::7::12 u ($1-0.25):($5/$2) 
+ t '{/Helvetica=22 AMY + elastic + 3+1D Hydro {/Symbol a}_s=0.3 b=2.4 fm}' 
+ w steps lw 3 lt -1 lc rgbcolor "#BB1111",\
+'pijoinednonaka17el03ptmin4.dat'  every ::12::34 u ($1):($5/$2):(0.25):(($6/$2+$3*$5/($2*$2))) 
+notitle w boxxyerrorbars lw 3 lt -1 lc rgbcolor "#BB4444",\
+ 'pijoinednonaka17el03ptmin4.dat'  every ::12::35 u ($1-0.25):($5/$2) 
+ t '' w steps lw 3 lt -1 lc rgbcolor "#BB1111",\
+ 'pijoined03ptmin4nucb2.4-av'  every ::12::35 u ($1-0.25):($5/$2) 
+ t '' w steps lw 3 lt -1 lc rgbcolor "#BB11BB",\
+ '../data/phenix-prl-pi0-raa-central.txt' u 1:2:5 w e notitle pt 7 ps 2 lw 3 lt -1 lc -1
+
+unset xlabel
+set label '{/Symbol p}^0 R_{AA}' at graph -0.13, graph -0.15 rotate left
+unset xtics
+set size 1,0.6
+set origin 0,0.648
+set ytics (0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1)
+plot\
+ '../data/phenix-prl-pi0-raa-20-30.txt' u 1:2:5 w e 
+ t '{/Helvetica=22 PHENIX Au+Au 200 GeV, 20-30% central}' pt 7 ps 2 lw 3 lt -1 lc -1,\
+'pijoinednonaka17r039b7.5ptmin4.dat'  every ::7::34 u ($1):($5/$2):(0.25):(($6/$2+$3*$5/($2*$2))) 
+notitle w boxxyerrorbars lw 3 lt -1 lc rgbcolor "#44AA44",\
+'pijoinednonaka17r039b7.5ptmin4.dat'  every ::7::35 u ($1-0.25):($5/$2) 
+t '{/Helvetica=22 AMY + 3+1D Hydro {/Symbol a}_s=0.39 b=7.5 fm}' 
+w steps lw 6 lt 2 lc rgbcolor "#117711",\
+'pijoinednonaka17el03b7.5ptmin4.dat'  every ::7::34 u ($1):($5/$2):(0.25):(($6/$2+$3*$5/($2*$2))) 
+notitle w boxxyerrorbars lw 3 lt -1 lc rgbcolor "#BB4444",\
+ 'pijoinednonaka17el03b7.5ptmin4.dat'  every ::7::35 u ($1-0.25):($5/$2) 
+ t '{/Helvetica=22 AMY + elastic + 3+1D Hydro {/Symbol a}_s=0.3 b=7.5 fm}' 
+w steps lw 3 lt -1 lc rgbcolor "#BB1111",\
+ '../data/phenix-prl-pi0-raa-20-30.txt' u 1:2:5 w e notitle pt 7 ps 2 lw 3 lt -1 lc -1
+unset multiplot
+pause -1
+
+\end{boxedverbatim}
+
+~\\
+Note that all lines should be in one up to the ``#,\#''. I only write it this way to fit on a page.
+The files beginning with #pijoined# are just the #pijoined# that we got as an output and then renamed to indicate which run they are from.
+File beginning with #phenix# are experimental data.
+
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

@@ -1,0 +1,44 @@
+%add master reference to other files: C-c _ (unterstrich)
+\documentclass[11pt,letter,DIV11]{report}
+\usepackage{float,amsmath,amstext,amsthm,amssymb,amsfonts,color,colortbl}
+\usepackage[pdftex]{graphicx}
+%\usepackage{graphicx}
+\usepackage[nouppercase]{scrpage2}      % Seitenlayout nach Koma-Script
+\usepackage{makeidx}
+\usepackage{hyperref}
+\usepackage{moreverb}
+\usepackage{shortvrb}
+\usepackage{appendix}
+\usepackage{booktabs}
+\bibliographystyle{alpha}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\makeindex
+\definecolor{forest-green}{rgb}{0,0.4,0}
+
+\begin{document}
+
+\MakeShortVerb{\#}
+\definecolor{db}{rgb}{0,0.08,0.45}
+\definecolor{dg}{rgb}{0,0.45,0.08}
+\input{title}
+\tableofcontents
+\input{install}
+\input{usage}
+\input{hydro}
+\input{geometry}
+\input{radiative}
+\input{elastic}
+\input{photons}
+\input{fragmentation}
+\input{post}
+\appendix
+\bibliography{MARTINI}
+\printindex
+
+\end{document}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

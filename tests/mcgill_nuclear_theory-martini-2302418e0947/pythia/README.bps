@@ -1,0 +1,5 @@
+The main program is in ./main
+please note that this is just a test version incorporating pythia.
+it will be improved and I will try to get it to run using automake in the end.
+as of now use the Makefile in ./main to change included source or header files etc.
+02/05/2009

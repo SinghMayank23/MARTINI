@@ -1,0 +1,122 @@
+\chapter{Geometry}
+\label{geometry}\index{Geometry}\index{Glauber model}
+The initial nucleon-nucleon collisions are sampled using the Glauber model. The file
+#Glauber.cpp# contains all the relevant routines. There are two possible ways implemented.
+\section{Generate only one nucleon-nucleon collision per event}
+
+#generateSimpleEvent# in #MARTINI# just produces one nucleon-nucleon collision in a 
+heavy-ion background. This provides a simple way of calculating quantities like $R_{AA}$,
+because then we only have to take the ratio of the heavy-ion result over the pp result,
+disregarding the number of nucleon-nucleon collisions that we actually should have produced.
+The position in the transverse plane of the one nucleon-nucleon collision is determined
+by sampling the overlap function using #glauber->SamplePABRejection(random)# 
+(here #glauber# is a #Glauber# object). It returns a #ReturnValue# object, defined in 
+#Basics.h#: \\
+
+\begin{boxedverbatim}
+struct ReturnValue 
+{
+  double x;
+  double y;
+  int rejections;
+  int acceptances;
+};
+\end{boxedverbatim}\\
+
+~\\
+all what is needed is really the #x# and #y# value here.
+#glauber->SamplePABRejection(random)# samples #PAB(x,y)#, also defined in #Glauber.cpp#
+using the rejection method. There is also a #glauber->SamplePAB(random)#, which uses
+Metropolis, but it is currently unused.
+#PAB(x,y)# is given by the following expression:\\
+
+\begin{boxedverbatim}
+double Glauber::PAB(double x, double y)
+{
+  double s1=sqrt(pow(x+b/2.,2.)+y*y);
+  double s2=sqrt(pow(x-b/2.,2.)+y*y);
+  return InterNuPInSP(s1)*InterNuTInST(s2)/(currentTAB*LexusData.SigmaNN);
+}/* PAB */
+\end{boxedverbatim}\\
+
+~\\
+It returns 
+\begin{eqnarray}
+\mathcal{P}_{AB}(b,\mathbf{r}_\perp) &=& \frac{T_A(\mathbf{r}_\perp + \mathbf{b}/2)T_B(\mathbf{r}_\perp -
+\mathbf{b}/2)}{T_{AB}(b)},
+\end{eqnarray}
+note however that here #InterNuPInSP(s1)*InterNuTInST(s2)# is the product of particle
+numbers in the projectile and target, respectively ($T_A\,\sigma_{\rm inel}$).
+The additional factor of $\sigma_{\rm inel}^2$ is removed by dividing by #currentTAB#,
+which also has a factor of $\sigma_{\rm inel}$ and the explicit 
+$\sigma_{\rm inel}=$#LexusData.SigmaNN#.
+Important: because #currentTAB#, which holds the current value obtained from evaluating
+#double Glauber::TAB()# already contains a factor of $\sigma_{\rm inel}$, it is not 
+actually $T_{AB}$ but the total number of binary collisions.
+
+
+\section{Generate a full event}
+To generate a full event (using #generateEvent# in #MARTINI.cpp#) 
+with realistic fluctuations of the number of binary collisions
+we use a different approach than that explained above. Instead of sampling the overlap
+function, we sample the individual thickness functions $T_A$ and $T_B$ (using
+#void MARTINI::sampleTA()#, which calls #glauber->SampleTARejection(random)#) 
+to determine the number of nucleons in cells in the transverse plane of size 
+$\sigma_{\rm inel}=$#inelasticXSec#. We then overlay the two ``lattices'' depending
+on the impact parameter. We loop over all cells and the 
+number of nucleons on lattice A in the 
+current cell and on lattice B in the same cell
+and determine whether two nucleons collide depending on the probability
+$\sigma_{\rm jet}/\sigma_{\rm inel}$. If a collision happens we set its position to lie
+at a random transverse position \emph{within} the current cell.\\
+
+\begin{boxedverbatim} 
+for (int ix = 0; ix < ixmax; ix++) // loop over cells in x-direction
+   for (int iy = 0; iy < ixmax; iy++) // loop over cells in y-direction
+      {
+        for (int i = 0; i < nucALat[ix][iy]; i++) //nucleons of nucleus A in the cell
+           for (int j = 0; j < nucBLat[ix][iy]; j++) //nucleons of nucleus B in the cell
+               { ...
+\end{boxedverbatim}\\
+
+~\\
+$\sigma_{\rm jet}$ is provided by #PYTHIA# and depends on the minimum $p_T$ we chose
+in the beginning. Note that in full events we always need a minimum $p_T$ to be set,
+otherwise we may end up in a situation where $\sigma_{\rm jet}>\sigma_{\rm inel}$,
+since $\sigma_{\rm jet}$ is calculated perturbatively.
+
+Then at the positions where an event happens a PYTHIA evet is called using
+# pythia.next()#. PYTHIA perfromes its vaccum showers up to a scale given by $1/\tau_0$,
+the time when the hydro evolution starts.
+Partons are going to be moved in the evolution routine even before that time to take care
+of the shift in their position. This may be improved, because partons radiated in time-like
+showers in PYTHIA may not get the exactly correct position at $\tau_0$ doing this.
+Here we assume that all partons were generated at the initial position of the 
+nucleon-nucleon collision and then are moved according to their final momentum (final after
+the PYTHIA evolution) - this is not exactly right, but probably a good approximation.
+
+Finally we go through all partons that PYTHIA generated in one even,
+set the parton properties and add it to the list of partons (here we show a
+different order than in the program):\\
+
+\begin{boxedverbatim} 
+parton.id(pythia.event[ip].id());              // set parton id
+parton.status(pythia.event[ip].status());      // set parton status
+parton.mass(pythia.event[ip].m());             // set mass
+parton.x(xmin+(ix)*cellLength+xPositionInCell);// set position
+parton.y(xmin+(iy)*cellLength+yPositionInCell);
+parton.z(0.);
+parton.col(pythia.event[ip].col());            // set color 
+parton.acol(pythia.event[ip].acol());          // set anti-color
+parton.p(pythia.event[ip].p());                // set momentum
+plist->push_back(parton);                      // add the parton to the main list
+\end{boxedverbatim}\\
+
+~\\
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

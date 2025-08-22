@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -S /bin/sh
+#PBS -l host=shai-hulud
+#PBS -l walltime=200:00:00
+#PBS -V
+#PBS -N pyt_test
+
+cd ~/New_MARTINI/pythia8201
+
+g++ main_pp_LHC_pi-.cpp -I ./include -L ./lib -lpythia8 -lpythia8lhapdf5 -ldl
+./a.out

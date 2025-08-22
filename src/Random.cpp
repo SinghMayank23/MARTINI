@@ -251,3 +251,47 @@ double Random::thermal2(double k_min, double temp, int kind)
   p = p*temp;
   return p;
 }
+
+Vec4 Random::thermal_mass(double temp, int kind, double mass)
+{
+  // this algorithm uses 5.5/(1+px2) as envelope function and then uses the rejection method
+  // tan (Pi/2*x) is the inverse of the integral of the envelope function
+  // this can be improved
+  // kind: -1 = Boson
+  //        1 = Fermion
+  Vec4 p;
+  double gm = 5.5;
+  int repeat = 1;
+  double gx;
+  double px;
+  double cost, sint;
+  double phi;
+  double px2;
+  double ex;
+  do 
+    {
+      cost = 2*genrand64_real1() - 1.0;
+      sint = sqrt(1.0 - cost*cost);
+      phi = 2*M_PI*genrand64_real1();
+      px = tan (M_PI * genrand64_real1() / 2.0);
+      px2 = px*px;
+      ex = sqrt (px2 + mass*mass);
+      if (kind == 0)  gx = px2 * (1.0 + px2) * exp (- ex);
+      else if (kind == -1) gx = px2 * (1.0 + px2) * 1/(exp(ex)-1);
+      else if (kind == +1) gx = px2 * (1.0 + px2) * 1/(exp(ex)+1);
+      if ( genrand64_real1() < gx / gm) 
+	{
+	  repeat = 0;
+	  p.px(px * sint * cos(phi));
+	  p.py(px * sint * sin(phi));
+	  p.pz(px * cost );
+	  p.e(ex);
+      	} 
+      else if (gx > gm) 
+	{
+	}
+    } while (repeat);   
+  p = p*temp;
+  return p;
+}
+

@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -l nodes=1:atreides:ppn=1
+#PBS -o /dev/null
+#PBS -v PBS_O_SHELL=/bin/bash
+#PBS -e /dev/null
+#PBS -V
+#PBS -N main_JPsi_v2
+#PBS -t 1-800
+
+cd /homes/jorgen/clinty/junkdir/MARTINI/main_HQ
+./main_JPsi_v2 $PBS_ARRAYID

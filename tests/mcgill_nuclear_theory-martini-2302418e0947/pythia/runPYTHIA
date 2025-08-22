@@ -1,0 +1,10 @@
+#!/bin/bash
+#PBS -S /bin/sh
+#PBS -l host=jack
+#PBS -l walltime=200:00:00
+#PBS -N pyt_pTRtest
+
+cd ~/New_MARTINI/pythia
+
+g++ main_pp_LHC_pi-.cpp -I ./include -L ./lib/archive -lpythia8 -llhapdfdummy
+./a.out

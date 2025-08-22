@@ -1,0 +1,59 @@
+\chapter{Installation}
+\label{install}\index{Installation}
+\section{MARTINI}
+First just copy stuff in a directory. Details will follow once I know how it is distributed.
+#MARTINI# is the name of the directory with subdirs #main#, #pythia#, #hydro#, possibly #lhapdf# and #doc#. 
+
+\section{LHAPDF}
+To get nuclear effects like shadowing to work MARTINI requires the Les Houches Accord Parton Distribution Function interface.
+LHAPDF provides a unified and easy to use interface to modern PDF sets. It is designed to work not only with individual PDF 
+sets but also with the more recent multiple "error" sets. It can be viewed as the successor to PDFLIB, incorporating many
+of the older sets found in the latter, including pion and photon PDFs. 
+Download LHAPDF from #http://www.hepforge.org/downloads/lhapdf# and install following the instructions.
+
+After extracting the archive (to anywhere you like), in the main folder do\\
+#./configure --prefix=<absolute path to MARTINI>/lhapdf#\\
+Then\\
+#make#\\
+and\\
+#make install#\\
+#<absolute path to MARTINI># is e.g. #/homes/nazca/schenke/pbswork/MARTINI#.
+
+This will install LHAPDF as a sub folder into the MARTINI folder.
+Should you decide to install LHAPDF into a different folder you have to adjust the Makefiles.
+For one, change #MARTINI/main/src#
+so that you include the right path: change #-I ../../lhapdf/include# to your path to LHAPDF.
+Also adjust the Makefile in #MARTINI/main# so that #-L../lhapdf/lib -lLHAPDF# will be #-L <your path>/lib -lLHAPDF#.
+Finally, you need to set a global variable to locate the dynamic library. If using bash edit the file 
+#.bashrc# in your home directory and add:
+#export LD_LIBRARY_PATH=<absolute path to MARTINI>/lhapdf/lib#.
+
+Really, PYTHIA is the one that uses LHAPDF directly. But as long as MARTINI knows where it is PYTHIA will do too.
+
+You can also install LHAPDF as root under #/usr/share#, make sure however that you adjust the Makefiles accordingly.
+
+
+\section{PYTHIA}
+PYTHIA is located in #MARTINI/pythia#. Since we are using a slightly modified version of PYTHIA 8.1, it is at this point not
+recommended (in fact, it won't work) to put another version here. We will work on allowing for easy exchange of the PYTHIA
+version. To get everything running on a new mashine for the first time, before compiling MARTINI go to the #pythia# folder and do:\\
+#make clean#\\
+#./configure#\\
+#make#\\
+Now PYTHIA is ready.
+
+\section{MARTINI}
+Finally you can compile MARTINI. Just go to #MARTINI/main# and do\\
+#make#\\
+
+To enforce a new compilation do\\
+#make clean#\\
+#make#\\
+or do #make -B#
+ 
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

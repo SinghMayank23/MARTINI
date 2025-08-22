@@ -95,6 +95,7 @@ class Random
   double genrand64_real2(void);
   double genrand64_real3(void);
   Vec4 thermal(double temp, int kind);
+  Vec4 thermal_mass(double temp, int kind, double M);
   double thermal2(double k_min, double temp, int kind);
 };
 

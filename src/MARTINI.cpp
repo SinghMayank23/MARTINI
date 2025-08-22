@@ -20,6 +20,7 @@ MARTINI::MARTINI()
     random  = new Random();
     testing = new Testing();
     hydroSetup = new HydroSetup();
+    hqRates = new HQRates();
     glauber = new Glauber();
     settings.init();
     gsl_rand = gsl_rng_alloc(gsl_rng_taus);
@@ -35,6 +36,7 @@ MARTINI::~MARTINI()
     delete rates;
     delete testing;
     delete hydroSetup;
+    delete hqRates;
     delete glauber;
     delete gsl_rand;
     delete binary_info_ptr;
@@ -666,7 +668,7 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                   }// if(pRest/T>AMYpCut)
                   else
                   {
-		              randx = random->genrand64_real1();
+                  randx = random->genrand64_real1();
 
                       AccProb = 0.0;
                       NextProb = (dt/gamma*(qqRate))/totalQuarkProb; 
@@ -729,7 +731,7 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
           // no sense in implementing coherence effect here, either
           {
                 totalQuarkProb = dt/gamma*(qqRate)+dt/gamma*(qgRate)
-		               + dt/gamma*conversionqg+dt/gamma*conversionqgamma; 
+                   + dt/gamma*conversionqg+dt/gamma*conversionqgamma; 
                 // dt/gamma is dt_rest-frame
                 
                 if (totalQuarkProb>1)
@@ -818,7 +820,7 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                       newOne.z(z);
                       newOne.source(11); // AMY parton, gluon emitted from quark or anti-quark
                       newOne.recoil(plist->at(i).recoil());
-		      
+          
                       //Sangyong's addition for splits
                       daughter = plist->size(); // the position of daughter in the plist when push_back'ed
                       newOne.daughter_of(i); // daughter of the current parton
@@ -1262,8 +1264,8 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                               newOne.col(500000000+counter);
                               newOne.acol(0);
                               newHole.id(newID);
-			                  newHole.col(600000000+counter);
-			                  newHole.acol(0);
+                        newHole.col(600000000+counter);
+                        newHole.acol(0);
                           }
                           else  // thermal parton is anti-quark
                           {
@@ -1271,8 +1273,8 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                               newOne.col(0);
                               newOne.acol(500000000+counter);
                               newHole.id(-newID);
-			                  newHole.col(0);
-			                  newHole.acol(600000000+counter);
+                        newHole.col(0);
+                        newHole.acol(600000000+counter);
                           }
 
                           newOne.x(x);
@@ -1515,7 +1517,7 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                   else
                   {
                       totalGluonProb = dt/gamma*(gqRate)+dt/gamma*(ggRate)
-			             + dt/gamma*conversiongq;
+                   + dt/gamma*conversiongq;
                   }
                   if (totalGluonProb>1)
                   {
@@ -1579,7 +1581,7 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                       }// pRest/T > AMYpCut
                       else
                       {
-		                  randx = random->genrand64_real1();
+                      randx = random->genrand64_real1();
 
                           AccProb = 0.;
                           NextProb = (dt/gamma*(gqRate))/totalGluonProb; 
@@ -1628,7 +1630,7 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
               // no sense implementing coherence here
               {
                   totalGluonProb = dt/gamma*(gqRate)+dt/gamma*(ggRate)
-		                 + dt/gamma*conversiongq; // dt/gamma is dt_rest-frame
+                     + dt/gamma*conversiongq; // dt/gamma is dt_rest-frame
 
                   if (totalGluonProb>1) 
                       cout << "MARTINI:WARNING! total probability for quark to undergo process=" 
@@ -1685,8 +1687,8 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                   if(delp > pCut)
                   {
                       newOne.p(delp*vecp.px()/vecp.pAbs()*boostBack, // emitted gluon's momentum (coll) 
-              	               delp*vecp.py()/vecp.pAbs()*boostBack,
-              	               delp*vecp.pz()/vecp.pAbs()*boostBack); 
+                               delp*vecp.py()/vecp.pAbs()*boostBack,
+                               delp*vecp.pz()/vecp.pAbs()*boostBack); 
                       acol = plist->at(i).acol();            // the gluon's anti-color
                       plist->at(i).increment_hard_radiation(); // Rouz: increment hard radiation
                       plist->at(i).acol(1100000000+counter); // set the first new gluon's anti-color to a new one 
@@ -1757,7 +1759,7 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
           //pRest = p * gamma * (1.-beta*cosPhi); // boost p to fluid cell's rest frame
           if( radiate_gqq == 1 ) // g -> qq
           {
-	          if(pRest/T>AMYpCut) 
+            if(pRest/T>AMYpCut) 
               {
                   f = rates->findValuesRejection(pRest/T, T, alpha_s_rad, Nf, random, import, 2); // do process 2
                   delp = f.y*T;
@@ -1812,8 +1814,8 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                   plist->at(i).init_counts(); // Rouz: initialize counts for both since 
                   newOne.init_counts();       // this is sort of a conversion process
                   newOne.p(delp*vecp.px()/vecp.pAbs()*boostBack,   // second quark's momentum (collinear)
-                	       delp*vecp.py()/vecp.pAbs()*boostBack,
-                	       delp*vecp.pz()/vecp.pAbs()*boostBack); 
+                         delp*vecp.py()/vecp.pAbs()*boostBack,
+                         delp*vecp.pz()/vecp.pAbs()*boostBack); 
                   newOne.id(-newID);                                // second new particle is an anti-quark (minus-sign)
                   newOne.mass(mass);                                // set anti-quark's mass  
                   newOne.col(col_d);                                    // set anti-quark's color to zero
@@ -2138,8 +2140,8 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                                 newHole.col(1400000000+counter);
                                 newHole.acol(0);
                             }
-		                    else  // g qbar -> g qbar
-		                    {
+                        else  // g qbar -> g qbar
+                        {
                                 newOne.id(-newID);
                                 newOne.col(0);
                                 newOne.acol(1300000000+counter);
@@ -2147,7 +2149,7 @@ int MARTINI::evolve(vector<Parton>  *plist, vector<Source> *slist, int counter, 
                                 newHole.id(-newID);
                                 newHole.col(0);
                                 newHole.acol(1400000000+counter);
-		                    }
+                        }
 
                             newOne.x(x);
                             newOne.y(y);
@@ -3696,6 +3698,32 @@ bool MARTINI::init(int path_number)
     rateSelector = settings.mode("General:RadiativeRateSet");
     examineHQ = settings.mode("General:examineHQ");
     cout << "examineHQ = " << examineHQ << endl;
+    HQ_rate_type = settings.mode("General:HQ_rate_type");
+    HQ_Lattice_rate_factor = settings.parm("General:HQ_Lattice_rate_factor");
+    HQ_scat_rad_flag = settings.mode("General:HQ_scat_rad_flag");
+    HQ_rate_path = settings.word("General:HQ_rate_path");
+    coal_prob_path = settings.word("General:coal_prob_path");
+    do_coalesence = settings.flag("General:do_coalesence");
+    coal_sigma = settings.parm("General:coal_sigma");
+    coal_N_factor = settings.parm("General:coal_N_factor");
+    cout << "HQ_rate_type = " << HQ_rate_type << endl;
+    if (HQ_rate_type == 1 || HQ_rate_type ==2)
+    {
+      if (HQ_scat_rad_flag == 0)
+      {
+        cout << "Including both scattering and radiation" << endl;
+      } else if (HQ_scat_rad_flag == 1)
+      {
+        cout << "Including only scattering" << endl;
+      } else if (HQ_scat_rad_flag == 2)
+      {
+        cout << "Including only radiation" << endl;
+      } else
+      {
+        cout << "Invalid option of HQ_scat_rad_flag " << HQ_scat_rad_flag;
+        exit(1);
+      }
+    }
     setInitialPToZero = settings.mode("General:setInitialPToZero");
     cout << "setInitialPToZero = " << setInitialPToZero << endl;
     charmWidth = settings.parm("General:charmWidth");
@@ -3756,7 +3784,6 @@ bool MARTINI::init(int path_number)
         cout << "The chosen radiative rates are not available at the moment. Exiting." << endl;
         exit(1);
     }
-  
     if (settings.flag("General:RadiativeProcesses")) doRadiative=1;
     else doRadiative=0;
     if (settings.flag("General:ElasticCollisions")) doElastic=1;
@@ -3765,6 +3792,10 @@ bool MARTINI::init(int path_number)
     else transferTransverseMomentum=0;
     if (settings.flag("General:Evolution")) evolution=1;
     else evolution=0;
+    if (settings.flag("General:EvolutionShear")) evolutionshear=1;
+    else evolutionshear=0;
+    if (settings.flag("General:EvolutionBulk")) evolutionbulk=1;
+    else evolutionbulk=0;
     if (settings.flag("General:FixedEnergy")) fixedEnergy=1;
     else fixedEnergy=0;
     if (settings.flag("General:FixedTemperature")) fixedTemperature=1;
@@ -3773,6 +3804,8 @@ bool MARTINI::init(int path_number)
     else fragmentationSwitch=0;
     if (settings.flag("General:PhotonProduction")) photonSwitch=1;
     else photonSwitch=0;
+    if (settings.flag("General:prehydroevolution")) prehydroevolution=1;
+    else prehydroevolution=0;
     if (settings.flag("PDF:NuclearEffects")) nuclearEffects=1;
     else nuclearEffects=0;
 
@@ -3800,7 +3833,10 @@ bool MARTINI::init(int path_number)
     cout << "renormFacRad = " << renormFacRad << endl;
     renormFacElas = settings.parm("General:RenormFacElas");
     cout << "renormFacElas = " << renormFacElas << endl;
-    
+    prehydroTau0 = settings.parm("PreHydro:Tau0");
+    prehydroDtau = settings.parm("PreHydro:Dtau");
+    prehydroXmax = settings.parm("PreHydro:Xmax");
+    prehydroDx = settings.parm("PreHydro:Dx");
     hydroTau0 = settings.parm("Hydro:tau0");
     hydroTauMax = settings.parm("Hydro:taumax");
     hydroDtau = settings.parm("Hydro:dtau");
@@ -3833,10 +3869,15 @@ bool MARTINI::init(int path_number)
     nuclearPDFname = settings.word("PDF:nuclearPDF");
     
     nbinFromFile = settings.mode("General:Nbin_from_File");
-    string binary_filename = settings.word("General:Nbin_File_Name");
+    NColl = settings.mode("General:NColl");
+    binary_filename = settings.word("General:Nbin_File_Name");
     //Either the name of the evolution file, or a beginning tag for the 
     //file for the case nbinFromFile == 1. -CFY
     evolution_name = settings.word("General:evolution_name");
+    pre_evolution_name = settings.word("General:pre_evolution_name");
+    IPG_filename = settings.word("General:IPG_filename");
+    shear_name = settings.word("General:shear_name");
+    bulk_name = settings.word("General:bulk_name");
     //The number of collisions in the file, counted up from zero
     cout << "evolution_name = " << evolution_name << endl;
     cout << "binary_filename = " << binary_filename << endl;
@@ -3851,9 +3892,15 @@ bool MARTINI::init(int path_number)
         //binary_info_ptr->check_samples();
     }
         
+    if ( fixedTemperature == 0 and fixedEnergy == 0)
+        // init PYTHIA with given center of mass energy. will be changed for full AA collision.
+        initPythia();
     ///read in data files with transition rates
-    import->init(rateSelector);
-    rates   = new Rates(rateSelector);
+    if (examineHQ == 0)
+    {
+      import->init(rateSelector);
+      rates   = new Rates(rateSelector);
+    }
     if ( fixedTemperature == 0 and fixedEnergy == 0)
     {
           // initialize nuclei information
@@ -3923,7 +3970,7 @@ bool MARTINI::init(int path_number)
             cout << "[MARTINI]:WARNING: using nuclear effects - turned on LHAPDF against initial settings." << endl;
         pythia.readString("PDF:nuclearEffects = 1");
         stringstream PDFnameStr;
-        PDFnameStr << "PDF:pSet=LHAPDF6:" << PDFname << "/" << PDFmember;
+        PDFnameStr << "PDF:pSet=LHAPDF5:" << PDFname << "/" << PDFmember;
         pythia.readString(PDFnameStr.str());
         stringstream nuclearPDFnameStr;
         nuclearPDFnameStr << "PDF:nuclearPDF=" << nuclearPDFname;
@@ -3939,27 +3986,42 @@ bool MARTINI::init(int path_number)
         if(useLHAPDF) 
         {
             stringstream PDFnameStr;
-            PDFnameStr << "PDF:pSet=LHAPDF6:" << PDFname << "/" << PDFmember;
+            PDFnameStr << "PDF:pSet=LHAPDF5:" << PDFname << "/" << PDFmember;
             pythia.readString(PDFnameStr.str());
         }
         pythia.readString("PDF:nuclearEffects = 0");
     }
   
-    if ( fixedTemperature == 0 and fixedEnergy == 0)
-        // init PYTHIA with given center of mass energy. will be changed for full AA collision.
-        initPythia();
+//    if ( fixedTemperature == 0 and fixedEnergy == 0)
+//        // init PYTHIA with given center of mass energy. will be changed for full AA collision.
+//        initPythia();
 
     // read the hydro data from the data file(s)
+    if (prehydroevolution == 1 and fixedTemperature==0) 
+    {
+        hydroSetup->readPreHydroData(prehydroTau0, hydroTau0, prehydroDtau, 
+                                  prehydroXmax, prehydroDx, pre_evolution_name); 
+        cout << "OK after readPreHydroData" << endl;
+    }
     if (evolution and fixedTemperature==0) 
     {
         hydroSetup->readHydroData(hydroTau0, hydroTauMax, hydroDtau, 
                                   hydroXmax, hydroZmax, hydroDx, hydroDz, 
                                   hydro_nskip_tau, hydro_nskip_x, hydro_nskip_z,
-                                  hydroWhichHydro, hydroTfinal, tauEtaCoordinates, 
-                                  evolution_name); 
+                                  hydroWhichHydro, hydroTfinal, tauEtaCoordinates,
+                                  evolutionshear, evolutionbulk, 
+                                  evolution_name, shear_name, bulk_name); 
         cout << "OK after readHydroData" << endl;
         // update hydroTauMax according to the actual size of the hydro medium
         hydroTauMax = hydroSetup->get_hydro_tau_max();
+    }
+    if (examineHQ != 0)
+    {
+        if (HQ_rate_type == 1 || HQ_rate_type == 2)
+        {
+          hqRates->readHQRates(HQ_scat_rad_flag, HQ_rate_path); 
+        }
+	if (do_coalesence) hqRates->readCoalesenceProb(coal_prob_path);
     }
     if (trackHistory)
     {
@@ -4370,7 +4432,6 @@ double MARTINI::rInCMFrame(double *p1, double *p2, double *deltaX){
 int MARTINI::generateEventHeavyQuarks(vector<Parton> *plist)
 {
   pythia.event.reset();
-
   if (fullEvent==1)
     {
       // Sample Nu (which gives the number of nucleons at radial position r) for both nuclei
@@ -4380,15 +4441,14 @@ int MARTINI::generateEventHeavyQuarks(vector<Parton> *plist)
       //cout << "Number of binary collisions = " << glauber->TAB() << endl; 
       //cout << " A=" << glauber->nucleusA() << endl;
 
-      double A;
-      double Z;
       Parton parton;                               // new Parton object
       double b = glauberImpactParam;
       int posx;
       int posy;
       int n1=0;
       int n2=0;
-      double r = 1.2*pow(glauber->nucleusA(),1./3.);
+      double r = 1.2*pow(glauber->get_Projetile_A(), 1./3.);
+//      double r = 1.2*pow(glauber->nucleusA(),1./3.);
 
       nucleusA.clear();
       nucleusB.clear();
@@ -4408,30 +4468,30 @@ int MARTINI::generateEventHeavyQuarks(vector<Parton> *plist)
       int countCollisionsB[100];
 
       for (int i=0; i<100; i++)
-	{
-	  countCollisionsA[i]=0;
-	  countCollisionsB[i]=0;
-	}
+  {
+    countCollisionsA[i]=0;
+    countCollisionsB[i]=0;
+  }
 
       for (int i = 0; i < ixmax; i++)              // initialize cells: zero nucleons in every cell
-	for (int j = 0; j < ixmax; j++)
-	  {
-	    nucALat[i][j] = 0;
-	    nucBLat[i][j] = 0;
-	    collLat[i][j] = 0;
-	  }
+  for (int j = 0; j < ixmax; j++)
+    {
+      nucALat[i][j] = 0;
+      nucBLat[i][j] = 0;
+      collLat[i][j] = 0;
+    }
 
       for (int i = 0; i < nucleusA.size(); i++)    // fill nucleons into cells
-	{
-	  posx = floor((nucleusA.at(i).x-xmin-b/2.)/cellLength);
-	  posy = floor((nucleusA.at(i).y-xmin)/cellLength);
-	  nucALat[posx][posy] += 1;
-	      
-	  posx = floor((nucleusB.at(i).x-xmin+b/2.)/cellLength);
-	  posy = floor((nucleusB.at(i).y-xmin)/cellLength);
-	  nucBLat[posx][posy] += 1;
+  {
+    posx = floor((nucleusA.at(i).x-xmin-b/2.)/cellLength);
+    posy = floor((nucleusA.at(i).y-xmin)/cellLength);
+    nucALat[posx][posy] += 1;
+        
+    posx = floor((nucleusB.at(i).x-xmin+b/2.)/cellLength);
+    posy = floor((nucleusB.at(i).y-xmin)/cellLength);
+    nucBLat[posx][posy] += 1;
 
-	}
+  }
 
       int done;
       int numberOfpp;
@@ -4439,170 +4499,167 @@ int MARTINI::generateEventHeavyQuarks(vector<Parton> *plist)
       numberOfpp=0;
       //cout << "jetXSec=" << jetXSec << endl;
       //cout << "inelasticXSec=" << inelasticXSec << endl;
-      A=glauber->nucleusA();
-      if (A==197.) //gold - Au 
-	Z=79.; 
-      else if (A==63.) //copper - Cu
-	Z=29.;
-      else if (A==208.) //lead - Pb
-	Z=82.;
-      else
-	{
-	  Z=0;
-	}
+      int Projectile_A=glauber->get_Projetile_A();
+      int Target_A=glauber->get_Projetile_A();
+      int Projectile_Z = glauber->get_Projetile_Z();
+      int Target_Z = glauber->get_Projetile_Z();
       for (int ix = 0; ix < ixmax; ix++) 
-	for (int iy = 0; iy < ixmax; iy++)
-	  {
-	    for (int i = 0; i < nucALat[ix][iy]; i++)
-	      for (int j = 0; j < nucBLat[ix][iy]; j++)
-		{
-		  //cout << "ix+b/2=" << static_cast<int>(ix+b/2.) << " # there=" << nucALat[static_cast<int>(ix+b/2.)][iy] << endl;
-		  if ( random->genrand64_real1() < totalHQXSec/inelasticXSec )
-		    {
-		      countCollisionsA[i]+=1;
-		      countCollisionsB[j]+=1;
-		      double xPositionInCell = (random->genrand64_real1())*cellLength;
-		      double yPositionInCell = (random->genrand64_real1())*cellLength;
-		      // see if colliding nucleons are neutrons
-		      if ( random->genrand64_real1() > Z/A ) n1=1;
-		      else n1=0;
-		      if ( random->genrand64_real1() > Z/A ) n2=1;
-		      else n2=0;
+  for (int iy = 0; iy < ixmax; iy++)
+    {
+      for (int i = 0; i < nucALat[ix][iy]; i++)
+        for (int j = 0; j < nucBLat[ix][iy]; j++)
+    {
+      //cout << "ix+b/2=" << static_cast<int>(ix+b/2.) << " # there=" << nucALat[static_cast<int>(ix+b/2.)][iy] << endl;
+      if ( random->genrand64_real1() < totalHQXSec/inelasticXSec )
+        {
+          countCollisionsA[i]+=1;
+          countCollisionsB[j]+=1;
+          double xPositionInCell = (random->genrand64_real1())*cellLength;
+          double yPositionInCell = (random->genrand64_real1())*cellLength;
+          // see if colliding nucleons are neutrons
+          if ( random->genrand64_real1() > (double)Projectile_Z/(double)Projectile_A ) n1=2112;
+          else n1=2212;
+          if ( random->genrand64_real1() > (double)Target_Z/(double)Target_A ) n2=2112;
+          else n2=2212;
 
-		      int pythiaWorked = 0;
-		      while(pythiaWorked == 0){
-			pythiaWorked = pythia.next(n1,n2);
-		      }                                                // generate event with pythia
+          int pythiaWorked = 0;
+          while(pythiaWorked == 0){
+      pythiaWorked = pythia.next(n1,n2);
+          }                                                // generate event with pythia
 
-		      done = 0;
-		      for (int ip = 0; ip < pythia.event.size(); ++ip) 
-			{
-			  if (pythia.event[ip].status()>0 && (abs(pythia.event[ip].id())==4 || abs(pythia.event[ip].id()) == 5) )
-			    // If the parton is final, and is a heavy quark, then put it into the list.
-			    {
-			      parton.id(pythia.event[ip].id());                     // set parton id
-			      parton.status(pythia.event[ip].status());             // set parton status
-			      parton.mass(pythia.event[ip].m());                // set mass
-			      if (fixedTemperature==0)
-				{
-				  //Random numbers added to the initial positions:
-				  double dx, dy, dz;
-				  dx = dy = dz = 0.;
-				  if(abs(parton.id()) == 4 && charmWidth > 0.01){
-				    dx = gsl_ran_gaussian(gsl_rand, charmWidth);
-				    dy = gsl_ran_gaussian(gsl_rand, charmWidth);
-				  }
-				  if(abs(parton.id()) == 5 && bottomWidth > 0.01){
-				    dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
-				    dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
-				  }
+          done = 0;
+          for (int ip = 0; ip < pythia.event.size(); ++ip) 
+      {
+        if (pythia.event[ip].status()>0 && (abs(pythia.event[ip].id())==4 || abs(pythia.event[ip].id()) == 5) )
+          // If the parton is final, and is a heavy quark, then put it into the list.
+          {
+            parton.id(pythia.event[ip].id());                     // set parton id
+            parton.status(pythia.event[ip].status());             // set parton status
+            parton.mass(pythia.event[ip].m());                // set mass
+            if (fixedTemperature==0)
+        {
+          //Random numbers added to the initial positions:
+          double dx, dy, dz;
+          dx = dy = dz = 0.;
+          if(abs(parton.id()) == 4 && charmWidth > 0.01){
+            dx = gsl_ran_gaussian(gsl_rand, charmWidth);
+            dy = gsl_ran_gaussian(gsl_rand, charmWidth);
+          }
+          if(abs(parton.id()) == 5 && bottomWidth > 0.01){
+            dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
+            dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
+          }
 
-				  if( moveBeforeTau0 == 1){
-				    Vec4 partonP = pythia.event[ip].p();
-				    double pzP = partonP.pz();
-				    double EP = sqrt(pythia.event[ip].m()*pythia.event[ip].m()
-						     +partonP.px()*partonP.px()
-						     +partonP.py()*partonP.py()
-						     +partonP.pz()*partonP.pz() );
-				    double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
-				    dx += partonP.px()*dt/EP;
-				    dy += partonP.py()*dt/EP;
-				    dz += partonP.pz()*dt/EP;
-				  }
+          if( moveBeforeTau0 == 1){
+            Vec4 partonP = pythia.event[ip].p();
+            double pzP = partonP.pz();
+            double EP = sqrt(pythia.event[ip].m()*pythia.event[ip].m()
+                 +partonP.px()*partonP.px()
+                 +partonP.py()*partonP.py()
+                 +partonP.pz()*partonP.pz() );
+            double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
+            dx += partonP.px()*dt/EP;
+            dy += partonP.py()*dt/EP;
+            dz += partonP.pz()*dt/EP;
+          }
 
-				  parton.x(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
-				  parton.y(xmin+(iy)*cellLength+yPositionInCell+dy);
-				  parton.xini(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
-				  parton.yini(xmin+(iy)*cellLength+yPositionInCell+dy);
-				  parton.z(dz);
-				  parton.zini(dz);
-				  parton.tini(hydroTau0);
-				  //Set the old positions to be the current ones, for the first timestep:
-				  parton.xOld(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
-				  parton.yOld(xmin+(iy)*cellLength+yPositionInCell+dy);
-				  parton.zOld(dz);
-				  if ( done == 0 )
-				    {
-				      posx = floor((parton.x()-xmin)/cellLength);
-				      posy = floor((parton.y()-xmin)/cellLength);
-				      collLat[posx][posy] += 1;
-				                  
-				      //cout << numberOfpp << endl;
-				      numberOfpp++;
-				      done = 1;
-				    }
-				}
-			      else
-				{
-				  double dx, dy, dz;
-				  dx = dy = dz = 0.;
-				  if(abs(parton.id()) == 4){
-				    dx = gsl_ran_gaussian(gsl_rand, charmWidth);
-				    dy = gsl_ran_gaussian(gsl_rand, charmWidth);
-				  }
-				  if(abs(parton.id()) == 5){
-				    dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
-				    dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
-				  }
+          parton.x(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
+          parton.y(xmin+(iy)*cellLength+yPositionInCell+dy);
+//          parton.xini(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
+//          parton.yini(xmin+(iy)*cellLength+yPositionInCell+dy);
+          parton.z(dz);
+//          parton.zini(dz);
+//          parton.tini(hydroTau0);
+          //Set the old positions to be the current ones, for the first timestep:
+          parton.xOld(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
+          parton.yOld(xmin+(iy)*cellLength+yPositionInCell+dy);
+          parton.zOld(dz);
+          if ( done == 0 )
+            {
+              posx = floor((parton.x()-xmin)/cellLength);
+              posy = floor((parton.y()-xmin)/cellLength);
+              collLat[posx][posy] += 1;
+                          
+              //cout << numberOfpp << endl;
+              numberOfpp++;
+              done = 1;
+            }
+        }
+            else
+        {
+          double dx, dy, dz;
+          dx = dy = dz = 0.;
+          if(abs(parton.id()) == 4){
+            dx = gsl_ran_gaussian(gsl_rand, charmWidth);
+            dy = gsl_ran_gaussian(gsl_rand, charmWidth);
+          }
+          if(abs(parton.id()) == 5){
+            dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
+            dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
+          }
 
-				  if( moveBeforeTau0 == 1){
-				    Vec4 partonP = pythia.event[ip].p();
-				    double pzP = partonP.pz();
-				    double EP = sqrt(pythia.event[ip].m()*pythia.event[ip].m()
-						     +partonP.px()*partonP.px()
-						     +partonP.py()*partonP.py()
-						     +partonP.pz()*partonP.pz() );
-				    double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
-				    dx += partonP.px()*dt/EP;
-				    dy += partonP.py()*dt/EP;
-				    dz += partonP.pz()*dt/EP;
-				  }
+          if( moveBeforeTau0 == 1){
+            Vec4 partonP = pythia.event[ip].p();
+            double pzP = partonP.pz();
+            double EP = sqrt(pythia.event[ip].m()*pythia.event[ip].m()
+                 +partonP.px()*partonP.px()
+                 +partonP.py()*partonP.py()
+                 +partonP.pz()*partonP.pz() );
+            double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
+            dx += partonP.px()*dt/EP;
+            dy += partonP.py()*dt/EP;
+            dz += partonP.pz()*dt/EP;
+          }
 
-				  parton.x(dx);     
-				  parton.y(dy);
-				  parton.xini(dx);     
-				  parton.yini(dy);
-				  parton.z(dz);
-				  parton.zini(dz);
-				  parton.tini(0.);
-				  //Set the old positions to be the current ones, for the first timestep:
-				  parton.xOld(dx);     
-				  parton.yOld(dy);
-				  parton.zOld(dz);
-				}
-			      parton.col(pythia.event[ip].col());                 // set color 
-			      parton.acol(pythia.event[ip].acol());                 // set anti-color
-			      parton.frozen(0);                                     // parton is not frozen (will evolve)
-			      if(setInitialPToZero == 0){
-				parton.p(pythia.event[ip].p());  // set momentum
-				parton.pOld(pythia.event[ip].p());  // set momentum
-				parton.pini(pythia.event[ip].p());                    // set initial momentum
-			      }
-			      else{
-				parton.p(0.,0.,0.);
-				parton.pOld(0.,0.,0.);
-				Vec4 pinitial(pythia.event[ip].mass(),0.,0.,0.);
-				parton.pini(pinitial);                    // set initial momentum
-			      }
-			      parton.tFinal(0.);                                    // Set the initial freezeout time to zero
-			      parton.eventNumber(eventNumber);
-			      parton.elasticCollisions(0);                          // set initial no. of el colls to zero
-			      parton.source(0);                                     // All initial partons have itsSource=0
-			      plist->push_back(parton);                             // add the parton to the main list
-			    }
-			}
-		      eventNumber++;
-		    }
-		}
-	  }
+          parton.x(dx);     
+          parton.y(dy);
+//          parton.xini(dx);     
+//          parton.yini(dy);
+          parton.z(dz);
+//          parton.zini(dz);
+//          parton.tini(0.);
+          //Set the old positions to be the current ones, for the first timestep:
+          parton.xOld(dx);     
+          parton.yOld(dy);
+          parton.zOld(dz);
+        }
+            parton.col(pythia.event[ip].col());                 // set color 
+            parton.acol(pythia.event[ip].acol());                 // set anti-color
+            parton.frozen(0);                                     // parton is not frozen (will evolve)
+            parton.formed(0);                                     // parton is not formed immediately (will evolve)
+            parton.inhydro(0);                                     // parton is not formed immediately (will evolve)
+            if(setInitialPToZero == 0){
+        parton.p(pythia.event[ip].p());  // set momentum
+        parton.Initialp(pythia.event[ip].p());  // set momentum
+        parton.pOld(pythia.event[ip].p());  // set momentum
+//        parton.pini(pythia.event[ip].p());                    // set initial momentum
+            }
+            else{
+        parton.p(0.,0.,0.);
+        parton.Initialp(0.,0.,0.);
+        parton.pOld(0.,0.,0.);
+//        Vec4 pinitial(pythia.event[ip].mass(),0.,0.,0.);
+//        parton.pini(pinitial);                    // set initial momentum
+            }
+            parton.tFinal(0.);                                    // Set the initial freezeout time to zero
+//            parton.eventNumber(eventNumber);
+//            parton.elasticCollisions(0);                          // set initial no. of el colls to zero
+            parton.source(0);                                     // All initial partons have itsSource=0
+            plist->push_back(parton);                             // add the parton to the main list
+          }
+      }
+          eventNumber++;
+        }
+    }
+    }
 
       //Now, determine the partners of each heavy quark:
       for(int i = 0; i < plist->size(); i++){
-	if(i%2 == 0){
-	  plist->at(i).antiI(i+1);
-	}
-	else
-	  plist->at(i).antiI(i-1);
+  if(i%2 == 0){
+    plist->at(i).antiI(i+1);
+  }
+  else
+    plist->at(i).antiI(i-1);
       }
 
       totalNNs = eventNumber;
@@ -4613,25 +4670,25 @@ int MARTINI::generateEventHeavyQuarks(vector<Parton> *plist)
       ofstream fout4("./output/NN.dat",ios::app); 
       
       for (int i = 0; i < ixmax; i++)
-	for (int j = 0; j < ixmax; j++)
-	  {
-	    fout1 <<  i << " " << j << " " << nucALat[i][j] << endl;
-	    if ( j == ixmax-1 ) fout1 << endl;
-	  }
+  for (int j = 0; j < ixmax; j++)
+    {
+      fout1 <<  i << " " << j << " " << nucALat[i][j] << endl;
+      if ( j == ixmax-1 ) fout1 << endl;
+    }
       
       for (int i = 0; i < ixmax; i++)
-	for (int j = 0; j < ixmax; j++)
-	  {
-	    fout2 <<  i << " " << j << " " << nucBLat[i][j] << endl;
-	    if ( j == ixmax-1 ) fout2 << endl;
-	  }
+  for (int j = 0; j < ixmax; j++)
+    {
+      fout2 <<  i << " " << j << " " << nucBLat[i][j] << endl;
+      if ( j == ixmax-1 ) fout2 << endl;
+    }
       
       for (int i = 0; i < ixmax; i++)
-	for (int j = 0; j < ixmax; j++)
-	  {
-	    fout3 <<  i << " " << j << " " << collLat[i][j] << endl;
-	    if ( j == ixmax-1 ) fout3 << endl;
-	  }
+  for (int j = 0; j < ixmax; j++)
+    {
+      fout3 <<  i << " " << j << " " << collLat[i][j] << endl;
+      if ( j == ixmax-1 ) fout3 << endl;
+    }
       
       fout4 << numberOfpp << endl;
       
@@ -4644,139 +4701,855 @@ int MARTINI::generateEventHeavyQuarks(vector<Parton> *plist)
   else if (fullEvent==0) // sample only one hard collision per heavy-ion event
     {
       Parton parton;                                                // new Parton object
-      double A;
-      double Z;
       int n1;
       int n2;
-      A=glauber->nucleusA();
-      if (A==197.) //gold - Au 
-	Z=79.; 
-      else if (A==63.) //copper - Cu
-	Z=29.;
-      else if (A==208.) //lead - Pb
-	Z=82.;
-      else
-	{
-	  Z=0;
-	}
-      if ( random->genrand64_real1() > Z/A ) n1=1;
-      else n1=0;
-      if ( random->genrand64_real1() > Z/A ) n2=1;
-      else n2=0;
+      int Projectile_A = glauber->get_Projetile_A();
+      int Target_A = glauber->get_Target_A();
+      int Projectile_Z = glauber->get_Projetile_Z();
+      int Target_Z = glauber->get_Target_Z();
+      if ( random->genrand64_real1() > (double)Projectile_Z/(double)Projectile_A ) n1=2112;
+      else n1=2212;
+      if ( random->genrand64_real1() > (double)Target_Z/(double)Target_A ) n2=2112;
+      else n2=2212;
 
       int pythiaWorked = 0;
       while(pythiaWorked == 0){
-	pythiaWorked = pythia.next(n1,n2);                                                // generate event with pythia
+  pythiaWorked = pythia.next(n1,n2);                                                // generate event with pythia
       }
 
       ReturnValue rv;
       //if (evolution && fixedTemperature==0) 
       if (!allFromCenter)
-	{
-	  if(nbinFromFile == 1){
-	    //Sample a random element of the list of number of collisions. -CFY 11/2/2010
-	    double randomr = random->genrand64_real2();
-	    int randomint = (int)(randomr*((double)Nbin));
-	    rv.x = binary[randomint][0];
-	    rv.y = binary[randomint][1];
-	  }
-	  else if (glauberEnvelope)
-	    rv=glauber->SamplePAB(random);          // determine position in x-y plane from Glauber model with Metropolis
-	  else
-	    rv=glauber->SamplePABRejection(random); // determine position in x-y plane from Glauber model with rejection method
-	  cout << "rv.x = " << rv.x << ", rv.y = " << rv.y << endl;
-	}
+  {
+    if(nbinFromFile == 1){
+      //Sample a random element of the list of number of collisions. -CFY 11/2/2010
+      double randomr = random->genrand64_real2();
+      int randomint = (int)(randomr*((double)Nbin));
+      rv.x = binary[randomint][0];
+      rv.y = binary[randomint][1];
+    }
+    else if (glauberEnvelope)
+      rv=glauber->SamplePAB(random);          // determine position in x-y plane from Glauber model with Metropolis
+    else
+      rv=glauber->SamplePABRejection(random); // determine position in x-y plane from Glauber model with rejection method
+    cout << "rv.x = " << rv.x << ", rv.y = " << rv.y << endl;
+  }
       else
-	{
-	  rv.x=0.;
-	  rv.y=0.;
-	}
+  {
+    rv.x=0.;
+    rv.y=0.;
+  }
       if (trackHistory)
-	{
-	  rv.x=initialXjet;
-	  rv.y=initialYjet;
-	}
+  {
+    rv.x=initialXjet;
+    rv.y=initialYjet;
+  }
       for (int i = 0; i < pythia.event.size(); ++i) 
-	{
-	  if (pythia.event[i].isFinal() && (abs(pythia.event[i].id()) == 4 || abs(pythia.event[i].id()) == 5) )
-	    {
-	      double dx, dy, dz;
-	      dx = dy = dz = 0.;
-	      if(abs(pythia.event[i].id() ) == 4){
-		dx = gsl_ran_gaussian(gsl_rand, charmWidth);
-		dy = gsl_ran_gaussian(gsl_rand, charmWidth);
-	      }
-	      if(abs(pythia.event[i].id() ) == 5){
-		dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
-		dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
-	      }
+  {
+    if (pythia.event[i].isFinal() && (abs(pythia.event[i].id()) == 4 || abs(pythia.event[i].id()) == 5) )
+      {
+        double dx, dy, dz;
+        dx = dy = dz = 0.;
+        if(abs(pythia.event[i].id() ) == 4){
+    dx = gsl_ran_gaussian(gsl_rand, charmWidth);
+    dy = gsl_ran_gaussian(gsl_rand, charmWidth);
+        }
+        if(abs(pythia.event[i].id() ) == 5){
+    dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
+    dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
+        }
 
-	      if( moveBeforeTau0 == 1){
-		Vec4 partonP = pythia.event[i].p();
-		double pzP = partonP.pz();
-		double EP = sqrt(pythia.event[i].m()*pythia.event[i].m()
-				 +partonP.px()*partonP.px()
-				 +partonP.py()*partonP.py()
-				 +partonP.pz()*partonP.pz() );
-		double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
-		dx += partonP.px()*dt/EP;
-		dy += partonP.py()*dt/EP;
-		dz += partonP.pz()*dt/EP;
-	      }
+        if( moveBeforeTau0 == 1){
+    Vec4 partonP = pythia.event[i].p();
+    double pzP = partonP.pz();
+    double EP = sqrt(pythia.event[i].m()*pythia.event[i].m()
+         +partonP.px()*partonP.px()
+         +partonP.py()*partonP.py()
+         +partonP.pz()*partonP.pz() );
+    double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
+    dx += partonP.px()*dt/EP;
+    dy += partonP.py()*dt/EP;
+    dz += partonP.pz()*dt/EP;
+        }
 
-	      parton.id(pythia.event[i].id());                      // set parton id
-	      parton.status(pythia.event[i].status());              // set parton status
-	      parton.mass(pythia.event[i].m());                // set mass
-	                  
-	      parton.x(rv.x+dx);                                   // set position
-	      parton.y(rv.y+dy);
-	      if (fixedTemperature==0)
-		parton.tini(hydroTau0);
-	      else
-		parton.tini(0.);
-	      parton.xini(rv.x+dx);                                // set initial position to remember
-	      parton.yini(rv.y+dy);
-	                  
-	      parton.z(dz);
-	      parton.zini(dz);
-	      //Set the old positions to be the current ones, for the first timestep:
-	      parton.xOld(rv.x+dx);                                   // set position
-	      parton.yOld(rv.y+dy);
-	      parton.zOld(dz);
-	      parton.col(pythia.event[i].col());                 // set color 
-	      parton.acol(pythia.event[i].acol());                  // set anti-color
-	      parton.frozen(0);                                     // parton is not frozen (will evolve)
-	      if(setInitialPToZero == 0){
-		parton.p(pythia.event[i].p());                        // set momentum
-		parton.pOld(pythia.event[i].p());                        // set momentum
-		parton.pini(pythia.event[i].p());                     // set momentum
-	      }
-	      else{
-		parton.p(0.,0.,0.);                                   // set momentum
-		parton.pOld(0.,0.,0.);                                   // set momentum
-		Vec4 pinitial(pythia.event[i].mass(), 0.,0.,0.);
-		parton.pini(pinitial);                               // set momentum
-	      }
-	      parton.tFinal(0.);                                    // Set the freezeout time initially to zero
-	      parton.elasticCollisions(0);                          // set initial no. of el colls to zero
-	      //parton.splits(0);                                   // set initial no. of splittings to zero
-	      parton.source(0);                                     // All intial partons have itsSource=0
-	      plist->push_back(parton);                             // add the parton to the main list
-	    }
-	}
+        parton.id(pythia.event[i].id());                      // set parton id
+        parton.status(pythia.event[i].status());              // set parton status
+        parton.mass(pythia.event[i].m());                // set mass
+                    
+        parton.x(rv.x+dx);                                   // set position
+        parton.y(rv.y+dy);
+//        if (fixedTemperature==0)
+//    parton.tini(hydroTau0);
+//        else
+//    parton.tini(0.);
+//        parton.xini(rv.x+dx);                                // set initial position to remember
+//        parton.yini(rv.y+dy);
+                    
+        parton.z(dz);
+//        parton.zini(dz);
+        //Set the old positions to be the current ones, for the first timestep:
+        parton.xOld(rv.x+dx);                                   // set position
+        parton.yOld(rv.y+dy);
+        parton.zOld(dz);
+        parton.col(pythia.event[i].col());                 // set color 
+        parton.acol(pythia.event[i].acol());                  // set anti-color
+        parton.frozen(0);                                     // parton is not frozen (will evolve)
+        parton.formed(0);                                     // parton is not formed immediately (will evolve)
+        parton.inhydro(0);                                     // parton is not formed immediately (will evolve)
+        if(setInitialPToZero == 0){
+    parton.p(pythia.event[i].p());                        // set momentum
+    parton.Initialp(pythia.event[i].p());                        // set momentum
+    parton.pOld(pythia.event[i].p());                        // set momentum
+//    parton.pini(pythia.event[i].p());                     // set momentum
+        }
+        else{
+    parton.p(0.,0.,0.);                                   // set momentum
+    parton.Initialp(0.,0.,0.);                                   // set momentum
+    parton.pOld(0.,0.,0.);                                   // set momentum
+//    Vec4 pinitial(pythia.event[i].mass(), 0.,0.,0.);
+//    parton.pini(pinitial);                               // set momentum
+        }
+        parton.tFinal(0.);                                    // Set the freezeout time initially to zero
+//        parton.elasticCollisions(0);                          // set initial no. of el colls to zero
+        //parton.splits(0);                                   // set initial no. of splittings to zero
+        parton.source(0);                                     // All intial partons have itsSource=0
+        plist->push_back(parton);                             // add the parton to the main list
+      }
+  }
 
       //Now, determine the partners of each heavy quark:
       for(int i = 0; i < plist->size(); i++){
-	if(i%2 == 0){
-	  plist->at(i).antiI(i+1);
-	}
-	else
-	  plist->at(i).antiI(i-1);
+  if(i%2 == 0){
+    plist->at(i).antiI(i+1);
+  }
+  else
+    plist->at(i).antiI(i-1);
       }
 
       return 1;
     }
 }
+
+int MARTINI::generateEventHeavyQuarks_w_colllist_OR_IPGfile(vector<Parton> *plist)
+{
+  pythia.event.reset();
+  if (fullEvent==1)
+  {
+    Parton parton;                               // new Parton object
+    int n1=0;
+    int n2=0;
+    string dummy;
+    vector<ReturnValue> BinaryColl;
+
+    if(nbinFromFile == 1)
+    {
+      ifstream fin(binary_filename.c_str());
+      if(!fin)
+      {
+        cout << "ERROR: " << binary_filename << " not found." << endl;
+        exit(1);
+      }
+      while (true) {
+        ReturnValue rv;
+        double collx, colly;
+        int dum;
+        getline(fin, dummy);
+        stringstream ss(dummy);;
+
+        ss >> collx >> colly;
+        if (fin.eof()) break;
+
+        rv.x = collx;
+        rv.y = colly;
+        BinaryColl.push_back(rv);
+      }
+    } else
+    {
+      ifstream fin(IPG_filename.c_str());
+      if(!fin)
+      {
+        cout << "ERROR: " << IPG_filename << " not found." << endl;
+        exit(1);
+      }
+      double **ener_density,**cdf_xy, *cdf_x, dx, dy;
+      int nx, ny;
+
+      fin  >> dummy >> dummy >> dummy >> nx >> dummy >> ny
+           >> dummy >> dummy >> dummy >> dx >> dummy >> dy;
+      ener_density = new double* [nx];
+      cdf_xy = new double* [nx];
+      cdf_x  = new double[nx];
+      for (int ix = 0; ix < nx; ix++)
+      {
+        ener_density[ix] = new double[ny];
+        cdf_xy[ix] = new double[ny];
+      }
+
+      double tot_ener_dens = 0.;
+      double density;
+      for (int ix = 0; ix < nx; ix++) {
+       for (int iy = 0; iy < ny; iy++) {
+            std::getline(fin, dummy);
+            std::stringstream ss(dummy);
+            ss >> dummy >> dummy >> dummy
+               >> density >> dummy >> dummy >> dummy >> dummy
+               >> dummy >> dummy >> dummy >> dummy >> dummy
+               >> dummy >> dummy >> dummy >> dummy >> dummy;
+            ener_density[ix][iy] = density;
+            tot_ener_dens += density;
+        }
+        std::getline(fin, dummy);
+      }
+      fin.close();
+
+      for (int ix = 0; ix < nx; ix++) {
+         double tot_dens = 0.;
+         for (int iy = 0; iy < ny; iy++)
+           tot_dens += ener_density[ix][iy];
+         cdf_x[ix] = tot_dens;
+         cdf_xy[ix][0] = ener_density[ix][0]/(tot_dens+1.e-10);
+         for (int iy = 1; iy < ny; iy++)
+           cdf_xy[ix][iy] = cdf_xy[ix][iy-1] + ener_density[ix][iy]/(tot_dens+1.e-10);
+      }
+
+      cdf_x[0] /= tot_ener_dens;
+      for (int ix = 1; ix < nx; ix++)
+        cdf_x[ix] = cdf_x[ix-1] + cdf_x[ix]/tot_ener_dens;
+      
+      for (int ii = 0; ii < NColl; ii++)
+      {
+        ReturnValue rv;
+        double collx, colly;
+        double rand1 = random->genrand64_real1();
+        double rand2 = random->genrand64_real1();
+        for (int ix = 0; ix < nx; ix++)
+        {
+          int icoll_x;
+          if (rand1 >= cdf_x[ix] && rand1 < cdf_x[ix+1] )
+          {
+            icoll_x = ix;
+            int icoll_y;
+            for (int iy = 0; iy < ny; iy++)
+            {
+              if (rand2 >= cdf_xy[icoll_x][iy] && rand2 <= cdf_xy[icoll_x][iy+1])
+              {
+                icoll_y = iy;
+                 collx = (-0.5*((double)nx)+((double)icoll_x))*dx;
+                 collx += dx*(rand1 - cdf_x[icoll_x]);
+                 colly = (-0.5*((double)ny)+((double)icoll_y))*dy;
+                 colly += dx*(rand2 - cdf_xy[icoll_x][icoll_y]);
+                 break;
+              }
+            }
+            break;
+          }
+        }
+        rv.x = collx;
+        rv.y = colly;
+        BinaryColl.push_back(rv);
+      }
+      for (int ix = 0; ix < nx; ix++)
+      {
+        delete[] ener_density[ix];
+        delete[] cdf_xy[ix];
+      }
+      delete[] ener_density;
+      delete[] cdf_xy;
+      delete[] cdf_x;
+      //while (true) {
+      //  ReturnValue rv;
+      //  double collx, colly;
+      //  int dum;
+      //  getline(fin, dummy);
+      //  stringstream ss(dummy);;
+
+      //  ss >> dum >> collx >> colly;
+      //  if (fin.eof()) break;
+
+      //  rv.x = collx;
+      //  rv.y = colly;
+      //  BinaryColl.push_back(rv);
+      //}
+    }
+
+    int done;
+    int numberOfpp;
+    int eventNumber=0;
+    numberOfpp=0;
+    int number_of_binary_collisions = BinaryColl.size();
+//    cout << "Number of binary collisions = " << number_of_binary_collisions << endl;
+    int Projectile_A=glauber->get_Projetile_A();
+    int Target_A=glauber->get_Projetile_A();
+    int Projectile_Z = glauber->get_Projetile_Z();
+    int Target_Z = glauber->get_Projetile_Z();
+    for (int icoll = 0; icoll < number_of_binary_collisions; icoll++)
+    { 
+      if ( random->genrand64_real1() < totalHQXSec/inelasticXSec )
+      {
+        if ( random->genrand64_real1() > (double)Projectile_Z/(double)Projectile_A ) n1=2112;
+        else n1=2212;
+        if ( random->genrand64_real1() > (double)Target_Z/(double)Target_A ) n2=2112;
+        else n2=2212;
+
+	int pythiaWorked = 0;
+        while(pythiaWorked == 0){
+          pythiaWorked = pythia.next(n1,n2);
+        }                                                // generate event with pythia
+
+        done = 0;
+        for (int ip = 0; ip < pythia.event.size(); ++ip) 
+        {
+          if (pythia.event[ip].status()>0 && (abs(pythia.event[ip].id())==4 || abs(pythia.event[ip].id()) == 5) )
+          // If the parton is final, and is a heavy quark, then put it into the list.
+          {
+            parton.id(pythia.event[ip].id());                     // set parton id
+            parton.status(pythia.event[ip].status());             // set parton status
+            parton.mass(pythia.event[ip].m());                // set mass
+            if (fixedTemperature==0)
+            {
+              //Random numbers added to the initial positions:
+              double dx, dy, dz;
+              dx = dy = dz = 0.;
+              if(abs(parton.id()) == 4 && charmWidth > 0.01)
+              {
+                dx = gsl_ran_gaussian(gsl_rand, charmWidth);
+                dy = gsl_ran_gaussian(gsl_rand, charmWidth);
+              }
+              if(abs(parton.id()) == 5 && bottomWidth > 0.01)
+              {
+                dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
+                dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
+              }
+
+              if( moveBeforeTau0 == 1)
+              {
+                Vec4 partonP = pythia.event[ip].p();
+                double pzP = partonP.pz();
+                double EP = sqrt(pythia.event[ip].m()*pythia.event[ip].m()
+                     +partonP.px()*partonP.px()
+                     +partonP.py()*partonP.py()
+                     +partonP.pz()*partonP.pz() );
+                double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
+                dx += partonP.px()*dt/EP;
+                dy += partonP.py()*dt/EP;
+                dz += partonP.pz()*dt/EP;
+              }
+
+              parton.x(BinaryColl[icoll].x+dx);       // set position
+              parton.y(BinaryColl[icoll].y+dy);
+              parton.z(dz);
+	      parton.prevtau(0.);
+              //Set the old positions to be the current ones, for the first timestep:
+              parton.xOld(BinaryColl[icoll].x+dx);       // set position
+              parton.yOld(BinaryColl[icoll].y+dy);
+              parton.zOld(dz);
+              if ( done == 0 )
+              {
+                numberOfpp++;
+                done = 1;
+              }
+            }
+            else
+            {
+              double dx, dy, dz;
+              dx = dy = dz = 0.;
+              if(abs(parton.id()) == 4)
+              {
+                dx = gsl_ran_gaussian(gsl_rand, charmWidth);
+                dy = gsl_ran_gaussian(gsl_rand, charmWidth);
+              }
+              if(abs(parton.id()) == 5)
+              {
+                dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
+                dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
+              }
+
+              if( moveBeforeTau0 == 1)
+              {
+                Vec4 partonP = pythia.event[ip].p();
+                double pzP = partonP.pz();
+                double EP = sqrt(pythia.event[ip].m()*pythia.event[ip].m()
+                     +partonP.px()*partonP.px()
+                     +partonP.py()*partonP.py()
+                     +partonP.pz()*partonP.pz() );
+                double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
+                dx += partonP.px()*dt/EP;
+                dy += partonP.py()*dt/EP;
+                dz += partonP.pz()*dt/EP;
+              }
+
+              parton.x(dx);     
+              parton.y(dy);
+              parton.z(dz);
+              //Set the old positions to be the current ones, for the first timestep:
+              parton.xOld(dx);     
+              parton.yOld(dy);
+              parton.zOld(dz);
+            }
+            parton.col(pythia.event[ip].col());                 // set color 
+            parton.acol(pythia.event[ip].acol());                 // set anti-color
+            parton.frozen(0);                                     // parton is not frozen (will evolve)
+            parton.formed(0);                                     // parton is not immediately formed
+            parton.inhydro(0);                                     // parton is not immediately formed
+            if(setInitialPToZero == 0)
+            {
+              parton.p(pythia.event[ip].p());  // set momentum
+              parton.Initialp(pythia.event[ip].p());  // set momentum
+              parton.pOld(pythia.event[ip].p());  // set momentum
+            }
+            else
+            {
+              parton.p(0.,0.,0.);
+              parton.Initialp(0.,0.,0.);
+              parton.pOld(0.,0.,0.);
+            }
+            parton.tFinal(0.);                                    // Set the initial freezeout time to zero
+            parton.source(0);                                     // All initial partons have itsSource=0
+            plist->push_back(parton);                             // add the parton to the main list
+          }
+        }
+        eventNumber++;
+      }
+    }
+
+    //Now, determine the partners of each heavy quark:
+    for(int i = 0; i < plist->size(); i++)
+    {
+      if(i%2 == 0)
+      {
+        plist->at(i).antiI(i+1);
+      }
+      else
+      plist->at(i).antiI(i-1);
+    }
+
+    totalNNs = eventNumber;
+    ofstream fout4("./output/NN.dat",ios::app); 
+      
+    fout4 << numberOfpp << endl;
+      
+    fout4.close();
+    return eventNumber;
+  }
+  else // sample only one hard collision per heavy-ion event
+  {
+    cout << "ERROR: generateEventHeavyQuarks_withBinaryCollisionsList works only for fill events and not for only one HQ per collision" << endl;
+    exit(1);
+  }
+}
+//int MARTINI::generateEventHeavyQuarks(vector<Parton> *plist)
+//{
+//  pythia.event.reset();
+//
+//  if (fullEvent==1)
+//    {
+//      // Sample Nu (which gives the number of nucleons at radial position r) for both nuclei
+//      // then lay them on top of each other and sample the number of charm and bottom events with 
+//      // area = totalHQXSec.
+//      
+//      //cout << "Number of binary collisions = " << glauber->TAB() << endl; 
+//      //cout << " A=" << glauber->nucleusA() << endl;
+//
+//      double A;
+//      double Z;
+//      Parton parton;                               // new Parton object
+//      double b = glauberImpactParam;
+//      int posx;
+//      int posy;
+//      int n1=0;
+//      int n2=0;
+////      double r = 1.2*pow(glauber->nucleusA(),1./3.);
+//      double r = 1.2*pow(nucleusA(),1./3.);
+//
+//      nucleusA.clear();
+//      nucleusB.clear();
+//      sampleTA();                                  // populate the lists nucleusA and nucleusB with position data of the nucleons
+//
+//      double cellLength = sqrt(inelasticXSec*0.1); // compute cell length in fm (1 mb = 0.1 fm^2)
+//      double latticeLength = 4.*r;                 // spread the lattice 2r in both (+/-) directions (total length = 4r)
+//      int ixmax = ceil(latticeLength/cellLength);
+//      ixmax*=2;
+//      double xmin = -latticeLength;
+//      
+//      int nucALat[ixmax][ixmax];                   // lattice with ixmax*ixmax cells for nucleus A
+//      int nucBLat[ixmax][ixmax];                   // lattice with ixmax*ixmax cells for nucleus B
+//      int collLat[ixmax][ixmax];                   // lattice with the positions of the interactions -> for information only
+//
+//      int countCollisionsA[100];
+//      int countCollisionsB[100];
+//
+//      for (int i=0; i<100; i++)
+//  {
+//    countCollisionsA[i]=0;
+//    countCollisionsB[i]=0;
+//  }
+//
+//      for (int i = 0; i < ixmax; i++)              // initialize cells: zero nucleons in every cell
+//  for (int j = 0; j < ixmax; j++)
+//    {
+//      nucALat[i][j] = 0;
+//      nucBLat[i][j] = 0;
+//      collLat[i][j] = 0;
+//    }
+//
+//      for (int i = 0; i < nucleusA.size(); i++)    // fill nucleons into cells
+//  {
+//    posx = floor((nucleusA.at(i).x-xmin-b/2.)/cellLength);
+//    posy = floor((nucleusA.at(i).y-xmin)/cellLength);
+//    nucALat[posx][posy] += 1;
+//        
+//    posx = floor((nucleusB.at(i).x-xmin+b/2.)/cellLength);
+//    posy = floor((nucleusB.at(i).y-xmin)/cellLength);
+//    nucBLat[posx][posy] += 1;
+//
+//  }
+//
+//      int done;
+//      int numberOfpp;
+//      int eventNumber=0;
+//      numberOfpp=0;
+//      //cout << "jetXSec=" << jetXSec << endl;
+//      //cout << "inelasticXSec=" << inelasticXSec << endl;
+//      //A=glauber->nucleusA();
+//      A=nucleusA();
+//      if (A==197.) //gold - Au 
+//  Z=79.; 
+//      else if (A==63.) //copper - Cu
+//  Z=29.;
+//      else if (A==208.) //lead - Pb
+//  Z=82.;
+//      else
+//  {
+//    Z=0;
+//  }
+//      for (int ix = 0; ix < ixmax; ix++) 
+//  for (int iy = 0; iy < ixmax; iy++)
+//    {
+//      for (int i = 0; i < nucALat[ix][iy]; i++)
+//        for (int j = 0; j < nucBLat[ix][iy]; j++)
+//    {
+//      //cout << "ix+b/2=" << static_cast<int>(ix+b/2.) << " # there=" << nucALat[static_cast<int>(ix+b/2.)][iy] << endl;
+//      if ( random->genrand64_real1() < totalHQXSec/inelasticXSec )
+//        {
+//          countCollisionsA[i]+=1;
+//          countCollisionsB[j]+=1;
+//          double xPositionInCell = (random->genrand64_real1())*cellLength;
+//          double yPositionInCell = (random->genrand64_real1())*cellLength;
+//          // see if colliding nucleons are neutrons
+//          if ( random->genrand64_real1() > Z/A ) n1=1;
+//          else n1=0;
+//          if ( random->genrand64_real1() > Z/A ) n2=1;
+//          else n2=0;
+//
+//          int pythiaWorked = 0;
+//          while(pythiaWorked == 0){
+//      pythiaWorked = pythia.next(n1,n2);
+//          }                                                // generate event with pythia
+//
+//          done = 0;
+//          for (int ip = 0; ip < pythia.event.size(); ++ip) 
+//      {
+//        if (pythia.event[ip].status()>0 && (abs(pythia.event[ip].id())==4 || abs(pythia.event[ip].id()) == 5) )
+//          // If the parton is final, and is a heavy quark, then put it into the list.
+//          {
+//            parton.id(pythia.event[ip].id());                     // set parton id
+//            parton.status(pythia.event[ip].status());             // set parton status
+//            parton.mass(pythia.event[ip].m());                // set mass
+//            if (fixedTemperature==0)
+//        {
+//          //Random numbers added to the initial positions:
+//          double dx, dy, dz;
+//          dx = dy = dz = 0.;
+//          if(abs(parton.id()) == 4 && charmWidth > 0.01){
+//            dx = gsl_ran_gaussian(gsl_rand, charmWidth);
+//            dy = gsl_ran_gaussian(gsl_rand, charmWidth);
+//          }
+//          if(abs(parton.id()) == 5 && bottomWidth > 0.01){
+//            dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
+//            dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
+//          }
+//
+//          if( moveBeforeTau0 == 1){
+//            Vec4 partonP = pythia.event[ip].p();
+//            double pzP = partonP.pz();
+//            double EP = sqrt(pythia.event[ip].m()*pythia.event[ip].m()
+//                 +partonP.px()*partonP.px()
+//                 +partonP.py()*partonP.py()
+//                 +partonP.pz()*partonP.pz() );
+//            double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
+//            dx += partonP.px()*dt/EP;
+//            dy += partonP.py()*dt/EP;
+//            dz += partonP.pz()*dt/EP;
+//          }
+//
+//          parton.x(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
+//          parton.y(xmin+(iy)*cellLength+yPositionInCell+dy);
+//          parton.xini(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
+//          parton.yini(xmin+(iy)*cellLength+yPositionInCell+dy);
+//          parton.z(dz);
+//          parton.zini(dz);
+//          parton.tini(hydroTau0);
+//          //Set the old positions to be the current ones, for the first timestep:
+//          parton.xOld(xmin+(ix)*cellLength+xPositionInCell+dx);       // set position
+//          parton.yOld(xmin+(iy)*cellLength+yPositionInCell+dy);
+//          parton.zOld(dz);
+//          if ( done == 0 )
+//            {
+//              posx = floor((parton.x()-xmin)/cellLength);
+//              posy = floor((parton.y()-xmin)/cellLength);
+//              collLat[posx][posy] += 1;
+//                          
+//              //cout << numberOfpp << endl;
+//              numberOfpp++;
+//              done = 1;
+//            }
+//        }
+//            else
+//        {
+//          double dx, dy, dz;
+//          dx = dy = dz = 0.;
+//          if(abs(parton.id()) == 4){
+//            dx = gsl_ran_gaussian(gsl_rand, charmWidth);
+//            dy = gsl_ran_gaussian(gsl_rand, charmWidth);
+//          }
+//          if(abs(parton.id()) == 5){
+//            dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
+//            dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
+//          }
+//
+//          if( moveBeforeTau0 == 1){
+//            Vec4 partonP = pythia.event[ip].p();
+//            double pzP = partonP.pz();
+//            double EP = sqrt(pythia.event[ip].m()*pythia.event[ip].m()
+//                 +partonP.px()*partonP.px()
+//                 +partonP.py()*partonP.py()
+//                 +partonP.pz()*partonP.pz() );
+//            double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
+//            dx += partonP.px()*dt/EP;
+//            dy += partonP.py()*dt/EP;
+//            dz += partonP.pz()*dt/EP;
+//          }
+//
+//          parton.x(dx);     
+//          parton.y(dy);
+//          parton.xini(dx);     
+//          parton.yini(dy);
+//          parton.z(dz);
+//          parton.zini(dz);
+//          parton.tini(0.);
+//          //Set the old positions to be the current ones, for the first timestep:
+//          parton.xOld(dx);     
+//          parton.yOld(dy);
+//          parton.zOld(dz);
+//        }
+//            parton.col(pythia.event[ip].col());                 // set color 
+//            parton.acol(pythia.event[ip].acol());                 // set anti-color
+//            parton.frozen(0);                                     // parton is not frozen (will evolve)
+//            if(setInitialPToZero == 0){
+//        parton.p(pythia.event[ip].p());  // set momentum
+//        parton.pOld(pythia.event[ip].p());  // set momentum
+//        parton.pini(pythia.event[ip].p());                    // set initial momentum
+//            }
+//            else{
+//        parton.p(0.,0.,0.);
+//        parton.pOld(0.,0.,0.);
+//        Vec4 pinitial(pythia.event[ip].mass(),0.,0.,0.);
+//        parton.pini(pinitial);                    // set initial momentum
+//            }
+//            parton.tFinal(0.);                                    // Set the initial freezeout time to zero
+//            parton.eventNumber(eventNumber);
+//            parton.elasticCollisions(0);                          // set initial no. of el colls to zero
+//            parton.source(0);                                     // All initial partons have itsSource=0
+//            plist->push_back(parton);                             // add the parton to the main list
+//          }
+//      }
+//          eventNumber++;
+//        }
+//    }
+//    }
+//
+//      //Now, determine the partners of each heavy quark:
+//      for(int i = 0; i < plist->size(); i++){
+//  if(i%2 == 0){
+//    plist->at(i).antiI(i+1);
+//  }
+//  else
+//    plist->at(i).antiI(i-1);
+//      }
+//
+//      totalNNs = eventNumber;
+//      //output for plot
+//      ofstream fout1("./output/density.dat",ios::out); 
+//      ofstream fout2("./output/densityB.dat",ios::out); 
+//      ofstream fout3("./output/colls.dat",ios::out); 
+//      ofstream fout4("./output/NN.dat",ios::app); 
+//      
+//      for (int i = 0; i < ixmax; i++)
+//  for (int j = 0; j < ixmax; j++)
+//    {
+//      fout1 <<  i << " " << j << " " << nucALat[i][j] << endl;
+//      if ( j == ixmax-1 ) fout1 << endl;
+//    }
+//      
+//      for (int i = 0; i < ixmax; i++)
+//  for (int j = 0; j < ixmax; j++)
+//    {
+//      fout2 <<  i << " " << j << " " << nucBLat[i][j] << endl;
+//      if ( j == ixmax-1 ) fout2 << endl;
+//    }
+//      
+//      for (int i = 0; i < ixmax; i++)
+//  for (int j = 0; j < ixmax; j++)
+//    {
+//      fout3 <<  i << " " << j << " " << collLat[i][j] << endl;
+//      if ( j == ixmax-1 ) fout3 << endl;
+//    }
+//      
+//      fout4 << numberOfpp << endl;
+//      
+//      fout1.close();
+//      fout2.close();
+//      fout3.close();
+//      fout4.close();
+//      return eventNumber;
+//    }
+//  else if (fullEvent==0) // sample only one hard collision per heavy-ion event
+//    {
+//      Parton parton;                                                // new Parton object
+//      double A;
+//      double Z;
+//      int n1;
+//      int n2;
+//      //A=glauber->nucleusA();
+//      A=nucleusA();
+//      if (A==197.) //gold - Au 
+//  Z=79.; 
+//      else if (A==63.) //copper - Cu
+//  Z=29.;
+//      else if (A==208.) //lead - Pb
+//  Z=82.;
+//      else
+//  {
+//    Z=0;
+//  }
+//      if ( random->genrand64_real1() > Z/A ) n1=1;
+//      else n1=0;
+//      if ( random->genrand64_real1() > Z/A ) n2=1;
+//      else n2=0;
+//
+//      int pythiaWorked = 0;
+//      while(pythiaWorked == 0){
+//  pythiaWorked = pythia.next(n1,n2);                                                // generate event with pythia
+//      }
+//
+//      ReturnValue rv;
+//      //if (evolution && fixedTemperature==0) 
+//      if (!allFromCenter)
+//  {
+//    if(nbinFromFile == 1){
+//      //Sample a random element of the list of number of collisions. -CFY 11/2/2010
+//      double randomr = random->genrand64_real2();
+//      int randomint = (int)(randomr*((double)Nbin));
+//      rv.x = binary[randomint][0];
+//      rv.y = binary[randomint][1];
+//    }
+//    else if (glauberEnvelope)
+//      rv=glauber->SamplePAB(random);          // determine position in x-y plane from Glauber model with Metropolis
+//    else
+//      rv=glauber->SamplePABRejection(random); // determine position in x-y plane from Glauber model with rejection method
+//    cout << "rv.x = " << rv.x << ", rv.y = " << rv.y << endl;
+//  }
+//      else
+//  {
+//    rv.x=0.;
+//    rv.y=0.;
+//  }
+//      if (trackHistory)
+//  {
+//    rv.x=initialXjet;
+//    rv.y=initialYjet;
+//  }
+//      for (int i = 0; i < pythia.event.size(); ++i) 
+//  {
+//    if (pythia.event[i].isFinal() && (abs(pythia.event[i].id()) == 4 || abs(pythia.event[i].id()) == 5) )
+//      {
+//        double dx, dy, dz;
+//        dx = dy = dz = 0.;
+//        if(abs(pythia.event[i].id() ) == 4){
+//    dx = gsl_ran_gaussian(gsl_rand, charmWidth);
+//    dy = gsl_ran_gaussian(gsl_rand, charmWidth);
+//        }
+//        if(abs(pythia.event[i].id() ) == 5){
+//    dx = gsl_ran_gaussian(gsl_rand, bottomWidth);
+//    dy = gsl_ran_gaussian(gsl_rand, bottomWidth);
+//        }
+//
+//        if( moveBeforeTau0 == 1){
+//    Vec4 partonP = pythia.event[i].p();
+//    double pzP = partonP.pz();
+//    double EP = sqrt(pythia.event[i].m()*pythia.event[i].m()
+//         +partonP.px()*partonP.px()
+//         +partonP.py()*partonP.py()
+//         +partonP.pz()*partonP.pz() );
+//    double dt = hydroTau0/sqrt(1.-(pzP/EP)*(pzP/EP));
+//    dx += partonP.px()*dt/EP;
+//    dy += partonP.py()*dt/EP;
+//    dz += partonP.pz()*dt/EP;
+//        }
+//
+//        parton.id(pythia.event[i].id());                      // set parton id
+//        parton.status(pythia.event[i].status());              // set parton status
+//        parton.mass(pythia.event[i].m());                // set mass
+//                    
+//        parton.x(rv.x+dx);                                   // set position
+//        parton.y(rv.y+dy);
+//        if (fixedTemperature==0)
+//    parton.tini(hydroTau0);
+//        else
+//    parton.tini(0.);
+//        parton.xini(rv.x+dx);                                // set initial position to remember
+//        parton.yini(rv.y+dy);
+//                    
+//        parton.z(dz);
+//        parton.zini(dz);
+//        //Set the old positions to be the current ones, for the first timestep:
+//        parton.xOld(rv.x+dx);                                   // set position
+//        parton.yOld(rv.y+dy);
+//        parton.zOld(dz);
+//        parton.col(pythia.event[i].col());                 // set color 
+//        parton.acol(pythia.event[i].acol());                  // set anti-color
+//        parton.frozen(0);                                     // parton is not frozen (will evolve)
+//        if(setInitialPToZero == 0){
+//    parton.p(pythia.event[i].p());                        // set momentum
+//    parton.pOld(pythia.event[i].p());                        // set momentum
+//    parton.pini(pythia.event[i].p());                     // set momentum
+//        }
+//        else{
+//    parton.p(0.,0.,0.);                                   // set momentum
+//    parton.pOld(0.,0.,0.);                                   // set momentum
+//    Vec4 pinitial(pythia.event[i].mass(), 0.,0.,0.);
+//    parton.pini(pinitial);                               // set momentum
+//        }
+//        parton.tFinal(0.);                                    // Set the freezeout time initially to zero
+//        parton.elasticCollisions(0);                          // set initial no. of el colls to zero
+//        //parton.splits(0);                                   // set initial no. of splittings to zero
+//        parton.source(0);                                     // All intial partons have itsSource=0
+//        plist->push_back(parton);                             // add the parton to the main list
+//      }
+//  }
+//
+//      //Now, determine the partners of each heavy quark:
+//      for(int i = 0; i < plist->size(); i++){
+//  if(i%2 == 0){
+//    plist->at(i).antiI(i+1);
+//  }
+//  else
+//    plist->at(i).antiI(i-1);
+//      }
+//
+//      return 1;
+//    }
+//}
 
 // Evolves heavy quarks according to Langevin dynamics. -CFY 4/10/2011/
 int MARTINI::evolveHeavyQuarks(vector<Parton>  **plist, int counter, int it)
@@ -4785,6 +5558,7 @@ int MARTINI::evolveHeavyQuarks(vector<Parton>  **plist, int counter, int it)
   cout.precision(6);
   
   HydroInfo hydroInfo, antihydroInfo;
+  HydroInfoViscous hydroViscousInfo, antihydroViscousInfo;
   
   Vec4 vecp, antivecp;                          // momentum four-vectors
   double pmu[4], pmuRest[4], pmuRestNew[4], pmuNew[4]; //Easy to Lorentz-boost arrays with my subroutine 
@@ -4814,8 +5588,10 @@ int MARTINI::evolveHeavyQuarks(vector<Parton>  **plist, int counter, int it)
   double umu[4], umub[4];             // Fluid's 4-velocity
   double antiumu[4], antiumub[4];             // Fluid's 4-velocity
   const double rd=12.3;               // ratio of degrees of freedom g_QGP/g_H (for Kolb hydro only)
+  double Wtautau, Wtaux, Wtauy, Wtaueta, Wxx, Wxy, Wxeta;
+  double Wyy, Wyeta, Wetaeta, BulkPi, Entropy, cs2;
   
-  double kappa, sigma, eta;
+  double kappa_T, kappa_L, sigma, eta;
   double kicktriplet[3];
   double r, force, F_x, F_y, F_z;
   
@@ -4829,342 +5605,711 @@ int MARTINI::evolveHeavyQuarks(vector<Parton>  **plist, int counter, int it)
     { 
       //cout << "plist[0]->at(" << i << ").frozen() = " << plist[0]->at(i).frozen() << endl;
       if(plist[0]->at(i).frozen() == 0){
-	counter++;                                                // counter that characterizes every step uniquely
-	id = plist[0]->at(i).id();                                // id of parton i 
-	
-	if(abs(id)!=4 && abs(id)!=5) continue;                    // We immediately leave the loop of the parton is not a heavy quark!
-	
-	
-	t = it*dtfm;        //had a +tau0 here. now let partons travel doing their vacuum shower stuff first...
-	
-	vecp = plist[0]->at(i).p();                               // four-vector p of parton i
-	M = plist[0]->at(i).mass();                               // Mass of the parton (only used for charm and bottom quarks)
-	pmu[1] = vecp.px();
-	pmu[2] = vecp.py();
-	pmu[3] = vecp.pz();
-	pmu[0] = sqrt(M*M+pmu[1]*pmu[1]+pmu[2]*pmu[2]+pmu[3]*pmu[3]); //vecp loaded into an array for ease with LorentzBooster
-	
-	x = plist[0]->at(i).x();                                  // x value of position in [fm]
-	y = plist[0]->at(i).y();                                  // y value of position in [fm]
-	z = plist[0]->at(i).z();                                  // z value of position in [fm]
-	
-	// boost - using original position...
-	ix = floor((hydroXmax+x)/hydroDx+0.0001);                 // x-coordinate of the cell we are in now
-	iy = floor((hydroXmax+y)/hydroDx+0.0001);                 // y-coordinate of the cell we are in now
-	// note that x and y run from -hydroXmax to +hydroXmax
-	// and ix and iy from 0 to 2*hydroXmax
-	// hence the (hydroXmax+x or y) for both
-	if (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) 
-	  {
-	    iz = floor((hydroZmax+z)/hydroDz+0.0001);             // z-coordinate of the cell we are in now
-	  }
-	
-	if (fixedTemperature == 0)
-	  {
-	    tau = 0.;           //just give tau some value - will change below
-	    
-	    if (z*z<t*t) tau = sqrt(t*t-z*z);                     // determine tau (z*z) should always be less than (t*t)
-	    //cout << "tau = " << tau << endl;
-	    if (tau<hydroTau0||tau>hydroTauMax-1) continue;       // do not evolve if tau<tau0 or tau>tauMax
-	    
-	    // get the temperature and flow velocity at the current position and time:
-	    hydroInfo = hydroSetup->getHydroValues(x, y, z, t, hydroXmax, hydroZmax, hydroTauMax, hydroTau0, 
-						   hydroDx, hydroDz, hydroDtau, hydroWhichHydro, fixedDistribution, lattice, trackHistory);
-	    
-	    T = hydroInfo.T;
-	    //cout << "T = " << T << "for particle " << i << endl;
-	    vx = hydroInfo.vx;
-	    vy = hydroInfo.vy;
-	    vz = hydroInfo.vz;
-	    
-	    //cout << "At t = " << t << " and z = " << z << ", vz = " << vz << endl;
-	    //cout << "For the charm quark, vz = " << pmu[3]/pmu[0] << endl;
-	    if (!trackHistory)
-	      {
-		// warn if out of range and move on to next parton (should not happen!)
-		if ( ix < 0 || ix >= ixmax ) 
-		  {
-		    cout << "WARNING - x out of range" << endl;
-		    plist[0]->at(i).frozen(1);
-		    continue;
-		  }
-		if ( iy < 0 || iy >= ixmax )
-		  {
-		    cout << "WARNING - y out of range" << endl;
-		    plist[0]->at(i).frozen(1);
-		    continue;
-		  }
-		if ( (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) && ( iz < 0 || iz >= izmax ) ) 
-		  {
-		    cout << "WARNING - z out of range" << endl;
-		    plist[0]->at(i).frozen(1);
-		    continue;
-		  }
-	      }
-	    
-	    if (T<hydroTfinal && hydroWhichHydro == 2)                 // for 2D hydro evolutions stop at T_final (can change that)
-	      {
-		plist[0]->at(i).tFinal(t);
-		continue;                                             // do not evolve if T<T_c
-	      }
-	    
-	    beta = sqrt(vx*vx+vy*vy+vz*vz);                           // absolute value of flow velocity in units of c
-	    gamma = 1./sqrt(1.-beta*beta);                            // gamma factor
-	    umu[0] = gamma;
-	    umu[1] = gamma*vx;
-	    umu[2] = gamma*vy;
-	    umu[3] = gamma*vz;
-	    LorentzBooster(umu, pmu, pmuRest);                      // Boost into the fluid's rest frame
-	    dtflow = dt*pmuRest[0]/pmu[0];                          // dtfm in the fluid's rest frame
-	    
-	  }
-	else // the fixed temperature case:
-	  {
-	    beta = 0.;
-	    gamma = 1.; 
-	    T = fixedT;
-	    umu[0] = 1.; umu[1] = umu[2] = umu[3] = 0.;
-	    LorentzBooster(umu, pmu, pmuRest);
-	    dtflow = dt*pmuRest[0]/pmu[0];
-	  }  
-	
-	//After all of the various hydro switches, we need to evolve the heavy quarks. This is optimized either for 
-	//quarkonium or for single heavy quarks. We differentiate between the two with the switch examineHQ. First, for single 
-	//heavy quarks:
-	if(examineHQ == 1){
-	  //Finally evolve the heavy quarks' positions:
-	  plist[0]->at(i).x(x+vecp.px()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-	  plist[0]->at(i).y(y+vecp.py()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-	  plist[0]->at(i).z(z+vecp.pz()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-	  
-	  // Sample a triplet of kicks for the heavy quark. For now, we 
-	  // take the simplest case: constant 2piT*D_c, however later 
-	  // both kicktriplet[3] and eta will be determined from HTL 
-	  // results at LO or NLO order:
-	  if(T > T_C_HQ){
-	    plist[0]->at(i).tFinal(t); // update the time - finally will be the final time
-	    kappa = 4.*M_PI*T*T*T/TwoPiTD_HQ;
-	    sigma = sqrt(kappa*dtflow);
-	    kicktriplet[0] = gsl_ran_gaussian(gsl_rand, sigma);
-	    kicktriplet[1] = gsl_ran_gaussian(gsl_rand, sigma);
-	    kicktriplet[2] = gsl_ran_gaussian(gsl_rand, sigma);
-	    
-	    eta = 2.*M_PI*T*T/(TwoPiTD_HQ*M);
-	    
-	    //Update the momentum in the rest frame:
-	    pmuRestNew[1] = pmuRest[1]*(1.-eta*dtflow)+kicktriplet[0];
-	    pmuRestNew[2] = pmuRest[2]*(1.-eta*dtflow)+kicktriplet[1];
-	    pmuRestNew[3] = pmuRest[3]*(1.-eta*dtflow)+kicktriplet[2];
-	    pmuRestNew[0] = sqrt(M*M+pmuRestNew[1]*pmuRestNew[1]
-				 +pmuRestNew[2]*pmuRestNew[2]+pmuRestNew[3]*pmuRestNew[3]);
-	    
-	    //The flow velocity for boosting back:
-	    umub[0] = umu[0];
-	    umub[1] = -umu[1];
-	    umub[2] = -umu[2];
-	    umub[3] = -umu[3];
-	    
-	    //The boost back into the lab frame:
-	    LorentzBooster(umub, pmuRestNew, pmuNew);
-	    
-	    //Update the particle's momentum:
-	    plist[0]->at(i).p(pmuNew[1], pmuNew[2], pmuNew[3]);
-	  }
-	  else{ plist[0]->at(i).frozen(1);}
+  counter++;                                                // counter that characterizes every step uniquely
+  id = plist[0]->at(i).id();                                // id of parton i 
+  
+  if(abs(id)!=4 && abs(id)!=5) continue;                    // We immediately leave the loop of the parton is not a heavy quark!
+  
+  
+  t = it*dtfm;        //had a +tau0 here. now let partons travel doing their vacuum shower stuff first...
+  
+  vecp = plist[0]->at(i).p();                               // four-vector p of parton i
+  M = plist[0]->at(i).mass();                               // Mass of the parton (only used for charm and bottom quarks)
+  pmu[1] = vecp.px();
+  pmu[2] = vecp.py();
+  pmu[3] = vecp.pz();
+  pmu[0] = sqrt(M*M+pmu[1]*pmu[1]+pmu[2]*pmu[2]+pmu[3]*pmu[3]); //vecp loaded into an array for ease with LorentzBooster
+  
+  x = plist[0]->at(i).x();                                  // x value of position in [fm]
+  y = plist[0]->at(i).y();                                  // y value of position in [fm]
+  z = plist[0]->at(i).z();                                  // z value of position in [fm]
+  
+  // boost - using original position...
+  ix = floor((hydroXmax+x)/hydroDx+0.0001);                 // x-coordinate of the cell we are in now
+  iy = floor((hydroXmax+y)/hydroDx+0.0001);                 // y-coordinate of the cell we are in now
+  // note that x and y run from -hydroXmax to +hydroXmax
+  // and ix and iy from 0 to 2*hydroXmax
+  // hence the (hydroXmax+x or y) for both
+  if (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) 
+    {
+      iz = floor((hydroZmax+z)/hydroDz+0.0001);             // z-coordinate of the cell we are in now
+    }
+  
+  if (fixedTemperature == 0)
+    {
+      tau = 0.;           //just give tau some value - will change below
+      
+      if (z*z<t*t) tau = sqrt(t*t-z*z);                     // determine tau (z*z) should always be less than (t*t)
+      //cout << "tau = " << tau << endl;
+      if (tau<hydroTau0||tau>hydroTauMax-1) continue;       // do not evolve if tau<tau0 or tau>tauMax
+      
+      // get the temperature and flow velocity at the current position and time:
+      hydroInfo = hydroSetup->getHydroValues(x, y, z, t);// hydroXmax, hydroZmax, hydroTauMax, hydroTau0, 
+               //hydroDx, hydroDz, hydroDtau, hydroWhichHydro, fixedDistribution, lattice, trackHistory);
+      
+      T = hydroInfo.T;
+      //cout << "T = " << T << "for particle " << i << endl;
+      vx = hydroInfo.vx;
+      vy = hydroInfo.vy;
+      vz = hydroInfo.vz;
+      
+      if(evolutionshear == 1 || evolutionbulk == 1)
+            {
+              hydroViscousInfo = hydroSetup->getHydroViscousValues(x, y, z, t);
+              Wtautau = hydroViscousInfo.Wtautau; 
+              Wtaux   = hydroViscousInfo.Wtaux  ; 
+              Wtauy   = hydroViscousInfo.Wtauy  ; 
+              Wtaueta = hydroViscousInfo.Wtaueta; 
+              Wxx     = hydroViscousInfo.Wxx    ; 
+              Wxy     = hydroViscousInfo.Wxy    ; 
+              Wxeta   = hydroViscousInfo.Wxeta  ; 
+              Wyy     = hydroViscousInfo.Wyy    ; 
+              Wyeta   = hydroViscousInfo.Wyeta  ; 
+              Wetaeta = hydroViscousInfo.Wetaeta; 
+              BulkPi  = hydroViscousInfo.BulkPi ; 
+              Entropy = hydroViscousInfo.Entropy; 
+              cs2     = hydroViscousInfo.cs2    ; 
+            }
+
+      //cout << "At t = " << t << " and z = " << z << ", vz = " << vz << endl;
+      //cout << "For the charm quark, vz = " << pmu[3]/pmu[0] << endl;
+      if (!trackHistory)
+        {
+    // warn if out of range and move on to next parton (should not happen!)
+    if ( ix < 0 || ix >= ixmax ) 
+      {
+        cout << "WARNING - x out of range" << endl;
+        plist[0]->at(i).frozen(1);
+        continue;
       }
-	
-	//Next, we examine quarkonium:
-	if(examineHQ == 2){
-	  if(id == 4 || id == 5){ //Only the quarks, not the anti-quarks!
-	    antiI = plist[0]->at(i).antiI();
-	    //We must duplicate the steps at the beginning of the program for the partner anti-quarks position, momentum, and 
-	    //other properties:
-	    antivecp = plist[0]->at(antiI).p();                               // four-vector p of parton i
-	    antiM = plist[0]->at(antiI).mass();                               // Mass of the parton (only used for charm and bottom quarks)
-	    antipmu[1] = antivecp.px();
-	    antipmu[2] = antivecp.py();
-	    antipmu[3] = antivecp.pz();
-	    antipmu[0] = sqrt(antiM*antiM+antipmu[1]*antipmu[1]+antipmu[2]*antipmu[2]+antipmu[3]*antipmu[3]); //vecp loaded into an array for ease with LorentzBooster
-	    
-	    antix = plist[0]->at(antiI).x();                                  // x value of position in [fm]
-	    antiy = plist[0]->at(antiI).y();                                  // y value of position in [fm]
-	    antiz = plist[0]->at(antiI).z();                                  // z value of position in [fm]
-	    
-	    antiix = floor((hydroXmax+antix)/hydroDx+0.0001);                 // x-coordinate of the cell we are in now
-	    antiiy = floor((hydroXmax+antiy)/hydroDx+0.0001);                 // y-coordinate of the cell we are in now
-	    if (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) 
-	      {
-		antiiz = floor((hydroZmax+antiz)/hydroDz+0.0001);             // z-coordinate of the cell we are in now
-	      }
-	    
-	    // get the temperature and flow velocity at the current position and time:
-	    
-	    if(fixedTemperature == 0){
-	      antitau = 0.;                                                 // Initially set antitau = 0.
-	      
-	      //cout << "antiz = " << antiz << ", t = " << t << endl;
-	      if (antiz*antiz<t*t) antitau = sqrt(t*t-antiz*antiz);         // determine tau (z*z) should always be less than (t*t)
-	      //cout << "OK before the call continue statement..." << endl;
-	      if (antitau<hydroTau0 || antitau>hydroTauMax-1) continue;       // do not evolve if tau<tau0 or tau>tauMax
-	      //cout << "x = " << x << ", y = " << y << ", z = " << z << ", t = " << t << endl;
-	      //cout << "antix = " << antix << ", antiy = " << antiy << ", antiz = " << antiz << ", t = " << t << endl;
-
-	      antihydroInfo = hydroSetup->getHydroValues(antix, antiy, antiz, t, hydroXmax, hydroZmax, hydroTauMax, hydroTau0, 
-							 hydroDx, hydroDz, hydroDtau, hydroWhichHydro, fixedDistribution, lattice, trackHistory);
-	      
-	      if (!trackHistory)
-		{
-		  // warn if out of range and move on to next parton (should not happen!)
-		  if ( antiix < 0 || antiix >= ixmax ) 
-		    {
-		      cout << "WARNING - x out of range" << endl;
-		      plist[0]->at(i).frozen(1);
-		      plist[0]->at(antiI).frozen(1);
-		      continue;
-		    }
-		  if ( antiiy < 0 || antiiy >= ixmax )
-		    {
-		      cout << "WARNING - y out of range" << endl;
-		      plist[0]->at(i).frozen(1);
-		      plist[0]->at(antiI).frozen(1);
-		      continue;
-		  }
-		  if ( (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) && ( antiiz < 0 || antiiz >= izmax ) ) 
-		    {
-		      cout << "WARNING - z out of range" << endl;
-		      plist[0]->at(i).frozen(1);
-		      plist[0]->at(antiI).frozen(1);
-		      continue;
-		    }
-		}
-	      
-	      antiT = antihydroInfo.T;
-	      T_ave = 0.5*(T+antiT);
-	      
-	      antivx = antihydroInfo.vx;
-	      antivy = antihydroInfo.vy;
-	      antivz = antihydroInfo.vz;
-	      
-	      antibeta = sqrt(antivx*antivx+antivy*antivy+antivz*antivz);                           // absolute value of flow velocity in units of c
-	      antigamma = 1./sqrt(1.-antibeta*antibeta);                            // gamma factor
-	      antiumu[0] = antigamma;
-	      antiumu[1] = antigamma*antivx;
-	      antiumu[2] = antigamma*antivy;
-	      antiumu[3] = antigamma*antivz;
-	      
-	      LorentzBooster(antiumu, antipmu, antipmuRest);                      // Boost into the fluid's rest frame
-	      antidtflow = dt*antipmuRest[0]/antipmu[0];                          // dtfm in the fluid's rest frame
-	      
-	    }
-	    else // the fixed temperature case:
-	      {
-		antibeta = 0.;
-		antigamma = 1.; 
-		antiT = fixedT; T_ave = fixedT;
-		
-		antiumu[0] = 1.; antiumu[1] = antiumu[2] = antiumu[3] = 0.;
-		LorentzBooster(antiumu, antipmu, antipmuRest);
-		antidtflow = dt*antipmuRest[0]/antipmu[0];
-		antix = plist[0]->at(antiI).x();                                  // x value of position in [fm]
-		antiy = plist[0]->at(antiI).y();                                  // y value of position in [fm]
-		antiz = plist[0]->at(antiI).z();                                  // z value of position in [fm]
-	      }
-	    // We sample two triplets of kicks now:
-	    
-	    //Finally, we take into account the heavy quark-antiquark interaction. This is done in the lab frame, 
-	    //and is correct strictly non-relativistically. This is good for observables such as TOTAL yields, and 
-	    //relative yields of excited states, but is probably very bad for something like a differential yield of 
-	    //J/psi up to high p_T
-	    if(T_ave > T_C_HQ){
-	      plist[0]->at(i).tFinal(t); // update the time - finally will be the final time
-	      plist[0]->at(antiI).tFinal(t); // update the time - finally will be the final time
-	      
-	      plist[0]->at(i).x(x+vecp.px()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-	      plist[0]->at(i).y(y+vecp.py()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-	      plist[0]->at(i).z(z+vecp.pz()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-	      plist[0]->at(antiI).x(antix+antivecp.px()/sqrt(antivecp.pAbs()*antivecp.pAbs()+antiM*antiM)*dtfm);
-	      plist[0]->at(antiI).y(antiy+antivecp.py()/sqrt(antivecp.pAbs()*antivecp.pAbs()+antiM*antiM)*dtfm);
-	      plist[0]->at(antiI).z(antiz+antivecp.pz()/sqrt(antivecp.pAbs()*antivecp.pAbs()+antiM*antiM)*dtfm);
-	      
-	      kappa = 4.*M_PI*T*T*T/TwoPiTD_HQ;
-	      sigma = sqrt(kappa*dtflow);
-	      eta = 0.5*kappa/(M*T);
-	      
-	      kicktriplet[0] = gsl_ran_gaussian(gsl_rand, sigma);
-	      kicktriplet[1] = gsl_ran_gaussian(gsl_rand, sigma);
-	      kicktriplet[2] = gsl_ran_gaussian(gsl_rand, sigma);
-	      
-	      //Update the momentum in the rest frame:
-	      pmuRestNew[1] = pmuRest[1]*(1.-eta*dtflow)+kicktriplet[0];
-	      pmuRestNew[2] = pmuRest[2]*(1.-eta*dtflow)+kicktriplet[1];
-	      pmuRestNew[3] = pmuRest[3]*(1.-eta*dtflow)+kicktriplet[2];
-	      pmuRestNew[0] = sqrt(M*M+pmuRestNew[1]*pmuRestNew[1]
-				   +pmuRestNew[2]*pmuRestNew[2]+pmuRestNew[3]*pmuRestNew[3]);
-	      
-	      //The flow velocity for boosting back:
-	      umub[0] = umu[0];
-	      umub[1] = -umu[1];
-	      umub[2] = -umu[2];
-	      umub[3] = -umu[3];
-	      
-	      //The boost back into the lab frame:
-	      LorentzBooster(umub, pmuRestNew, pmuNew);
-	      
-	      //Now, the anti-quark:
-	      kappa = 4.*M_PI*antiT*antiT*antiT/TwoPiTD_HQ;
-	      sigma = sqrt(kappa*dtflow);
-	      eta = 0.5*kappa/(M*antiT);
-	      
-	      kicktriplet[0] = gsl_ran_gaussian(gsl_rand, sigma);
-	      kicktriplet[1] = gsl_ran_gaussian(gsl_rand, sigma);
-	      kicktriplet[2] = gsl_ran_gaussian(gsl_rand, sigma);
-	      
-	      //Update the momentum in the rest frame:
-	      antipmuRestNew[1] = antipmuRest[1]*(1.-eta*antidtflow)+kicktriplet[0];
-	      antipmuRestNew[2] = antipmuRest[2]*(1.-eta*antidtflow)+kicktriplet[1];
-	      antipmuRestNew[3] = antipmuRest[3]*(1.-eta*antidtflow)+kicktriplet[2];
-	      antipmuRestNew[0] = sqrt(M*M+antipmuRestNew[1]*antipmuRestNew[1]
-				       +antipmuRestNew[2]*antipmuRestNew[2]+antipmuRestNew[3]*antipmuRestNew[3]);
-	      
-	      //The flow velocity for boosting back:
-	      antiumub[0] = antiumu[0];
-	      antiumub[1] = -antiumu[1];
-	      antiumub[2] = -antiumu[2];
-	      antiumub[3] = -antiumu[3];
-	      
-	      //The boost back into the lab frame:
-	      LorentzBooster(antiumub, antipmuRestNew, antipmuNew);
-	      
-	      //Finally, we include the effect of the HQ potential, parametrized from
-	      // lattice data:
-	      r = sqrt( (x-antix)*(x-antix)+(y-antiy)*(y-antiy)+(z-antiz)*(z-antiz) );
-	      force = F(r, T_ave);
-	      //force = 0.; //We are debugging!
-	      //if(r > 0.4 && r < 1.5){
-	      //force = 0.0985/(r*r)+0.812;
-	      //}//Still debugging!
-
-	      if(force > 0.){
-		F_x = force*(antix-x)/r;
-		F_y = force*(antiy-y)/r;
-		F_z = force*(antiz-z)/r;
-	      }
-	      else F_x = F_y = F_z = 0.;
-
-	      //Update the particle's momentum:
-	      plist[0]->at(i).p(pmuNew[1]+F_x*dt*hbarc, pmuNew[2]+F_y*dt*hbarc, pmuNew[3]+F_z*dt*hbarc);
-	      plist[0]->at(antiI).p(antipmuNew[1]-F_x*dt*hbarc, antipmuNew[2]-F_y*dt*hbarc, antipmuNew[3]-F_z*dt*hbarc);
-	      
-	      //Update the anti-particle's momentum:
-	      //cout << "pmu1: " << pmuNew[1] << " " << pmuNew[2] << " " << pmuNew[3] << endl;
-	      //cout << "pmu2: " << antipmuNew[1] << " " << antipmuNew[2] << " " << antipmuNew[3] << endl;
-	    }
-	    else{
-	      plist[0]->at(i).frozen(1);
-	      plist[0]->at(antiI).frozen(1);
-	    }
-	  }
+    if ( iy < 0 || iy >= ixmax )
+      {
+        cout << "WARNING - y out of range" << endl;
+        plist[0]->at(i).frozen(1);
+        continue;
+      }
+    if ( (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) && ( iz < 0 || iz >= izmax ) ) 
+      {
+        cout << "WARNING - z out of range" << endl;
+        plist[0]->at(i).frozen(1);
+        continue;
+      }
+        }
+      
+      if (T<hydroTfinal && hydroWhichHydro == 2)                 // for 2D hydro evolutions stop at T_final (can change that)
+        {
+    plist[0]->at(i).tFinal(t);
+    continue;                                             // do not evolve if T<T_c
+        }
+      
+      beta = sqrt(vx*vx+vy*vy+vz*vz);                           // absolute value of flow velocity in units of c
+      gamma = 1./sqrt(1.-beta*beta);                            // gamma factor
+      umu[0] = gamma;
+      umu[1] = gamma*vx;
+      umu[2] = gamma*vy;
+      umu[3] = gamma*vz;
+      LorentzBooster(umu, pmu, pmuRest);                      // Boost into the fluid's rest frame
+      dtflow = dt*pmuRest[0]/pmu[0];                          // dtfm in the fluid's rest frame
+      
+    }
+  else // the fixed temperature case:
+    {
+      beta = 0.;
+      gamma = 1.; 
+      T = fixedT;
+      umu[0] = 1.; umu[1] = umu[2] = umu[3] = 0.;
+      LorentzBooster(umu, pmu, pmuRest);
+      dtflow = dt*pmuRest[0]/pmu[0];
+    }  
+  
+  //After all of the various hydro switches, we need to evolve the heavy quarks. This is optimized either for 
+  //quarkonium or for single heavy quarks. We differentiate between the two with the switch examineHQ. First, for single 
+  //heavy quarks:
+  if(examineHQ == 1){
+    //Finally evolve the heavy quarks' positions:
+    plist[0]->at(i).x(x+vecp.px()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+    plist[0]->at(i).y(y+vecp.py()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+    plist[0]->at(i).z(z+vecp.pz()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+    
+    // Sample a triplet of kicks for the heavy quark. For now, we 
+    // take the simplest case: constant 2piT*D_c, however later 
+    // both kicktriplet[3] and eta will be determined from HTL 
+    // results at LO or NLO order:
+    if(T > T_C_HQ){
+      plist[0]->at(i).tFinal(t); // update the time - finally will be the final time
+      double TE = T*sqrt(M*M + pmuRest[1]*pmuRest[1] + pmuRest[2]*pmuRest[2] + pmuRest[3]*pmuRest[3]);
+      double pHQ = sqrt(pmuRest[1]*pmuRest[1] + pmuRest[2]*pmuRest[2] + pmuRest[3]*pmuRest[3]);
+      if(HQ_rate_type == 0)
+      {
+      	kappa_T = 4.*M_PI*T*T*T/TwoPiTD_HQ;
+        eta = 2.*M_PI*T*T/(TwoPiTD_HQ*M);
+        kappa_L = kappa_T;
+      } else if (HQ_rate_type == 1)
+      {
+        double A0, B0, B1;
+        hqRates->getTandPdependent_coeff(T, 0., A0, B0, B1);
+        eta = A0;
+      	kappa_T = 2.*B0;
+        kappa_L = kappa_T;
+      	//kappa = 2.*eta*T*M;
+      } else if (HQ_rate_type == 2)
+      {
+        double A0, B0, B1;
+        hqRates->getTandPdependent_coeff(T, pHQ, A0, B0, B1);
+      	kappa_T = 2.*B0;
+        eta = A0;
+        kappa_L = kappa_T;
+      } else if (HQ_rate_type == 3)
+      {
+        double temp_2piTD;
+	if (tau < hydroTau0)
+	{
+//          temp_2piTD = 20.30405*T + 0.35256;
+          temp_2piTD = (10.87937*T - 0.79860)*HQ_Lattice_rate_factor;
+	} else
+	{
+          temp_2piTD = (10.87937*T - 0.79860)*HQ_Lattice_rate_factor;
 	}
+      	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+      	//kappa_T = 4.*4.*M_PI*T*T*T/temp_2piTD;
+        eta = 2.*M_PI*T*T/(temp_2piTD*M);
+        kappa_L = kappa_T;
+
+      } else if (HQ_rate_type == 4)
+      {
+        double temp_2piTD;
+	if (tau < hydroTau0)
+	{
+//          temp_2piTD = 20.30405*T + 0.35256;
+          temp_2piTD = (10.87937*T - 0.79860);
+	} else
+	{
+          temp_2piTD = 10.87937*T - 0.79860;
+	}
+      	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+        eta = 2.*M_PI*T*T/(temp_2piTD*M);
+	eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+	kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+        kappa_L = kappa_T;
+
+      } else if (HQ_rate_type == 5)
+      {
+        double temp_2piTD;
+	if (tau < hydroTau0)
+	{
+          temp_2piTD = (6.07614*T - 0.19409);
+	} else
+	{
+          temp_2piTD = 6.07614*T - 0.19409;
+	}
+      	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+        eta = 2.*M_PI*T*T/(temp_2piTD*M);
+	eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+	kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+        kappa_L = kappa_T;
+
+      } else if (HQ_rate_type == 6)
+      {
+        double temp_2piTD;
+	if (tau < hydroTau0)
+	{
+          temp_2piTD = (15.682606*T - 1.40311);
+	} else
+	{
+          temp_2piTD = 15.682606*T - 1.40311;
+	}
+      	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+        eta = 2.*M_PI*T*T/(temp_2piTD*M);
+	eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+	kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+        kappa_L = kappa_T;
+
+      } else
+      {
+      	cout << "Invalid HQ_rate_type" << endl;
+	exit(1);
+      }
+
+      double kicks[3];
+      sigma = sqrt(kappa_T*dtflow);
+      kicks[0] = gsl_ran_gaussian(gsl_rand, sigma);
+      kicks[1] = gsl_ran_gaussian(gsl_rand, sigma);
+      sigma = sqrt(kappa_L*dtflow);
+      kicks[2] = gsl_ran_gaussian(gsl_rand, sigma);
+
+      double transv1[3], transv2[3];
+      if (pmuRest[3] != 0.)
+      {
+         transv1[0] = 1.;
+         transv1[1] = 1.;
+         transv1[2] = -1.*(pmuRest[1]+pmuRest[2])/pmuRest[3];
+         double normalization = sqrt(transv1[0]*transv1[0] + transv1[1]*transv1[1] + transv1[2]*transv1[2]);
+         for (int ii = 0; ii < 3; ii++) transv1[ii] /= normalization;
+      } else
+      {
+         transv1[0] = 0.;
+         transv1[1] = 0.;
+         transv1[2] = 1.;
+      }
+
+      transv2[0] = pmuRest[2]*transv1[2]/pHQ - pmuRest[3]*transv1[1]/pHQ;
+      transv2[1] = pmuRest[3]*transv1[0]/pHQ - pmuRest[1]*transv1[2]/pHQ;
+      transv2[2] = pmuRest[1]*transv1[1]/pHQ - pmuRest[2]*transv1[0]/pHQ;
+
+      kicktriplet[0] = kicks[0]*transv1[0] + kicks[1]*transv2[0] + kicks[2]*pmuRest[1]/pHQ;
+      kicktriplet[1] = kicks[0]*transv1[1] + kicks[1]*transv2[1] + kicks[2]*pmuRest[2]/pHQ;
+      kicktriplet[2] = kicks[0]*transv1[2] + kicks[1]*transv2[2] + kicks[2]*pmuRest[3]/pHQ;
+
+//      kicktriplet[0] = gsl_ran_gaussian(gsl_rand, sigma);
+//      kicktriplet[1] = gsl_ran_gaussian(gsl_rand, sigma);
+//      kicktriplet[2] = gsl_ran_gaussian(gsl_rand, sigma);
+      
+      //Update the momentum in the rest frame:
+      pmuRestNew[1] = pmuRest[1]*(1.-eta*dtflow)+kicktriplet[0];
+      pmuRestNew[2] = pmuRest[2]*(1.-eta*dtflow)+kicktriplet[1];
+      pmuRestNew[3] = pmuRest[3]*(1.-eta*dtflow)+kicktriplet[2];
+      pmuRestNew[0] = sqrt(M*M+pmuRestNew[1]*pmuRestNew[1]
+         +pmuRestNew[2]*pmuRestNew[2]+pmuRestNew[3]*pmuRestNew[3]);
+      
+      //The flow velocity for boosting back:
+      umub[0] = umu[0];
+      umub[1] = -umu[1];
+      umub[2] = -umu[2];
+      umub[3] = -umu[3];
+      
+      //The boost back into the lab frame:
+      LorentzBooster(umub, pmuRestNew, pmuNew);
+      
+      //Update the particle's momentum:
+      plist[0]->at(i).p(pmuNew[1], pmuNew[2], pmuNew[3]);
+    }
+    else{ plist[0]->at(i).frozen(1);}
+      }
+  
+  //Next, we examine quarkonium:
+  if(examineHQ == 2){
+    if(id == 4 || id == 5){ //Only the quarks, not the anti-quarks!
+      antiI = plist[0]->at(i).antiI();
+      //We must duplicate the steps at the beginning of the program for the partner anti-quarks position, momentum, and 
+      //other properties:
+      antivecp = plist[0]->at(antiI).p();                               // four-vector p of parton i
+      antiM = plist[0]->at(antiI).mass();                               // Mass of the parton (only used for charm and bottom quarks)
+      antipmu[1] = antivecp.px();
+      antipmu[2] = antivecp.py();
+      antipmu[3] = antivecp.pz();
+      antipmu[0] = sqrt(antiM*antiM+antipmu[1]*antipmu[1]+antipmu[2]*antipmu[2]+antipmu[3]*antipmu[3]); //vecp loaded into an array for ease with LorentzBooster
+      
+      antix = plist[0]->at(antiI).x();                                  // x value of position in [fm]
+      antiy = plist[0]->at(antiI).y();                                  // y value of position in [fm]
+      antiz = plist[0]->at(antiI).z();                                  // z value of position in [fm]
+      
+      antiix = floor((hydroXmax+antix)/hydroDx+0.0001);                 // x-coordinate of the cell we are in now
+      antiiy = floor((hydroXmax+antiy)/hydroDx+0.0001);                 // y-coordinate of the cell we are in now
+      if (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) 
+        {
+    antiiz = floor((hydroZmax+antiz)/hydroDz+0.0001);             // z-coordinate of the cell we are in now
+        }
+      
+      // get the temperature and flow velocity at the current position and time:
+      
+      if(fixedTemperature == 0){
+        antitau = 0.;                                                 // Initially set antitau = 0.
+        
+        //cout << "antiz = " << antiz << ", t = " << t << endl;
+        if (antiz*antiz<t*t) antitau = sqrt(t*t-antiz*antiz);         // determine tau (z*z) should always be less than (t*t)
+        //cout << "OK before the call continue statement..." << endl;
+        if (antitau<hydroTau0 || antitau>hydroTauMax-1) continue;       // do not evolve if tau<tau0 or tau>tauMax
+        //cout << "x = " << x << ", y = " << y << ", z = " << z << ", t = " << t << endl;
+        //cout << "antix = " << antix << ", antiy = " << antiy << ", antiz = " << antiz << ", t = " << t << endl;
+
+        antihydroInfo = hydroSetup->getHydroValues(antix, antiy, antiz, t);// hydroXmax, hydroZmax, hydroTauMax, hydroTau0, 
+//               hydroDx, hydroDz, hydroDtau, hydroWhichHydro, fixedDistribution, lattice, trackHistory);
+        
+        if (!trackHistory)
+    {
+      // warn if out of range and move on to next parton (should not happen!)
+      if ( antiix < 0 || antiix >= ixmax ) 
+        {
+          cout << "WARNING - x out of range" << endl;
+          plist[0]->at(i).frozen(1);
+          plist[0]->at(antiI).frozen(1);
+          continue;
+        }
+      if ( antiiy < 0 || antiiy >= ixmax )
+        {
+          cout << "WARNING - y out of range" << endl;
+          plist[0]->at(i).frozen(1);
+          plist[0]->at(antiI).frozen(1);
+          continue;
+      }
+      if ( (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) && ( antiiz < 0 || antiiz >= izmax ) ) 
+        {
+          cout << "WARNING - z out of range" << endl;
+          plist[0]->at(i).frozen(1);
+          plist[0]->at(antiI).frozen(1);
+          continue;
+        }
+    }
+        
+        antiT = antihydroInfo.T;
+        T_ave = 0.5*(T+antiT);
+        
+        antivx = antihydroInfo.vx;
+        antivy = antihydroInfo.vy;
+        antivz = antihydroInfo.vz;
+        
+        antibeta = sqrt(antivx*antivx+antivy*antivy+antivz*antivz);                           // absolute value of flow velocity in units of c
+        antigamma = 1./sqrt(1.-antibeta*antibeta);                            // gamma factor
+        antiumu[0] = antigamma;
+        antiumu[1] = antigamma*antivx;
+        antiumu[2] = antigamma*antivy;
+        antiumu[3] = antigamma*antivz;
+        
+        LorentzBooster(antiumu, antipmu, antipmuRest);                      // Boost into the fluid's rest frame
+        antidtflow = dt*antipmuRest[0]/antipmu[0];                          // dtfm in the fluid's rest frame
+        
+      }
+      else // the fixed temperature case:
+        {
+    antibeta = 0.;
+    antigamma = 1.; 
+    antiT = fixedT; T_ave = fixedT;
+    
+    antiumu[0] = 1.; antiumu[1] = antiumu[2] = antiumu[3] = 0.;
+    LorentzBooster(antiumu, antipmu, antipmuRest);
+    antidtflow = dt*antipmuRest[0]/antipmu[0];
+    antix = plist[0]->at(antiI).x();                                  // x value of position in [fm]
+    antiy = plist[0]->at(antiI).y();                                  // y value of position in [fm]
+    antiz = plist[0]->at(antiI).z();                                  // z value of position in [fm]
+        }
+      // We sample two triplets of kicks now:
+      
+      //Finally, we take into account the heavy quark-antiquark interaction. This is done in the lab frame, 
+      //and is correct strictly non-relativistically. This is good for observables such as TOTAL yields, and 
+      //relative yields of excited states, but is probably very bad for something like a differential yield of 
+      //J/psi up to high p_T
+      if(T_ave > T_C_HQ){
+        plist[0]->at(i).tFinal(t); // update the time - finally will be the final time
+        plist[0]->at(antiI).tFinal(t); // update the time - finally will be the final time
+        
+        plist[0]->at(i).x(x+vecp.px()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+        plist[0]->at(i).y(y+vecp.py()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+        plist[0]->at(i).z(z+vecp.pz()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+        plist[0]->at(antiI).x(antix+antivecp.px()/sqrt(antivecp.pAbs()*antivecp.pAbs()+antiM*antiM)*dtfm);
+        plist[0]->at(antiI).y(antiy+antivecp.py()/sqrt(antivecp.pAbs()*antivecp.pAbs()+antiM*antiM)*dtfm);
+        plist[0]->at(antiI).z(antiz+antivecp.pz()/sqrt(antivecp.pAbs()*antivecp.pAbs()+antiM*antiM)*dtfm);
+        
+        double TE = T*sqrt(M*M + pmuRest[1]*pmuRest[1] + pmuRest[2]*pmuRest[2] + pmuRest[3]*pmuRest[3]);
+        double pHQ = sqrt(pmuRest[1]*pmuRest[1] + pmuRest[2]*pmuRest[2] + pmuRest[3]*pmuRest[3]);
+        if(HQ_rate_type == 0)
+        {
+          kappa_T = 4.*M_PI*T*T*T/TwoPiTD_HQ;
+          eta = 2.*M_PI*T*T/(TwoPiTD_HQ*M);
+          kappa_L = kappa_T;
+        } else if (HQ_rate_type == 1)
+        {
+          double A0, B0, B1;
+          hqRates->getTandPdependent_coeff(T, 0., A0, B0, B1);
+          eta = A0;
+          kappa_T = 2.*B0;
+          kappa_L = kappa_T;
+        	//kappa = 2.*eta*T*M;
+        } else if (HQ_rate_type == 2)
+        {
+          double A0, B0, B1;
+          hqRates->getTandPdependent_coeff(T, pHQ, A0, B0, B1);
+          kappa_T = 2.*B0;
+          eta = A0;
+          kappa_L = kappa_T;
+        } else if (HQ_rate_type == 3)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (10.87937*T - 0.79860)*HQ_Lattice_rate_factor;
+          } else
+          {
+            temp_2piTD = (10.87937*T - 0.79860)*HQ_Lattice_rate_factor;
+          }
+          kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          //kappa_T = 4.*4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          kappa_L = kappa_T;
+
+        } else if (HQ_rate_type == 4)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (10.87937*T - 0.79860);
+          } else
+          {
+            temp_2piTD = 10.87937*T - 0.79860;
+          }
+          kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+	  eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+	  kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
+
+        } else if (HQ_rate_type == 5)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (6.07614*T - 0.19409);
+          } else
+          {
+            temp_2piTD = 6.07614*T - 0.19409;
+          }
+        	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+          kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
+
+        } else if (HQ_rate_type == 6)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (15.682606*T - 1.40311);
+          } else
+          {
+            temp_2piTD = 15.682606*T - 1.40311;
+          }
+        	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+          kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
+
+        } else
+        {
+        	cout << "Invalid HQ_rate_type" << endl;
+          exit(1);
+        }
+
+        double kicks[3];
+        sigma = sqrt(kappa_T*dtflow);
+        kicks[0] = gsl_ran_gaussian(gsl_rand, sigma);
+        kicks[1] = gsl_ran_gaussian(gsl_rand, sigma);
+        sigma = sqrt(kappa_L*dtflow);
+        kicks[2] = gsl_ran_gaussian(gsl_rand, sigma);
+
+        double transv1[3], transv2[3];
+        if (pmuRest[3] != 0.)
+        {
+           transv1[0] = 1.;
+           transv1[1] = 1.;
+           transv1[2] = -1.*(pmuRest[1]+pmuRest[2])/pmuRest[3];
+           double normalization = sqrt(transv1[0]*transv1[0] + transv1[1]*transv1[1] + transv1[2]*transv1[2]);
+           for (int ii = 0; ii < 3; ii++) transv1[ii] /= normalization;
+        } else
+        {
+           transv1[0] = 0.;
+           transv1[1] = 0.;
+           transv1[2] = 1.;
+        }
+
+        transv2[0] = pmuRest[2]*transv1[2]/pHQ - pmuRest[3]*transv1[1]/pHQ;
+        transv2[1] = pmuRest[3]*transv1[0]/pHQ - pmuRest[1]*transv1[2]/pHQ;
+        transv2[2] = pmuRest[1]*transv1[1]/pHQ - pmuRest[2]*transv1[0]/pHQ;
+
+        kicktriplet[0] = kicks[0]*transv1[0] + kicks[1]*transv2[0] + kicks[2]*pmuRest[1]/pHQ;
+        kicktriplet[1] = kicks[0]*transv1[1] + kicks[1]*transv2[1] + kicks[2]*pmuRest[2]/pHQ;
+        kicktriplet[2] = kicks[0]*transv1[2] + kicks[1]*transv2[2] + kicks[2]*pmuRest[3]/pHQ;
+
+        //Update the momentum in the rest frame:
+        pmuRestNew[1] = pmuRest[1]*(1.-eta*dtflow)+kicktriplet[0];
+        pmuRestNew[2] = pmuRest[2]*(1.-eta*dtflow)+kicktriplet[1];
+        pmuRestNew[3] = pmuRest[3]*(1.-eta*dtflow)+kicktriplet[2];
+        pmuRestNew[0] = sqrt(M*M+pmuRestNew[1]*pmuRestNew[1]
+           +pmuRestNew[2]*pmuRestNew[2]+pmuRestNew[3]*pmuRestNew[3]);
+        
+        //The flow velocity for boosting back:
+        umub[0] = umu[0];
+        umub[1] = -umu[1];
+        umub[2] = -umu[2];
+        umub[3] = -umu[3];
+        
+        //The boost back into the lab frame:
+        LorentzBooster(umub, pmuRestNew, pmuNew);
+        
+        //Now, the anti-quark:
+        double antiTE = antiT*sqrt(M*M + antipmuRest[1]*antipmuRest[1] + antipmuRest[2]*antipmuRest[2] + antipmuRest[3]*antipmuRest[3]);
+        double antipHQ = sqrt(antipmuRest[1]*antipmuRest[1] + antipmuRest[2]*antipmuRest[2] + antipmuRest[3]*antipmuRest[3]);
+        if(HQ_rate_type == 0)
+        {
+          kappa_T = 4.*M_PI*antiT*antiT*antiT/TwoPiTD_HQ;
+          eta = 0.5*kappa_T/(M*antiT);
+          kappa_L = kappa_T;
+        } else if (HQ_rate_type == 1)
+        {
+          double A0, B0, B1;
+          hqRates->getTandPdependent_coeff(antiT, 0., A0, B0, B1);
+          kappa_T = 2.*B0;
+          eta = A0;
+          kappa_L = kappa_T;
+      	  //kappa = 2.*eta*T*M;
+        } else if (HQ_rate_type == 2)
+        {
+          double A0, B0, B1;
+          hqRates->getTandPdependent_coeff(antiT, antipHQ, A0, B0, B1);
+          kappa_T = 2.*B0;
+          eta = A0;
+          kappa_L = kappa_T;
+        } else if (HQ_rate_type == 3)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (10.87937*antiT - 0.79860)*HQ_Lattice_rate_factor;
+          } else
+          {
+            temp_2piTD = (10.87937*antiT - 0.79860)*HQ_Lattice_rate_factor;
+          }
+          kappa_T = 4.*M_PI*antiT*antiT*antiT/temp_2piTD;
+          //kappa_T = 4.*4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*antiT*antiT/(temp_2piTD*M);
+          kappa_L = kappa_T;
+
+        } else if (HQ_rate_type == 4)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (10.87937*antiT - 0.79860);
+          } else
+          {
+            temp_2piTD = 10.87937*antiT - 0.79860;
+          }
+          kappa_T = 4.*M_PI*antiT*antiT*antiT/temp_2piTD;
+          eta = 2.*M_PI*antiT*antiT/(temp_2piTD*M);
+	  eta     *= 1./(1.+0.17*pow(antipHQ,1.11));//pHQ in GeV
+	  kappa_T *= (1.+ 5.*pow(antipHQ,1.11)/(7.9+pow(antipHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
+
+        } else if (HQ_rate_type == 5)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (6.07614*T - 0.19409);
+          } else
+          {
+            temp_2piTD = 6.07614*T - 0.19409;
+          }
+        	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+          kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
+
+        } else if (HQ_rate_type == 6)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (15.682606*T - 1.40311);
+          } else
+          {
+            temp_2piTD = 15.682606*T - 1.40311;
+          }
+        	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+          kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
+
+        } else
+        {
+        	cout << "Invalid HQ_rate_type" << endl;
+          exit(1);
+        }
+        sigma = sqrt(kappa_T*dtflow);
+        kicks[0] = gsl_ran_gaussian(gsl_rand, sigma);
+        kicks[1] = gsl_ran_gaussian(gsl_rand, sigma);
+        sigma = sqrt(kappa_L*dtflow);
+        kicks[2] = gsl_ran_gaussian(gsl_rand, sigma);
+
+        double antitransv1[3], antitransv2[3];
+        if (antipmuRest[3] != 0.)
+        {
+           antitransv1[0] = 1.;
+           antitransv1[1] = 1.;
+           antitransv1[2] = -1.*(antipmuRest[1]+antipmuRest[2])/antipmuRest[3];
+           double normalization = sqrt(antitransv1[0]*antitransv1[0] + antitransv1[1]*antitransv1[1] + antitransv1[2]*antitransv1[2]);
+           for (int ii = 0; ii < 3; ii++) antitransv1[ii] /= normalization;
+        } else
+        {
+           antitransv1[0] = 0.;
+           antitransv1[1] = 0.;
+           antitransv1[2] = 1.;
+        }
+
+        antitransv2[0] = antipmuRest[2]*antitransv1[2]/antipHQ - antipmuRest[3]*antitransv1[1]/antipHQ;
+        antitransv2[1] = antipmuRest[3]*antitransv1[0]/antipHQ - antipmuRest[1]*antitransv1[2]/antipHQ;
+        antitransv2[2] = antipmuRest[1]*antitransv1[1]/antipHQ - antipmuRest[2]*antitransv1[0]/antipHQ;
+
+        kicktriplet[0] = kicks[0]*antitransv1[0] + kicks[1]*antitransv2[0] + kicks[2]*antipmuRest[1]/antipHQ;
+        kicktriplet[1] = kicks[0]*antitransv1[1] + kicks[1]*antitransv2[1] + kicks[2]*antipmuRest[2]/antipHQ;
+        kicktriplet[2] = kicks[0]*antitransv1[2] + kicks[1]*antitransv2[2] + kicks[2]*antipmuRest[3]/antipHQ;
+        
+        //Update the momentum in the rest frame:
+        antipmuRestNew[1] = antipmuRest[1]*(1.-eta*antidtflow)+kicktriplet[0];
+        antipmuRestNew[2] = antipmuRest[2]*(1.-eta*antidtflow)+kicktriplet[1];
+        antipmuRestNew[3] = antipmuRest[3]*(1.-eta*antidtflow)+kicktriplet[2];
+        antipmuRestNew[0] = sqrt(M*M+antipmuRestNew[1]*antipmuRestNew[1]
+               +antipmuRestNew[2]*antipmuRestNew[2]+antipmuRestNew[3]*antipmuRestNew[3]);
+        
+        //The flow velocity for boosting back:
+        antiumub[0] = antiumu[0];
+        antiumub[1] = -antiumu[1];
+        antiumub[2] = -antiumu[2];
+        antiumub[3] = -antiumu[3];
+        
+        //The boost back into the lab frame:
+        LorentzBooster(antiumub, antipmuRestNew, antipmuNew);
+        
+        //Finally, we include the effect of the HQ potential, parametrized from
+        // lattice data:
+        r = sqrt( (x-antix)*(x-antix)+(y-antiy)*(y-antiy)+(z-antiz)*(z-antiz) );
+        force = F(r, T_ave);
+        //force = 0.; //We are debugging!
+        //if(r > 0.4 && r < 1.5){
+        //force = 0.0985/(r*r)+0.812;
+        //}//Still debugging!
+
+        if(force > 0.){
+    F_x = force*(antix-x)/r;
+    F_y = force*(antiy-y)/r;
+    F_z = force*(antiz-z)/r;
+        }
+        else F_x = F_y = F_z = 0.;
+
+        //Update the particle's momentum:
+        plist[0]->at(i).p(pmuNew[1]+F_x*dt*hbarc, pmuNew[2]+F_y*dt*hbarc, pmuNew[3]+F_z*dt*hbarc);
+        plist[0]->at(antiI).p(antipmuNew[1]-F_x*dt*hbarc, antipmuNew[2]-F_y*dt*hbarc, antipmuNew[3]-F_z*dt*hbarc);
+        
+        //Update the anti-particle's momentum:
+        //cout << "pmu1: " << pmuNew[1] << " " << pmuNew[2] << " " << pmuNew[3] << endl;
+        //cout << "pmu2: " << antipmuNew[1] << " " << antipmuNew[2] << " " << antipmuNew[3] << endl;
+      }
+      else{
+        plist[0]->at(i).frozen(1);
+        plist[0]->at(antiI).frozen(1);
+      }
+    }
+  }
       }
     }
   //foutt.close();
@@ -5173,547 +6318,778 @@ int MARTINI::evolveHeavyQuarks(vector<Parton>  **plist, int counter, int it)
 
 //Evolves the heavy quarks, but does the hadronization each heavy quark reaches the temperature of 
 //its freezeout. This is to make better estimates of the recombinant production. -CFY 8/23/2011
-int MARTINI::evolveAndHadronizeHeavyQuarks(vector<Parton>  **plist, int counter, int it)
+int MARTINI::evolveAndHadronizeHeavyQuarks(vector<Parton>  **plist, double* hydro_T, double* prehydro_T, int* hydro_counter, int* prehydro_counter, int counter, int it)
 {
-	cout.precision(6);
-	
-	HydroInfo hydroInfo;// antihydroInfo;
-	
-	Vec4 vecp, antiVecP;                          // momentum four-vectors
-	double pmu[4], pmuRest[4], pmuRestNew[4], pmuNew[4]; //Easy to Lorentz-boost arrays with my subroutine 
-	//double antipmu[4], antipmuRest[4], antipmuRestNew[4], antipmuNew[4]; //Easy to Lorentz-boost arrays with my subroutine 
-	
-	int imax = plist[0]->size();        // number of partons in the list
-	int id; //newID;                      // original and new parton's ID
-	//int col, acol, newCol, newAcol;     // number of the color string attached to the old, and new parton
-	int ix, iy, iz, itau;               // parton's position in cell coordinates
-	//int antiix, antiiy, antiiz, antiitau; // parton's position in cell coordinates
-	int ixmax, izmax;                   // maximum cell number in x- and y-direction, and z-direction
-	
-	double dt = dtfm/hbarc;             // time step in [GeV^(-1)] - hbarc is defined in Basics.h 
-	// Gamma = \int dGamma dp is given in units of GeV, so dt*Gamma is dimensionless
-	double dtflow;// antidtflow;                      // dt in the fluid's rest frame
-	double T;// antiT, T_ave;             // temperature
-	double M, antiM;                    // Parton's mass [GeV]
-	double x, y, z;                     // parton's position in [fm]
-	//double antix, antiy, antiz       ;  // parton's position in [fm]
-	double t, tau;// antitau;             // lab time and lab tau
-	double vx, vy, vz;                  // flow velocity of the cell
-	//double antivx, antivy, antivz;      // flow velocity of the cell
-	double beta;                        // absolute value of the flow velocity
-	//double antibeta;                        // absolute value of the flow velocity
-	double gamma;                       // gamma factor 
-	//double antigamma;                       // gamma factor 
-	double umu[4], umub[4];             // Fluid's 4-velocity
-	//double antiumu[4], antiumub[4];             // Fluid's 4-velocity
-	const double rd=12.3;               // ratio of degrees of freedom g_QGP/g_H (for Kolb hydro only)
-	
-	double kappa, sigma, eta;
-	double kicktriplet[3];
-	double r, force, F_x, F_y, F_z;
-	
-	ixmax = static_cast<int>(2.*hydroXmax/hydroDx+0.0001);
-	
-	if ( hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6) izmax = static_cast<int>(2.*hydroZmax/hydroDz+0.0001);
-	
-	//cout << "counter = " << counter << ", it = " << it << endl;
-	
-	for ( int i=0; i<imax; i++)                                   // loop over all partons
-	  { 
-	    if(plist[0]->at(i).frozen() == 0){
-	      counter++;                                                // counter that characterizes every step uniquely
-	      id = plist[0]->at(i).id();                                // id of parton i 
-	      
-	      if(abs(id)!=4 && abs(id)!=5) continue;                    // We immediately leave the loop of the parton is not a heavy quark!
-	      
-	      
-	      t = it*dtfm;        //had a +tau0 here. now let partons travel doing their vacuum shower stuff first...
-	      
-	      vecp = plist[0]->at(i).p();                               // four-vector p of parton i
-	      M = plist[0]->at(i).mass();                               // Mass of the parton (only used for charm and bottom quarks)
-	      pmu[1] = vecp.px();
-	      pmu[2] = vecp.py();
-	      pmu[3] = vecp.pz();
-	      pmu[0] = sqrt(M*M+pmu[1]*pmu[1]+pmu[2]*pmu[2]+pmu[3]*pmu[3]); //vecp loaded into an array for ease with LorentzBooster
-	      
-	      x = plist[0]->at(i).x();                                  // x value of position in [fm]
-	      y = plist[0]->at(i).y();                                  // y value of position in [fm]
-	      z = plist[0]->at(i).z();                                  // z value of position in [fm]
-	      
-	      ix = floor((hydroXmax+x)/hydroDx+0.0001);                 // x-coordinate of the cell we are in now
-	      iy = floor((hydroXmax+y)/hydroDx+0.0001);                 // y-coordinate of the cell we are in now
-	      
-	      if (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) 
-		{
-		  iz = floor((hydroZmax+z)/hydroDz+0.0001);             // z-coordinate of the cell we are in now
-		}
-	      
-	      if (fixedTemperature == 0)
-		{
-		  tau = 0.;           //just give tau some value - will change below
-		  
-		  if (z*z<t*t) tau = sqrt(t*t-z*z);                     // determine tau (z*z) should always be less than (t*t)
+  cout.precision(6);
+  
+  HydroInfo hydroInfo;// antihydroInfo;
+  PreHydroInfo prehydroInfo;// antihydroInfo;
+  
+  Vec4 vecp, antiVecP;                          // momentum four-vectors
+  double pmu[4], pmuRest[4], pmuRestNew[4], pmuNew[4]; //Easy to Lorentz-boost arrays with my subroutine 
+  //double antipmu[4], antipmuRest[4], antipmuRestNew[4], antipmuNew[4]; //Easy to Lorentz-boost arrays with my subroutine 
+  
+  int imax = plist[0]->size();        // number of partons in the list
+  int id; //newID;                      // original and new parton's ID
+  //int col, acol, newCol, newAcol;     // number of the color string attached to the old, and new parton
+  int ix, iy, iz, itau;               // parton's position in cell coordinates
+  //int antiix, antiiy, antiiz, antiitau; // parton's position in cell coordinates
+  int ixmax, izmax;                   // maximum cell number in x- and y-direction, and z-direction
+  
+  double dt = dtfm/hbarc;             // time step in [GeV^(-1)] - hbarc is defined in Basics.h 
+  // Gamma = \int dGamma dp is given in units of GeV, so dt*Gamma is dimensionless
+  double dtflow;// antidtflow;                      // dt in the fluid's rest frame
+  double T;// antiT, T_ave;             // temperature
+  double M, antiM;                    // Parton's mass [GeV]
+  double x, y, z;                     // parton's position in [fm]
+  //double antix, antiy, antiz       ;  // parton's position in [fm]
+  double t, tau;// antitau;             // lab time and lab tau
+  double vx, vy, vz;                  // flow velocity of the cell
+  //double antivx, antivy, antivz;      // flow velocity of the cell
+  double beta;                        // absolute value of the flow velocity
+  //double antibeta;                        // absolute value of the flow velocity
+  double gamma;                       // gamma factor 
+  //double antigamma;                       // gamma factor 
+  double umu[4], umub[4];             // Fluid's 4-velocity
+  //double antiumu[4], antiumub[4];             // Fluid's 4-velocity
+  const double rd=12.3;               // ratio of degrees of freedom g_QGP/g_H (for Kolb hydro only)
+  
+  double kappa_T, kappa_L, sigma, eta;
+  double kicktriplet[3];
+  double r, force, F_x, F_y, F_z;
+  
+  ixmax = static_cast<int>(2.*hydroXmax/hydroDx+0.0001);
+  
+  if ( hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6) izmax = static_cast<int>(2.*hydroZmax/hydroDz+0.0001);
+  
+  //cout << "counter = " << counter << ", it = " << it << endl;
+  
+  for ( int i=0; i<imax; i++)                                   // loop over all partons
+    { 
+      if(plist[0]->at(i).frozen() == 0)
+      {
+        counter++;                                                // counter that characterizes every step uniquely
+        id = plist[0]->at(i).id();                                // id of parton i 
+        
+        if(abs(id)!=4 && abs(id)!=5) continue;                    // We immediately leave the loop of the parton is not a heavy quark!
+        
+        
+        t = it*dtfm;        //had a +tau0 here. now let partons travel doing their vacuum shower stuff first...
+        
+        vecp = plist[0]->at(i).p();                               // four-vector p of parton i
+        M = plist[0]->at(i).mass();                               // Mass of the parton (only used for charm and bottom quarks)
+        pmu[1] = vecp.px();
+        pmu[2] = vecp.py();
+        pmu[3] = vecp.pz();
+        pmu[0] = sqrt(M*M+pmu[1]*pmu[1]+pmu[2]*pmu[2]+pmu[3]*pmu[3]); //vecp loaded into an array for ease with LorentzBooster
+        
+	if(plist[0]->at(i).formed() == 0)
+        {
+          if (pmu[0]*hbarc/(M*M) < t) plist[0]->at(i).formed(1);
+        }
 
-		  //We add here a third option for moveBeforeTau0: if moveBeforeTau0 = 2, then the heavy quark will be evolved according to the 
-		  //Cornell potential if tau<hydroTau0:
-		  if(tau<hydroTau0 && moveBeforeTau0 == 2){
-		    //First, evolve the positions:
-		    plist[0]->at(i).x(x+vecp.px()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-		    plist[0]->at(i).y(y+vecp.py()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-		    plist[0]->at(i).z(z+vecp.pz()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+        x = plist[0]->at(i).x();                                  // x value of position in [fm]
+        y = plist[0]->at(i).y();                                  // y value of position in [fm]
+        z = plist[0]->at(i).z();                                  // z value of position in [fm]
+        
+        ix = floor((hydroXmax+x)/hydroDx+0.0001);                 // x-coordinate of the cell we are in now
+        iy = floor((hydroXmax+y)/hydroDx+0.0001);                 // y-coordinate of the cell we are in now
+        
+        if (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) 
+        {
+          iz = floor((hydroZmax+z)/hydroDz+0.0001);             // z-coordinate of the cell we are in now
+        }
+        
+        if (fixedTemperature == 0)
+        {
+          tau = 0.;           //just give tau some value - will change below
+          
+          if (z*z<t*t) tau = sqrt(t*t-z*z);                     // determine tau (z*z) should always be less than (t*t)
+	  if(tau >= hydroTau0 && plist[0]->at(i).inhydro() == 0)
+          {
+            Vec4 initp;
+	    initp = plist[0]->at(i).Initialp();
+            plist[0]->at(i).EndOfPreeqp(pmu[1], pmu[2], pmu[3]);
+            plist[0]->at(i).inhydro(1);
+          }
+          // get the temperature and flow velocity at the current position and time:
+          if (!trackHistory)
+            {
+              // warn if out of range and move on to next parton (should not happen!)
+              if ( ix < 0 || ix >= ixmax ) 
+              {
+                cout << "WARNING - x out of range" << endl;
+                plist[0]->at(i).frozen(1);
+                continue;
+              }
+              if ( iy < 0 || iy >= ixmax )
+              {
+                cout << "WARNING - y out of range" << endl;
+                plist[0]->at(i).frozen(1);
+                continue;
+              }
+              if ( (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) && ( iz < 0 || iz >= izmax ) ) 
+              {
+                cout << "WARNING - z out of range" << endl;
+                plist[0]->at(i).frozen(1);
+                continue;
+              }
+            }
+          if(evolution == 1)
+	    {
+              if(tau<hydroTau0 && tau > prehydroTau0 && prehydroevolution == 1 && plist[0]->at(i).formed() == 1)
+              {
+                prehydroInfo = hydroSetup->getPreHydroValues(x, y, z, t);//, hydroXmax, hydroZmax, hydroTauMax, hydroTau0
+                T = prehydroInfo.T;
+                double eta_local = 0.5*log((t+z)/(t-z));
+		double cosh_eta = cosh(eta_local);
+		double sinh_eta = sinh(eta_local);
+		umu[0] = prehydroInfo.utau*cosh_eta;  // gamma factor
+                umu[1] = prehydroInfo.ux; 
+                umu[2] = prehydroInfo.uy; 
+                umu[3] = prehydroInfo.utau*sinh_eta;
 
-		    plist[0]->at(i).xOld(x);
-		    plist[0]->at(i).yOld(y);
-		    plist[0]->at(i).zOld(z);
-
-		    int antiI = plist[0]->at(i).antiI();
-		    //cout << "antiI = " << antiI << " for i = " << i << endl;
-		    if(plist[0]->at(antiI).frozen() == 0){
-		      //Here are the steps necessary for evolving in the CM frame of the pair:
-		      if(antiI > i){
-			antiVecP = plist[0]->at(antiI).p();
-		      }
-		      else{
-			antiVecP = plist[0]->at(antiI).pOld();
-		      }
-		      antiM = plist[0]->at(antiI).mass();
-		      
-		      double dx, dy, dz;
-		      if(antiI > i){
-			dx = plist[0]->at(antiI).x()+antiVecP.px()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).x();
-			dy = plist[0]->at(antiI).y()+antiVecP.py()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).y();
-			dz = plist[0]->at(antiI).z()+antiVecP.pz()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).z();
-		      }
-		      else{
-			dx = plist[0]->at(antiI).x()-plist[0]->at(i).x();
-			dy = plist[0]->at(antiI).y()-plist[0]->at(i).y();
-			dz = plist[0]->at(antiI).z()-plist[0]->at(i).z();
-		      }
-		      
-		      int id1 = plist[0]->at(i).id();
-		      int id2 = plist[0]->at(antiI).id();
-		      
-		      double ptot[4];
-		      ptot[1] = vecp.px() + antiVecP.px();
-		      ptot[2] = vecp.py() + antiVecP.py();
-		      ptot[3] = vecp.pz() + antiVecP.pz();
-		      ptot[0] = sqrt(vecp.px()*vecp.px() + vecp.py()*vecp.py() + vecp.pz()*vecp.pz() + M*M)
-			+sqrt(antiVecP.px()*antiVecP.px() + antiVecP.py()*antiVecP.py() + antiVecP.pz()*antiVecP.pz() + antiM*antiM);
-		      
-		      //The space-like separation between the heavy quarks:
-		      double deltax[4];
-		      deltax[0] = 0.;
-		      deltax[1] = dx;
-		      deltax[2] = dy;
-		      deltax[3] = dz;
-		      
-		      double pnew[4];
-		      
-		      //Now we have everything needed to calculate pnew:
-		      stepMomentumInCMFrame(ptot, pmu, dt, deltax, pnew, 0.);
-		      
-		      double px = vecp.px();
-		      double py = vecp.py();
-		      double pz = vecp.pz();
-		      
-		      plist[0]->at(i).p(pnew[1], pnew[2], pnew[3]);
-		      plist[0]->at(i).pOld(px, py, pz);
-		    }
-		  }
-
-		  if (tau<hydroTau0 || (tau>hydroTauMax && evolution == 1)) continue;       // do not evolve if tau<tau0 or tau>tauMax
-		  
-		  //This is how to stop evolution in medium if the settings call for it:
-
-		  // get the temperature and flow velocity at the current position and time:
-		  if (!trackHistory)
-		    {
-		      // warn if out of range and move on to next parton (should not happen!)
-		      if ( ix < 0 || ix >= ixmax ) 
-			{
-			  cout << "WARNING - x out of range" << endl;
-			  plist[0]->at(i).frozen(1);
-			  continue;
-			}
-		      if ( iy < 0 || iy >= ixmax )
-			{
-			  cout << "WARNING - y out of range" << endl;
-			  plist[0]->at(i).frozen(1);
-			  continue;
-			}
-		      if ( (hydroWhichHydro == 3 || hydroWhichHydro == 4 || hydroWhichHydro == 6 ) && ( iz < 0 || iz >= izmax ) ) 
-			{
-			  cout << "WARNING - z out of range" << endl;
-			  plist[0]->at(i).frozen(1);
-			  continue;
-			}
-		    }
-		  if(evolution == 1){
-		    hydroInfo = hydroSetup->getHydroValues(x, y, z, t, hydroXmax, hydroZmax, hydroTauMax, hydroTau0, 
-							   hydroDx, hydroDz, hydroDtau, hydroWhichHydro, fixedDistribution, lattice, trackHistory);
-		    
-		    T = hydroInfo.T;
-		    //cout << "T = " << T << "for particle " << i << endl;
-		    vx = hydroInfo.vx;
-		    vy = hydroInfo.vy;
-		    vz = hydroInfo.vz;
-		  }
-		  else{
-		  //This is how to stop evolution in medium if the settings call for it:
-		    T = 0.;
-		  }
-
-		  if (T<hydroTfinal && hydroWhichHydro == 2)                 // for 2D hydro evolutions stop at T_final (can change that)
-		    {
-		      plist[0]->at(i).tFinal(t);
-		      continue;                                             // do not evolve if T<T_c
-		    }
-		  
-		  beta = sqrt(vx*vx+vy*vy+vz*vz);                           // absolute value of flow velocity in units of c
-		  gamma = 1./sqrt(1.-beta*beta);                            // gamma factor
-		  umu[0] = gamma;
-		  umu[1] = gamma*vx;
-		  umu[2] = gamma*vy;
-		  umu[3] = gamma*vz;
-		  LorentzBooster(umu, pmu, pmuRest);                      // Boost into the fluid's rest frame
-		  dtflow = dt*pmuRest[0]/pmu[0];                          // dtfm in the fluid's rest frame
-		  
-		}
-	      else // the fixed temperature case:
-		{
-		  beta = 0.;
-		  gamma = 1.; 
-		  T = fixedT;
-		  umu[0] = 1.; umu[1] = umu[2] = umu[3] = 0.;
-		  LorentzBooster(umu, pmu, pmuRest);
-		  dtflow = dt*pmuRest[0]/pmu[0];
-		}
-	      // Sample a triplet of kicks for the heavy quark. For now, we 
-	      // take the simplest case: constant 2piT*D_c, however later 
-	      // both kicktriplet[3] and eta will be determined from HTL 
-	      // results at LO or NLO order:
-	      if(T > T_C_HQ){
-		plist[0]->at(i).tFinal(t); // update the time - finally will be the final time
-
-		//Finally evolve the heavy quarks' positions:
-		plist[0]->at(i).x(x+vecp.px()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-		plist[0]->at(i).y(y+vecp.py()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-		plist[0]->at(i).z(z+vecp.pz()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
-
-		plist[0]->at(i).xOld(x);
-		plist[0]->at(i).yOld(y);
-		plist[0]->at(i).zOld(z);
-		
-		int antiI = plist[0]->at(i).antiI();
-
-		if(plist[0]->at(antiI).frozen() == 0){
-		  //Here are the steps necessary for evolving in the CM frame of the pair:
-		  if(antiI > i){
-		    antiVecP = plist[0]->at(antiI).p();
-		  }
-		  else{
-		    antiVecP = plist[0]->at(antiI).pOld();
-		  }
-		  antiM = plist[0]->at(antiI).mass();
-		  
-		  double dx, dy, dz;
-		  if(antiI > i){
-		    dx = plist[0]->at(antiI).x()+antiVecP.px()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).x();
-		    dy = plist[0]->at(antiI).y()+antiVecP.py()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).y();
-		    dz = plist[0]->at(antiI).z()+antiVecP.pz()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).z();
-		  }
-		  else{
-		    dx = plist[0]->at(antiI).x()-plist[0]->at(i).x();
-		    dy = plist[0]->at(antiI).y()-plist[0]->at(i).y();
-		    dz = plist[0]->at(antiI).z()-plist[0]->at(i).z();
-		  }
-		  
-		  int id1 = plist[0]->at(i).id();
-		  int id2 = plist[0]->at(antiI).id();
-		  
-		  double ptot[4];
-		  ptot[1] = vecp.px() + antiVecP.px();
-		  ptot[2] = vecp.py() + antiVecP.py();
-		  ptot[3] = vecp.pz() + antiVecP.pz();
-		  ptot[0] = sqrt(vecp.px()*vecp.px() + vecp.py()*vecp.py() + vecp.pz()*vecp.pz() + M*M)
-		    +sqrt(antiVecP.px()*antiVecP.px() + antiVecP.py()*antiVecP.py() + antiVecP.pz()*antiVecP.pz() + antiM*antiM);
-		  
-		  //The space-like separation between the heavy quarks:
-		  double deltax[4];
-		  deltax[0] = 0.;
-		  deltax[1] = dx;
-		  deltax[2] = dy;
-		  deltax[3] = dz;
-		  
-		  double pnew[4];
-		  
-		  //Now we have everything needed to calculate pnew:
-		  stepMomentumInCMFrame(ptot, pmu, dt, deltax, pnew, T);
-		  
-		  double px = vecp.px();
-		  double py = vecp.py();
-		  double pz = vecp.pz();
-		  
-		  plist[0]->at(i).p(pnew[1], pnew[2], pnew[3]);
-		  plist[0]->at(i).pOld(px, py, pz);
-		  vecp = plist[0]->at(i).p();
-		}
-
-		//Reload and recalculate these for the Langevin dynamics:
-		pmu[1] = vecp.px();
-		pmu[2] = vecp.py();
-		pmu[3] = vecp.pz();
-		pmu[0] = sqrt(M*M+pmu[1]*pmu[1]+pmu[2]*pmu[2]+pmu[3]*pmu[3]); //vecp loaded into an array for ease with LorentzBooster
 		LorentzBooster(umu, pmu, pmuRest);                      // Boost into the fluid's rest frame
-		dtflow = dt*pmuRest[0]/pmu[0];                          // dtfm in the fluid's rest frame
+                dtflow = dt*pmuRest[0]/pmu[0];                          // dtfm in the fluid's rest frame
+                if (T > T_C_HQ){
+                  int itind = (tau - prehydroTau0)/prehydroDtau;
+                  prehydro_T[itind] += T;
+                  prehydro_counter[itind] ++;
+                }
+              } else if (tau >= hydroTau0 && plist[0]->at(i).formed() == 1)
+              {
+                hydroInfo = hydroSetup->getHydroValues(x, y, z, t);//, hydroXmax, hydroZmax, hydroTauMax, hydroTau0, 
+//                       hydroDx, hydroDz, hydroDtau, hydroWhichHydro, fixedDistribution, lattice, trackHistory);
+              
+                T = hydroInfo.T;
+                //cout << "T = " << T << "for particle " << i << endl;
+                vx = hydroInfo.vx;
+                vy = hydroInfo.vy;
+                vz = hydroInfo.vz;
+                beta = sqrt(vx*vx+vy*vy+vz*vz);                           // absolute value of flow velocity in units of c
+                gamma = 1./sqrt(1.-beta*beta);                            // gamma factor
+                umu[0] = gamma;
+                umu[1] = gamma*vx;
+                umu[2] = gamma*vy;
+                umu[3] = gamma*vz;
+                LorentzBooster(umu, pmu, pmuRest);                      // Boost into the fluid's rest frame
+                dtflow = dt*pmuRest[0]/pmu[0];                          // dtfm in the fluid's rest frame
+                if (T > T_C_HQ){
+                  int itind = (tau - hydroTau0)/hydroDtau;
+                  hydro_T[itind] += T;
+                  hydro_counter[itind] ++;
+                }
+                
+              }
+              else
+              {
+                T = 0.;
+              }
+            }
+          else{
+              //This is how to stop evolution in medium if the settings call for it:
+              T = 0.;
+            }
 
-		kappa = 4.*M_PI*T*T*T/TwoPiTD_HQ;
-		sigma = sqrt(kappa*dtflow);
-		kicktriplet[0] = gsl_ran_gaussian(gsl_rand, sigma);
-		kicktriplet[1] = gsl_ran_gaussian(gsl_rand, sigma);
-		kicktriplet[2] = gsl_ran_gaussian(gsl_rand, sigma);
-		
-		eta = 2.*M_PI*T*T/(TwoPiTD_HQ*M);
-		
-		//Update the momentum in the rest frame:
-		pmuRestNew[1] = pmuRest[1]*(1.-eta*dtflow)+kicktriplet[0];
-		pmuRestNew[2] = pmuRest[2]*(1.-eta*dtflow)+kicktriplet[1];
-		pmuRestNew[3] = pmuRest[3]*(1.-eta*dtflow)+kicktriplet[2];
-		pmuRestNew[0] = sqrt(M*M+pmuRestNew[1]*pmuRestNew[1]
-				     +pmuRestNew[2]*pmuRestNew[2]+pmuRestNew[3]*pmuRestNew[3]);
-		
-		//The flow velocity for boosting back:
-		umub[0] = umu[0];
-		umub[1] = -umu[1];
-		umub[2] = -umu[2];
-		umub[3] = -umu[3];
-		
-		//The boost back into the lab frame:
-		LorentzBooster(umub, pmuRestNew, pmuNew);
-		
-		plist[0]->at(i).p(pmuNew[1], pmuNew[2], pmuNew[3]);
-		
-	      }
-	      // If the heavy quark's temperature is below that of freezeout, hadronize the heavy quark, 
-	      // taking into account the possibility of recombinant production. Recombinant production is assumed to be 
-	      // possible only if both heavy quarks involved had evolved in the medium (in other words, if tFinal != 0 fm/c):
-	      else{
-		//cout << "Is this being called?" << endl;
-		plist[0]->at(i).frozen(1);
-		//cout << "The heavy quark " << i << " is hadronizing..." << endl;
+	  //We add here a third option for moveBeforeTau0: if moveBeforeTau0 = 2, then the heavy quark will be evolved according to the 
+          //Cornell potential if tau<hydroTau0:
+          if(plist[0]->at(i).formed() == 0 || (tau<hydroTau0 && moveBeforeTau0 == 2 && (prehydroevolution == 0 || T < T_C_HQ)))
+          {
+            //First, evolve the positions:
+            plist[0]->at(i).x(x+vecp.px()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+            plist[0]->at(i).y(y+vecp.py()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+            plist[0]->at(i).z(z+vecp.pz()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
 
-		//First, check if quarkonium has survived:
-		int antiI = plist[0]->at(i).antiI();
+            plist[0]->at(i).xOld(x);
+            plist[0]->at(i).yOld(y);
+            plist[0]->at(i).zOld(z);
 
-		if(plist[0]->at(antiI).frozen() == 0){
-		  int id1 = plist[0]->at(i).id();
-		  int id2 = plist[0]->at(antiI).id();
+	    //MS Turning off Cornell potential
+            //int antiI = plist[0]->at(i).antiI();
+            ////cout << "antiI = " << antiI << " for i = " << i << endl;
+            //if(plist[0]->at(antiI).frozen() == 0)
+            //{
+            //  //Here are the steps necessary for evolving in the CM frame of the pair:
+            //  if(antiI > i){
+            //   antiVecP = plist[0]->at(antiI).p();
+            //  }
+            //  else{
+            //   antiVecP = plist[0]->at(antiI).pOld();
+            //  }
+            //  antiM = plist[0]->at(antiI).mass();
+            //  
+            //  double dx, dy, dz;
+            //  if(antiI > i)
+            //  {
+            //    dx = plist[0]->at(antiI).x()+antiVecP.px()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).x();
+            //    dy = plist[0]->at(antiI).y()+antiVecP.py()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).y();
+            //    dz = plist[0]->at(antiI).z()+antiVecP.pz()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).z();
+            //  }
+            //  else{
+            //    dx = plist[0]->at(antiI).x()-plist[0]->at(i).x();
+            //    dy = plist[0]->at(antiI).y()-plist[0]->at(i).y();
+            //    dz = plist[0]->at(antiI).z()-plist[0]->at(i).z();
+            //  }
+            //  
+            //  int id1 = plist[0]->at(i).id();
+            //  int id2 = plist[0]->at(antiI).id();
+            //  
+            //  double ptot[4];
+            //  ptot[1] = vecp.px() + antiVecP.px();
+            //  ptot[2] = vecp.py() + antiVecP.py();
+            //  ptot[3] = vecp.pz() + antiVecP.pz();
+            //  ptot[0] = sqrt(vecp.px()*vecp.px() + vecp.py()*vecp.py() + vecp.pz()*vecp.pz() + M*M)
+            //     +sqrt(antiVecP.px()*antiVecP.px() + antiVecP.py()*antiVecP.py() + antiVecP.pz()*antiVecP.pz() + antiM*antiM);
+            //  
+            //  //The space-like separation between the heavy quarks:
+            //  double deltax[4];
+            //  deltax[0] = 0.;
+            //  deltax[1] = dx;
+            //  deltax[2] = dy;
+            //  deltax[3] = dz;
+            //  
+            //  double pnew[4];
+            //  
+            //  //Now we have everything needed to calculate pnew:
+            //  stepMomentumInCMFrame(ptot, pmu, dt, deltax, pnew, 0.);
+            //  
+            //  double px = vecp.px();
+            //  double py = vecp.py();
+            //  double pz = vecp.pz();
+            //  
+            //  plist[0]->at(i).p(pnew[1], pnew[2], pnew[3]);
+            //  plist[0]->at(i).pOld(px, py, pz);
+            //}
+          }
 
-		  //Any quarkonium produced will be the surviving component:
-		  int status = 81;
+          if ((tau<hydroTau0 && prehydroevolution == 0) || (tau>hydroTauMax && evolution == 1) || tau < prehydroTau0 || plist[0]->at(i).formed() == 0) continue;       // do not evolve if tau<tau0 or tau>tauMax
+          
+          //This is how to stop evolution in medium if the settings call for it:
 
-		  //The relative momentum of the pair:
-		  Vec4 p1 = plist[0]->at(i).p();
-		  Vec4 p2 = plist[0]->at(antiI).p();
 
-		  double M1 = plist[0]->at(i).mass();
-		  double M2 = plist[0]->at(antiI).mass();
+          if (T<hydroTfinal && hydroWhichHydro == 2)                 // for 2D hydro evolutions stop at T_final (can change that)
+            {
+              plist[0]->at(i).tFinal(t);
+              continue;                                             // do not evolve if T<T_c
+            }
+          
+        }
+            else // the fixed temperature case:
+        {
+          beta = 0.;
+          gamma = 1.; 
+          T = fixedT;
+          umu[0] = 1.; umu[1] = umu[2] = umu[3] = 0.;
+          LorentzBooster(umu, pmu, pmuRest);
+          dtflow = dt*pmuRest[0]/pmu[0];
+        }
+        // Sample a triplet of kicks for the heavy quark. For now, we 
+        // take the simplest case: constant 2piT*D_c, however later 
+        // both kicktriplet[3] and eta will be determined from HTL 
+        // results at LO or NLO order:
+    if(T > T_C_HQ){
+      plist[0]->at(i).tFinal(t); // update the time - finally will be the final time
 
-		  double p1mu[4], p2mu[4];
-		  p1mu[1] = p1.px();
-		  p1mu[2] = p1.py();
-		  p1mu[3] = p1.pz();
-		  p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-		  p2mu[1] = p2.px();
-		  p2mu[2] = p2.py();
-		  p2mu[3] = p2.pz();
-		  p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
-		  
-		  double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
-				      -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
-				      -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
-				      -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
-		  
-		  double deltaX[4];
-		  deltaX[0] = 0.;
-		  deltaX[1] = plist[0]->at(i).x()-plist[0]->at(antiI).x();
-		  deltaX[2] = plist[0]->at(i).y()-plist[0]->at(antiI).y();
-		  deltaX[3] = plist[0]->at(i).z()-plist[0]->at(antiI).z();
+      //Finally evolve the heavy quarks' positions:
+      plist[0]->at(i).x(x+vecp.px()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+      plist[0]->at(i).y(y+vecp.py()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
+      plist[0]->at(i).z(z+vecp.pz()/sqrt(vecp.pAbs()*vecp.pAbs()+M*M)*dtfm);
 
-		  double r = rInCMFrame(p1mu, p2mu, deltaX);
+      plist[0]->at(i).xOld(x);
+      plist[0]->at(i).yOld(y);
+      plist[0]->at(i).zOld(z);
+      
+      int antiI = plist[0]->at(i).antiI();
 
-		  double potential = CornellPotential(r);
+      if(plist[0]->at(antiI).frozen() == 0){
+        //Here are the steps necessary for evolving in the CM frame of the pair:
+        if(antiI > i){
+          antiVecP = plist[0]->at(antiI).p();
+        }
+        else{
+          antiVecP = plist[0]->at(antiI).pOld();
+        }
+        antiM = plist[0]->at(antiI).mass();
+        
+        double dx, dy, dz;
+        if(antiI > i){
+          dx = plist[0]->at(antiI).x()+antiVecP.px()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).x();
+          dy = plist[0]->at(antiI).y()+antiVecP.py()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).y();
+          dz = plist[0]->at(antiI).z()+antiVecP.pz()/sqrt(antiVecP.pAbs()*antiVecP.pAbs()+antiM*antiM)*dtfm-plist[0]->at(i).z();
+        }
+        else{
+          dx = plist[0]->at(antiI).x()-plist[0]->at(i).x();
+          dy = plist[0]->at(antiI).y()-plist[0]->at(i).y();
+          dz = plist[0]->at(antiI).z()-plist[0]->at(i).z();
+        }
+        
+        int id1 = plist[0]->at(i).id();
+        int id2 = plist[0]->at(antiI).id();
+        
+        double ptot[4];
+        ptot[1] = vecp.px() + antiVecP.px();
+        ptot[2] = vecp.py() + antiVecP.py();
+        ptot[3] = vecp.pz() + antiVecP.pz();
+        ptot[0] = sqrt(vecp.px()*vecp.px() + vecp.py()*vecp.py() + vecp.pz()*vecp.pz() + M*M)
+          +sqrt(antiVecP.px()*antiVecP.px() + antiVecP.py()*antiVecP.py() + antiVecP.pz()*antiVecP.pz() + antiM*antiM);
+        
+        //The space-like separation between the heavy quarks:
+        double deltax[4];
+        deltax[0] = 0.;
+        deltax[1] = dx;
+        deltax[2] = dy;
+        deltax[3] = dz;
+        
+        double pnew[4];
+        
+        //Now we have everything needed to calculate pnew:
+        stepMomentumInCMFrame(ptot, pmu, dt, deltax, pnew, T);
+        
+        double px = vecp.px();
+        double py = vecp.py();
+        double pz = vecp.pz();
+        
+        plist[0]->at(i).p(pnew[1], pnew[2], pnew[3]);
+        plist[0]->at(i).pOld(px, py, pz);
+        vecp = plist[0]->at(i).p();
+      }
 
-		  //Finally, the energy of the pair in the CM frame:
-		  double E_CM = M_inv+potential;
+      //Reload and recalculate these for the Langevin dynamics:
+      pmu[1] = vecp.px();
+      pmu[2] = vecp.py();
+      pmu[3] = vecp.pz();
+      pmu[0] = sqrt(M*M+pmu[1]*pmu[1]+pmu[2]*pmu[2]+pmu[3]*pmu[3]); //vecp loaded into an array for ease with LorentzBooster
+      LorentzBooster(umu, pmu, pmuRest);                      // Boost into the fluid's rest frame
+      dtflow = dt*pmuRest[0]/pmu[0];                          // dtfm in the fluid's rest frame
 
-		  int bound = isBound(id1, id2, E_CM);
+      double TE = T*sqrt(M*M + pmuRest[1]*pmuRest[1] + pmuRest[2]*pmuRest[2] + pmuRest[3]*pmuRest[3]);
+      double pHQ = sqrt(pmuRest[1]*pmuRest[1] + pmuRest[2]*pmuRest[2] + pmuRest[3]*pmuRest[3]);
+      if(HQ_rate_type == 0)
+      {
+        kappa_T = 4.*M_PI*T*T*T/TwoPiTD_HQ;
+        eta = 2.*M_PI*T*T/(TwoPiTD_HQ*M);
+        kappa_L = kappa_T;
+      } else if (HQ_rate_type == 1)
+      {
+        double A0, B0, B1;
+        hqRates->getTandPdependent_coeff(T, 0., A0, B0, B1);
+        eta = A0;
+        kappa_T = 2.*B0;
+        kappa_L = kappa_T;
+      	//kappa = 2.*eta*T*M;
+      } else if (HQ_rate_type == 2)
+      {
+        double A0, B0, B1;
+        hqRates->getTandPdependent_coeff(T, pHQ, A0, B0, B1);
+      	kappa_T = 2.*B0;
+        eta = A0;
+        kappa_L = kappa_T;
+      } else if (HQ_rate_type == 3)
+      {
+        double temp_2piTD;
+        if (tau < hydroTau0)
+        {
+//          temp_2piTD = 20.30405*T + 0.35256;
+          temp_2piTD = (10.87937*T - 0.79860)*HQ_Lattice_rate_factor;
+        } else
+        {
+          temp_2piTD = (10.87937*T - 0.79860)*HQ_Lattice_rate_factor;
+        }
+        kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+        //kappa_T = 4.*4.*M_PI*T*T*T/temp_2piTD;
+        eta = 2.*M_PI*T*T/(temp_2piTD*M);
+        kappa_L = kappa_T;
 
-		  if(bound == 1){
-		    //cout << "Surviving quarkonium should be formed, with status = " << status << endl;
-		    //cout << "tFinal of parton " << i << " = " << plist[0]->at(i).tFinal() << endl;
-		    //cout << "tFinal of parton " << antiI << " = " << plist[0]->at(antiI).tFinal() << endl;
-		    hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);  
-		    plist[0]->at(antiI).frozen(1);
-		    //If this led to hadronization, break the loop here:
-		    continue;
-		  }
-		}
+        } else if (HQ_rate_type == 4)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (10.87937*T - 0.79860);
+          } else
+          {
+            temp_2piTD = 10.87937*T - 0.79860;
+          }
+        	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+          kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
 
-		//If the heavy quark did not evolve in the medium, fragment its momentum and hadronize it to 
-		//an open heavy flavor meson:
-		if(plist[0]->at(i).tFinal() < hydroTau0){
-		  //cout << "Unevolved open heavy flavor should be formed:" << endl;
-		  //cout << "tFinal of parton " << i << " = " << plist[0]->at(i).tFinal() << endl;
-		  Vec4 p1 = plist[0]->at(i).p();
-		  double M1 = plist[0]->at(i).mass();
-		  int id1 = plist[0]->at(i).id();
-		  double p1mu[4];
-		  p1mu[1] = p1.px();
-		  p1mu[2] = p1.py();
-		  p1mu[3] = p1.pz();
-		  p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-		  hadronizeOneHeavyQuark(id1, p1mu, M1);
-		  continue;
-		}
+        } else if (HQ_rate_type == 5)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (6.07614*T - 0.19409);
+          } else
+          {
+            temp_2piTD = 6.07614*T - 0.19409;
+          }
+        	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+          kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
 
-		//If the quark did not hadronize by surviving as initially-produced quarkonium, check 
-		//for recombinant production. For now, all pairings with neighbors are randomly selected:
-		//cout << "Now we are checking for recombinant production..." << endl;
-		int id1 = plist[0]->at(i).id();
-		int charge1 = id1/abs(id1);
-		vector<int> neighbors;
-		for(int j=0; j<imax; j++){
-		  int id2 = plist[0]->at(j).id();
-		  int charge2 = id2/abs(id2);
-		  if(charge2 != charge1
-		     && plist[0]->at(j).tFinal() > hydroTau0){
-		    //The relative momentum of the pair:
-		    Vec4 p1 = plist[0]->at(i).p();
-		    Vec4 p2 = plist[0]->at(j).p();
-		    
-		    double M1 = plist[0]->at(i).mass();
-		    double M2 = plist[0]->at(j).mass();
-		    
-		    double p1mu[4], p2mu[4];
-		    p1mu[1] = p1.px();
-		    p1mu[2] = p1.py();
-		    p1mu[3] = p1.pz();
-		    p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-		    p2mu[1] = p2.px();
-		    p2mu[2] = p2.py();
-		    p2mu[3] = p2.pz();
-		    p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
-		    
-		    double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
-					-(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
-					-(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
-					-(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
-		    
-		    double deltaX[4];
-		    deltaX[0] = 0.;
-		    deltaX[1] = plist[0]->at(i).x()-plist[0]->at(j).x();
-		    deltaX[2] = plist[0]->at(i).y()-plist[0]->at(j).y();
-		    deltaX[3] = plist[0]->at(i).z()-plist[0]->at(j).z();
+        } else if (HQ_rate_type == 6)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (15.682606*T - 1.40311);
+          } else
+          {
+            temp_2piTD = 15.682606*T - 1.40311;
+          }
+        	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          eta     *= 1./(1.+0.17*pow(pHQ,1.11));//pHQ in GeV
+          kappa_T *= (1.+ 5.*pow(pHQ,1.11)/(7.9+pow(pHQ,1.11)));//pHQ in GeV
+          kappa_L = kappa_T;
 
-		    double r = rInCMFrame(p1mu, p2mu, deltaX);
-		    double potential = CornellPotential(r);
-		    
-		    //Finally, the energy of the pair in the CM frame:
-		    double E_CM = M_inv+potential;
-		    
-		    int bound = isBound(id1, id2, E_CM);
-		    if(bound == 1){
-		      neighbors.push_back(j);
-		    }
-		  }
-		}
-		//Randomly select a quark that fits the criteria:
-		int numberOfNeighbors = neighbors.size();
+        } else if (HQ_rate_type == 7)
+        {
+          double temp_2piTD;
+          if (tau < hydroTau0)
+          {
+//            temp_2piTD = 20.30405*T + 0.35256;
+            temp_2piTD = (10.87937*T - 0.79860);
+          } else
+          {
+            temp_2piTD = 10.87937*T - 0.79860;
+          }
+        	kappa_T = 4.*M_PI*T*T*T/temp_2piTD;
+          eta = 2.*M_PI*T*T/(temp_2piTD*M);
+          //eta     *= 1./(1.+0.1*pHQ);//pHQ in GeV
+          eta     *= 1./(1.+0.2*pow(pHQ,0.5));//pHQ in GeV
+          kappa_T *= (1.+ 5.*pHQ/(8+pHQ));//pHQ in GeV
+          kappa_L = kappa_T;
 
-		if(numberOfNeighbors == 0){
-		  Vec4 p1 = plist[0]->at(i).p();
-		  double M1 = plist[0]->at(i).mass();
-		  double p1mu[4];
-		  p1mu[1] = p1.px();
-		  p1mu[2] = p1.py();
-		  p1mu[3] = p1.pz();
-		  p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-		  hadronizeOneHeavyQuark(id1, p1mu, M1);
-		  continue;
-		}
+        } else
+        {
+        	cout << "Invalid HQ_rate_type" << endl;
+          exit(1);
+        }
 
-		int iPicked = gsl_rng_uniform_int(gsl_rand, numberOfNeighbors);
-		//cout << "iPicked = " << iPicked << endl;
-		if(iPicked == numberOfNeighbors){
-		  Vec4 p1 = plist[0]->at(i).p();
-		  double M1 = plist[0]->at(i).mass();
-		  double p1mu[4];
-		  p1mu[1] = p1.px();
-		  p1mu[2] = p1.py();
-		  p1mu[3] = p1.pz();
-		  p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-		  hadronizeOneHeavyQuark(id1, p1mu, M1);
-		}
-		else{
-		  int i2 = neighbors.at(iPicked);
-		  int id2 = plist[0]->at(i2).id();
+      double kicks[3];
+      sigma = sqrt(kappa_T*dtflow);
+      kicks[0] = gsl_ran_gaussian(gsl_rand, sigma);
+      kicks[1] = gsl_ran_gaussian(gsl_rand, sigma);
+      sigma = sqrt(kappa_L*dtflow);
+      kicks[2] = gsl_ran_gaussian(gsl_rand, sigma);
 
-		  //The relative momentum of the pair:
-		  Vec4 p1 = plist[0]->at(i).p();
-		  Vec4 p2 = plist[0]->at(i2).p();
-		    
-		  double M1 = plist[0]->at(i).mass();
-		  double M2 = plist[0]->at(i2).mass();
-		  
-		  double p1mu[4], p2mu[4];
-		  p1mu[1] = p1.px();
-		  p1mu[2] = p1.py();
-		  p1mu[3] = p1.pz();
-		  p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-		  p2mu[1] = p2.px();
-		  p2mu[2] = p2.py();
-		  p2mu[3] = p2.pz();
-		  p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
-		  
-		  double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
-				      -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
-				      -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
-				      -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+      double transv1[3], transv2[3];
+      if (pmuRest[3] != 0.)
+      {
+         transv1[0] = 1.;
+         transv1[1] = 1.;
+         transv1[2] = -1.*(pmuRest[1]+pmuRest[2])/pmuRest[3];
+         double normalization = sqrt(transv1[0]*transv1[0] + transv1[1]*transv1[1] + transv1[2]*transv1[2]);
+         for (int ii = 0; ii < 3; ii++) transv1[ii] /= normalization;
+      } else
+      {
+         transv1[0] = 0.;
+         transv1[1] = 0.;
+         transv1[2] = 1.;
+      }
 
-		  //double dx, dy, dz;
-		  //dx = plist[0]->at(i).x()-plist[0]->at(i2).x();
-		  //dy = plist[0]->at(i).y()-plist[0]->at(i2).y();
-		  //dz = plist[0]->at(i).z()-plist[0]->at(i2).z();
-		  //double r = sqrt(dx*dx+dy*dy+dz*dz);
+      transv2[0] = pmuRest[2]*transv1[2]/pHQ - pmuRest[3]*transv1[1]/pHQ;
+      transv2[1] = pmuRest[3]*transv1[0]/pHQ - pmuRest[1]*transv1[2]/pHQ;
+      transv2[2] = pmuRest[1]*transv1[1]/pHQ - pmuRest[2]*transv1[0]/pHQ;
 
-		  double deltaX[4];
-		  deltaX[0] = 0.;
-		  deltaX[1] = plist[0]->at(i).x()-plist[0]->at(i2).x();
-		  deltaX[2] = plist[0]->at(i).y()-plist[0]->at(i2).y();
-		  deltaX[3] = plist[0]->at(i).z()-plist[0]->at(i2).z();
-		  double r = rInCMFrame(p1mu, p2mu, deltaX);
+      kicktriplet[0] = kicks[0]*transv1[0] + kicks[1]*transv2[0] + kicks[2]*pmuRest[1]/pHQ;
+      kicktriplet[1] = kicks[0]*transv1[1] + kicks[1]*transv2[1] + kicks[2]*pmuRest[2]/pHQ;
+      kicktriplet[2] = kicks[0]*transv1[2] + kicks[1]*transv2[2] + kicks[2]*pmuRest[3]/pHQ;
+      
+      //Update the momentum in the rest frame:
+      pmuRestNew[1] = pmuRest[1]*(1.-eta*dtflow)+kicktriplet[0];
+      pmuRestNew[2] = pmuRest[2]*(1.-eta*dtflow)+kicktriplet[1];
+      pmuRestNew[3] = pmuRest[3]*(1.-eta*dtflow)+kicktriplet[2];
+      pmuRestNew[0] = sqrt(M*M+pmuRestNew[1]*pmuRestNew[1]
+               +pmuRestNew[2]*pmuRestNew[2]+pmuRestNew[3]*pmuRestNew[3]);
 
-		  double potential = CornellPotential(r);
-		    
-		  //Finally, the energy of the pair in the CM frame:
-		  double E_CM = M_inv+potential;
+//      if (tau < hydroTau0) {      
+//        pmuRestNew[1] = pmuRest[1];//*(1.-eta*dtflow)+kicktriplet[0];
+//        pmuRestNew[2] = pmuRest[2];//*(1.-eta*dtflow)+kicktriplet[1];
+//        pmuRestNew[3] = pmuRest[3]*(1.-eta*dtflow)+kicktriplet[2];
+//        pmuRestNew[0] = sqrt(M*M+pmuRestNew[1]*pmuRestNew[1]
+//                 +pmuRestNew[2]*pmuRestNew[2]+pmuRestNew[3]*pmuRestNew[3]);
+//      } else {
+//        pmuRestNew[1] = pmuRest[1]*(1.-eta*dtflow)+kicktriplet[0];
+//        pmuRestNew[2] = pmuRest[2]*(1.-eta*dtflow)+kicktriplet[1];
+//        pmuRestNew[3] = pmuRest[3]*(1.-eta*dtflow)+kicktriplet[2];
+//        pmuRestNew[0] = sqrt(M*M+pmuRestNew[1]*pmuRestNew[1]
+//                 +pmuRestNew[2]*pmuRestNew[2]+pmuRestNew[3]*pmuRestNew[3]);
+//      }
+      //The flow velocity for boosting back:
+      umub[0] = umu[0];
+      umub[1] = -umu[1];
+      umub[2] = -umu[2];
+      umub[3] = -umu[3];
+      
+      //The boost back into the lab frame:
+      LorentzBooster(umub, pmuRestNew, pmuNew);
+      
+      plist[0]->at(i).p(pmuNew[1], pmuNew[2], pmuNew[3]);
+      
+          }
+          // If the heavy quark's temperature is below that of freezeout, hadronize the heavy quark, 
+          // taking into account the possibility of recombinant production. Recombinant production is assumed to be 
+          // possible only if both heavy quarks involved had evolved in the medium (in other words, if tFinal != 0 fm/c):
+          else if (T < T_C_HQ && (prehydroevolution == 0 || tau > hydroTau0) && plist[0]->at(i).formed() == 1)
+       {
+      //cout << "Is this being called?" << endl;
+      plist[0]->at(i).frozen(1);
+      //cout << "The heavy quark " << i << " is hadronizing..." << endl;
 
-		  //Hadronize the recombinant quarkonium:
-		  int status = 82;
-		  //cout << "Recombinant quarkonium should be formed, with status = " << status << endl;
-		  //cout << "tFinal of parton " << i << " = " << plist[0]->at(i).tFinal() << endl;
-		  //cout << "tFinal of parton " << antiI << " = " << plist[0]->at(antiI).tFinal() << endl;
-		  hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);  
-		  plist[0]->at(i2).frozen(1);
-		}
-	      }
-	    }
-	  }
+      //First, check if quarkonium has survived:
+      int antiI = plist[0]->at(i).antiI();
 
-	return counter;
+      if(plist[0]->at(antiI).frozen() == 0){
+        int id1 = plist[0]->at(i).id();
+        int id2 = plist[0]->at(antiI).id();
+
+        //Any quarkonium produced will be the surviving component:
+        int status = 81;
+
+        //The relative momentum of the pair:
+        Vec4 p1 = plist[0]->at(i).p();
+        Vec4 p2 = plist[0]->at(antiI).p();
+
+        double M1 = plist[0]->at(i).mass();
+        double M2 = plist[0]->at(antiI).mass();
+
+        double p1mu[4], p2mu[4];
+        p1mu[1] = p1.px();
+        p1mu[2] = p1.py();
+        p1mu[3] = p1.pz();
+        p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+        p2mu[1] = p2.px();
+        p2mu[2] = p2.py();
+        p2mu[3] = p2.pz();
+        p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
+        
+        double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
+                -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
+                -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
+                -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+        
+        double deltaX[4];
+        deltaX[0] = 0.;
+        deltaX[1] = plist[0]->at(i).x()-plist[0]->at(antiI).x();
+        deltaX[2] = plist[0]->at(i).y()-plist[0]->at(antiI).y();
+        deltaX[3] = plist[0]->at(i).z()-plist[0]->at(antiI).z();
+
+        double r = rInCMFrame(p1mu, p2mu, deltaX);
+
+        double potential = CornellPotential(r);
+
+        //Finally, the energy of the pair in the CM frame:
+        double E_CM = M_inv+potential;
+
+        int bound = isBound(id1, id2, E_CM);
+
+        if(bound == 1){
+          //cout << "Surviving quarkonium should be formed, with status = " << status << endl;
+          //cout << "tFinal of parton " << i << " = " << plist[0]->at(i).tFinal() << endl;
+          //cout << "tFinal of parton " << antiI << " = " << plist[0]->at(antiI).tFinal() << endl;
+          hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);  
+          plist[0]->at(antiI).frozen(1);
+          //If this led to hadronization, break the loop here:
+          continue;
+        }
+      }
+
+      //If the heavy quark did not evolve in the medium, fragment its momentum and hadronize it to 
+      //an open heavy flavor meson:
+      if((plist[0]->at(i).tFinal() < hydroTau0 && prehydroevolution == 0) || plist[0]->at(i).tFinal() < prehydroTau0){
+        //cout << "Unevolved open heavy flavor should be formed:" << endl;
+        //cout << "tFinal of parton " << i << " = " << plist[0]->at(i).tFinal() << endl;
+        Vec4 p1 = plist[0]->at(i).p();
+        double M1 = plist[0]->at(i).mass();
+        int id1 = plist[0]->at(i).id();
+        double p1mu[4];
+        p1mu[1] = p1.px();
+        p1mu[2] = p1.py();
+        p1mu[3] = p1.pz();
+        p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+        hadronizeOneHeavyQuark(id1, p1mu, M1);
+        continue;
+      }
+
+      //If the quark did not hadronize by surviving as initially-produced quarkonium, check 
+      //for recombinant production. For now, all pairings with neighbors are randomly selected:
+      //cout << "Now we are checking for recombinant production..." << endl;
+      int id1 = plist[0]->at(i).id();
+      int charge1 = id1/abs(id1);
+      vector<int> neighbors;
+      for(int j=0; j<imax; j++){
+        int id2 = plist[0]->at(j).id();
+        int charge2 = id2/abs(id2);
+        double evoltime;
+        if (prehydroevolution == 0)
+        {
+           evoltime = hydroTau0;
+        } else {
+           evoltime = prehydroTau0;
+        }
+        if(charge2 != charge1
+           && plist[0]->at(j).tFinal() > evoltime){
+          //The relative momentum of the pair:
+          Vec4 p1 = plist[0]->at(i).p();
+          Vec4 p2 = plist[0]->at(j).p();
+          
+          double M1 = plist[0]->at(i).mass();
+          double M2 = plist[0]->at(j).mass();
+          
+          double p1mu[4], p2mu[4];
+          p1mu[1] = p1.px();
+          p1mu[2] = p1.py();
+          p1mu[3] = p1.pz();
+          p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+          p2mu[1] = p2.px();
+          p2mu[2] = p2.py();
+          p2mu[3] = p2.pz();
+          p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
+          
+          double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
+            -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
+            -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
+            -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+          
+          double deltaX[4];
+          deltaX[0] = 0.;
+          deltaX[1] = plist[0]->at(i).x()-plist[0]->at(j).x();
+          deltaX[2] = plist[0]->at(i).y()-plist[0]->at(j).y();
+          deltaX[3] = plist[0]->at(i).z()-plist[0]->at(j).z();
+
+          double r = rInCMFrame(p1mu, p2mu, deltaX);
+          double potential = CornellPotential(r);
+          
+          //Finally, the energy of the pair in the CM frame:
+          double E_CM = M_inv+potential;
+          
+          int bound = isBound(id1, id2, E_CM);
+          if(bound == 1){
+            neighbors.push_back(j);
+          }
+        }
+      }
+      //Randomly select a quark that fits the criteria:
+      int numberOfNeighbors = neighbors.size();
+
+      if(numberOfNeighbors == 0){
+        Vec4 p1 = plist[0]->at(i).p();
+        double M1 = plist[0]->at(i).mass();
+        double x = plist[0]->at(i).x();                                  // x value of position in [fm]
+        double y = plist[0]->at(i).y();                                  // y value of position in [fm]
+        double z = plist[0]->at(i).z();                                  // z value of position in [fm]
+        double t = plist[0]->at(i).tFinal();
+        double p1mu[4];
+        p1mu[1] = p1.px();
+        p1mu[2] = p1.py();
+        p1mu[3] = p1.pz();
+        p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+        if (do_coalesence)
+        {
+            int does_it_coalesce = check_coalescence(id1, p1mu, M1, x, y, z, t);
+            if (does_it_coalesce == 1 && id1 == 4) {
+                bool complete = hadronize_by_coalescence(id1, p1mu, 0.3, x, y, z, t);
+                if (!complete) hadronizeOneHeavyQuark(id1, p1mu, M1);
+            } else if (does_it_coalesce == 0 || id1 != 4) {
+                hadronizeOneHeavyQuark(id1, p1mu, M1);
+            }
+        } else {
+            hadronizeOneHeavyQuark(id1, p1mu, M1);
+        }
+        continue;
+      }
+
+      int iPicked = gsl_rng_uniform_int(gsl_rand, numberOfNeighbors);
+      //cout << "iPicked = " << iPicked << endl;
+      if(iPicked == numberOfNeighbors){
+        Vec4 p1 = plist[0]->at(i).p();
+        double M1 = plist[0]->at(i).mass();
+        double p1mu[4];
+        p1mu[1] = p1.px();
+        p1mu[2] = p1.py();
+        p1mu[3] = p1.pz();
+        p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+        if (do_coalesence)
+        {
+            int does_it_coalesce = check_coalescence(id1, p1mu, M1, x, y, z, t);
+            if (does_it_coalesce == 1 && id1 == 4 && do_coalesence) {
+                bool complete = hadronize_by_coalescence(id1, p1mu, 0.3, x, y, z, t);
+                if (!complete) hadronizeOneHeavyQuark(id1, p1mu, M1);
+            } else if (does_it_coalesce == 0 || id1 != 4) {
+                hadronizeOneHeavyQuark(id1, p1mu, M1);
+            }
+        } else {
+            hadronizeOneHeavyQuark(id1, p1mu, M1);
+        }
+      }
+      else{
+        int i2 = neighbors.at(iPicked);
+        int id2 = plist[0]->at(i2).id();
+
+        //The relative momentum of the pair:
+        Vec4 p1 = plist[0]->at(i).p();
+        Vec4 p2 = plist[0]->at(i2).p();
+          
+        double M1 = plist[0]->at(i).mass();
+        double M2 = plist[0]->at(i2).mass();
+        
+        double p1mu[4], p2mu[4];
+        p1mu[1] = p1.px();
+        p1mu[2] = p1.py();
+        p1mu[3] = p1.pz();
+        p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+        p2mu[1] = p2.px();
+        p2mu[2] = p2.py();
+        p2mu[3] = p2.pz();
+        p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
+        
+        double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
+                -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
+                -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
+                -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+
+        //double dx, dy, dz;
+        //dx = plist[0]->at(i).x()-plist[0]->at(i2).x();
+        //dy = plist[0]->at(i).y()-plist[0]->at(i2).y();
+        //dz = plist[0]->at(i).z()-plist[0]->at(i2).z();
+        //double r = sqrt(dx*dx+dy*dy+dz*dz);
+
+        double deltaX[4];
+        deltaX[0] = 0.;
+        deltaX[1] = plist[0]->at(i).x()-plist[0]->at(i2).x();
+        deltaX[2] = plist[0]->at(i).y()-plist[0]->at(i2).y();
+        deltaX[3] = plist[0]->at(i).z()-plist[0]->at(i2).z();
+        double r = rInCMFrame(p1mu, p2mu, deltaX);
+
+        double potential = CornellPotential(r);
+          
+        //Finally, the energy of the pair in the CM frame:
+        double E_CM = M_inv+potential;
+
+        //Hadronize the recombinant quarkonium:
+        int status = 82;
+        //cout << "Recombinant quarkonium should be formed, with status = " << status << endl;
+        //cout << "tFinal of parton " << i << " = " << plist[0]->at(i).tFinal() << endl;
+        //cout << "tFinal of parton " << antiI << " = " << plist[0]->at(antiI).tFinal() << endl;
+        hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);  
+        plist[0]->at(i2).frozen(1);
+      }
+        }
+      }
+    }
+
+  return counter;
 }
-
 
 int MARTINI::hadronizeHeavyQuarks(vector<Parton> ** plist){
   pythia.event.reset(); // clear the event record to fill in the partons resulting from evolution below
@@ -5721,284 +7097,366 @@ int MARTINI::hadronizeHeavyQuarks(vector<Parton> ** plist){
   //If fullEvent == 0, this is relatively simple: we only determine the invariant mass of the pair 
   //in the CM frame and use this to hadronize the pairs into mesons:
   if(fullEvent == 0 || totalNNs == 1){
-    int id1 = plist[0]->at(0).id();
-    int id2 = plist[0]->at(1).id();
+      int imax = plist[0]->size();
+      for ( int i=0; i<imax; i++)                                   // loop over all partons
+      {
+        int id = plist[0]->at(i).id();
+        if (abs(id) != 4 && abs(id) != 5) continue;
 
-    //The status of surviving quarkonium is always 81:
-    int status = 81;
+        if(plist[0]->at(i).frozen() != 0) continue;
 
-    //The separation of the quarks in the lab frame:
-    double dx = plist[0]->at(0).x()-plist[0]->at(1).x();
-    double dy = plist[0]->at(0).y()-plist[0]->at(1).y();
-    double dz = plist[0]->at(0).z()-plist[0]->at(1).z();
-    double r = sqrt(dx*dx+dy*dy+dz*dz);
-    //After kinetic freezeout, the evolution of the heavy quarks is completely adiabatic. Therefore, 
-    //the Cornell potential should be used to determine the binding energy of the pair:
-    double potential;
-    potential = CornellPotential(r);
+        plist[0]->at(i).frozen(1);
 
-    Vec4 p1 = plist[0]->at(0).p();
-    Vec4 p2 = plist[0]->at(1).p();
-    double M1 = plist[0]->at(0).mass();
-    double M2 = plist[0]->at(1).mass();
+        int antiI = plist[0]->at(i).antiI();
 
-    double p1mu[4], p2mu[4];
-    p1mu[1] = p1.px();
-    p1mu[2] = p1.py();
-    p1mu[3] = p1.pz();
-    p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-    p2mu[1] = p2.px();
-    p2mu[2] = p2.py();
-    p2mu[3] = p2.pz();
-    p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
+        if(plist[0]->at(antiI).frozen() == 0){
+          int id1 = plist[0]->at(i).id();
+          int id2 = plist[0]->at(antiI).id();
 
-    //Let us just calculate with the invariant mass and the potential:
-    double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
-			-(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
-			-(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
-			-(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+          //Any quarkonium produced will be the surviving component:
+          int status = 81;
 
-    double E_CM = M_inv+potential;
+          //The relative momentum of the pair:
+          Vec4 p1 = plist[0]->at(i).p();
+          Vec4 p2 = plist[0]->at(antiI).p();
 
-    //The hadronization:
-    hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);
+          double M1 = plist[0]->at(i).mass();
+          double M2 = plist[0]->at(antiI).mass();
+
+          double p1mu[4], p2mu[4];
+          p1mu[1] = p1.px();
+          p1mu[2] = p1.py();
+          p1mu[3] = p1.pz();
+          p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+          p2mu[1] = p2.px();
+          p2mu[2] = p2.py();
+          p2mu[3] = p2.pz();
+          p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
+
+          double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
+                  -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
+                  -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
+                  -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+
+          double deltaX[4];
+          deltaX[0] = 0.;
+          deltaX[1] = plist[0]->at(i).x()-plist[0]->at(antiI).x();
+          deltaX[2] = plist[0]->at(i).y()-plist[0]->at(antiI).y();
+          deltaX[3] = plist[0]->at(i).z()-plist[0]->at(antiI).z();
+
+          double r = rInCMFrame(p1mu, p2mu, deltaX);
+
+          double potential = CornellPotential(r);
+
+          //Finally, the energy of the pair in the CM frame:
+          double E_CM = M_inv+potential;
+
+          int bound = isBound(id1, id2, E_CM);
+
+          if(bound == 1){
+            hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);
+            plist[0]->at(antiI).frozen(1);
+            continue;
+          }
+        }
+
+        Vec4 p1 = plist[0]->at(i).p();
+        double M1 = plist[0]->at(i).mass();
+        int id1 = plist[0]->at(i).id();
+        double p1mu[4];
+        p1mu[1] = p1.px();
+        p1mu[2] = p1.py();
+        p1mu[3] = p1.pz();
+        p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+        hadronizeOneHeavyQuark(id1, p1mu, M1);
+        continue;
+      }
+
+    //If the heavy quark did not evolve in the medium, fragment its momentum and hadronize it to 
+    //an open heavy flavor meson:
+
+
+
+//    int id1 = plist[0]->at(0).id();
+//    int id2 = plist[0]->at(1).id();
+//
+//    //The status of surviving quarkonium is always 81:
+//    int status = 81;
+//
+//    //The separation of the quarks in the lab frame:
+//    double dx = plist[0]->at(0).x()-plist[0]->at(1).x();
+//    double dy = plist[0]->at(0).y()-plist[0]->at(1).y();
+//    double dz = plist[0]->at(0).z()-plist[0]->at(1).z();
+//    double r = sqrt(dx*dx+dy*dy+dz*dz);
+//    //After kinetic freezeout, the evolution of the heavy quarks is completely adiabatic. Therefore, 
+//    //the Cornell potential should be used to determine the binding energy of the pair:
+//    double potential;
+//    potential = CornellPotential(r);
+//
+//    Vec4 p1 = plist[0]->at(0).p();
+//    Vec4 p2 = plist[0]->at(1).p();
+//    double M1 = plist[0]->at(0).mass();
+//    double M2 = plist[0]->at(1).mass();
+//
+//    double p1mu[4], p2mu[4];
+//    p1mu[1] = p1.px();
+//    p1mu[2] = p1.py();
+//    p1mu[3] = p1.pz();
+//    p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+//    p2mu[1] = p2.px();
+//    p2mu[2] = p2.py();
+//    p2mu[3] = p2.pz();
+//    p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
+//
+//    //Let us just calculate with the invariant mass and the potential:
+//    double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
+//      -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
+//      -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
+//      -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+//
+//    double E_CM = M_inv+potential;
+//
+//    //The hadronization:
+//    hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);
   }
 
-  if(fullEvent==1 && totalNNs > 1 ){
-    //Determining recombinant production in a full event will be more difficult, but crucial. 
-    //First, the element of the permutation group describing the pairing of heavy quarks. 
-    //The quark from collision i, i=0, ..., totalNNs, is paired with the anti-quark in collision
-    //pairing[i]:
-    int pairing[totalNNs];
-    for(int ipair=0; ipair<totalNNs; ipair++){
-      pairing[ipair] = ipair;
-    }
 
-    //Whether or not the initial heavy quark pair is not hadronizing statistically. This can happen for two reasons:
-    //either the pair forms quarkonium and does not interact strongly with the medium, or the pair never 
-    //experienced in-medium evolution.
-    int notstatistical[totalNNs];
-    //int notevolved[totalNNs];
-    for(int ipair=0; ipair<totalNNs; ipair++){
-      notstatistical[totalNNs] = 0.;
-      //notevolved[totalNNs] = 0.;
-
-      //First, those pairs which do not hadronize statistically due to being bound:
-      int id1, id2;
-      id1 = plist[0]->at(2*ipair).id();
-      id2 = plist[0]->at(2*ipair+1).id();
-
-      double dx, dy, dz;
-      dx = plist[0]->at(2*ipair).x()-plist[0]->at(2*ipair+1).x();
-      dy = plist[0]->at(2*ipair).y()-plist[0]->at(2*ipair+1).y();
-      dz = plist[0]->at(2*ipair).z()-plist[0]->at(2*ipair+1).z();
-
-      double r = sqrt(dx*dx+dy*dy+dz*dz);
-      double potential = CornellPotential(r);
-
-      //The relative momentum of the pair:
-      Vec4 p1 = plist[0]->at(2*ipair).p();
-      Vec4 p2 = plist[0]->at(2*ipair+1).p();
-
-      double M1 = plist[0]->at(2*ipair).mass();
-      double M2 = plist[0]->at(2*ipair+1).mass();
-
-      double p1mu[4], p2mu[4];
-      p1mu[1] = p1.px();
-      p1mu[2] = p1.py();
-      p1mu[3] = p1.pz();
-      p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-      p2mu[1] = p2.px();
-      p2mu[2] = p2.py();
-      p2mu[3] = p2.pz();
-      p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
-
-      double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
-			  -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
-			  -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
-			  -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
-
-      //Finally, the energy of the pair in the CM frame:
-      double E_CM = M_inv+potential;
-
-      //All that for this:
-      if((abs(id1) ==4 && abs(id2) == 4) && E_CM<E_CCB_BOUND) notstatistical[ipair] = 1;
-      if((abs(id1) ==5 && abs(id2) == 5) && E_CM<E_BBB_BOUND) notstatistical[ipair] = 1;
-      if(( (abs(id1) ==4 && abs(id2) == 5) || (abs(id1) == 5 && abs(id2) == 4) ) && E_CM<E_BBC_BOUND) notstatistical[ipair] = 1;
-
-      //Finally, whether or not the pair evolved in medium:
-      //double z = 0.5*(plist[0]->at(2*ipair).z()+plist[0]->at(2*ipair+1).z());
-      //double t_final = 0.5*(plist[0]->at(2*ipair).tFinal()+plist[0]->at(2*ipair+1).tFinal() );
-      //double tau = sqrt(t_final*t_final-z*z);
-
-      //Only need to check the final time of one particle to see if both were evolved, when we are working with
-      //examineHQ==2:
-      double t_final = plist[0]->at(2*ipair).tFinal();
-      if(t_final == 0.){
-	notstatistical[ipair] = 1;
-	//notevolved[ipair] = 1;
-      }
-    }
-
-    //We perform the Metropolis algorithm to determine the pairing of these heavy quarks:
-    for(int iter=0; iter<N_SAMPLES; iter++){
-      //Select a random 2-cycle:
-      int cycle[2] ;
-      cycle[0] = gsl_rng_uniform_int(gsl_rand, totalNNs);
-      bool select_random = true;
-      while(select_random){
-	int random_int = gsl_rng_uniform_int(gsl_rand, totalNNs);
-	if(random_int != cycle[0]){
-	  cycle[1] = random_int;
-	  select_random = false;
-	}
-      }
-      
-      //Skip the rest of the loop if the pair is not hadronizing statistically:
-      if(notstatistical[cycle[0]]==1) continue;
-      if(notstatistical[cycle[1]]==1) continue;
-      
-      int pairing_new[totalNNs];
-      //The new pairing is mostly the same...
-      for(int ipair=0; ipair<totalNNs; ipair++){
-	pairing_new[ipair] = pairing[ipair];
-      }
-      //Except that it is multiplied on the left by the 2-cycle:
-      pairing_new[cycle[0]]=pairing[cycle[1]];
-      pairing_new[cycle[1]]=pairing[cycle[0]];
-      
-      //This is fine, but we need the exact locations of these particles in plist:
-      int i1, i2, antiI1, antiI2;
-      if(plist[0]->at(2*cycle[0]).id()>0) i1 = 2*cycle[0];
-      else i1 = 2*cycle[0]+1;
-      if(plist[0]->at(2*cycle[1]).id()>0) i2 = 2*cycle[1];
-      else i2 = 2*cycle[1]+1;
-      if(plist[0]->at(2*pairing[cycle[0]]).id()<0) antiI1 = 2*pairing[cycle[0]];
-      else antiI1 = 2*pairing[cycle[0]]+1;
-      if(plist[0]->at(2*pairing[cycle[1]]).id()<0) antiI2 = 2*pairing[cycle[1]];
-      else antiI2 = 2*pairing[cycle[1]]+1;
-      
-      //Determine whether or not to accept or reject this pairing,
-      //based on the Metropolis algorithm.
-      //First, determine the difference in the total potential energy for the new and old pairings:
-      double r1, r2, r1new, r2new;
-      double dV;
-      
-      //We are going to reuse these dx variables for calculating the various r's and ultimately, dV:
-      double dxtemp, dytemp, dztemp;
-      dxtemp = plist[0]->at(i1).x()-plist[0]->at(antiI1).x();
-      dytemp = plist[0]->at(i1).y()-plist[0]->at(antiI1).y();
-      dztemp = plist[0]->at(i1).z()-plist[0]->at(antiI1).z();
-      r1 = sqrt(dxtemp*dxtemp+dytemp*dytemp+dztemp*dztemp);
-      dxtemp = plist[0]->at(i2).x()-plist[0]->at(antiI2).x();
-      dytemp = plist[0]->at(i2).y()-plist[0]->at(antiI2).y();
-      dztemp = plist[0]->at(i2).z()-plist[0]->at(antiI2).z();
-      r2 = sqrt(dxtemp*dxtemp+dytemp*dytemp+dztemp*dztemp);
-      dxtemp = plist[0]->at(i1).x()-plist[0]->at(antiI2).x();
-      dytemp = plist[0]->at(i1).y()-plist[0]->at(antiI2).y();
-      dztemp = plist[0]->at(i1).z()-plist[0]->at(antiI2).z();
-      r1new = sqrt(dxtemp*dxtemp+dytemp*dytemp+dztemp*dztemp);
-      dxtemp = plist[0]->at(i2).x()-plist[0]->at(antiI1).x();
-      dytemp = plist[0]->at(i2).y()-plist[0]->at(antiI1).y();
-      dztemp = plist[0]->at(i2).z()-plist[0]->at(antiI1).z();
-      r2new = sqrt(dxtemp*dxtemp+dytemp*dytemp+dztemp*dztemp);
-
-      //cout << "r1 = " << r1 << ", r2 = " << r2 << ", r1new = " << r1new << ", r2new = " << r2new << endl;
-
-      dV = CornellPotential(r1new)+CornellPotential(r2new)-CornellPotential(r1)-CornellPotential(r2);
-      double BoltzmannFactor = exp(-dV/T_C_HQ);
-
-      //The Metropolis algorithm: if the Boltzmann factor is greater than unity, immediately accept the permutation
-      //(this is arbitrary but determines the next step):
-      //cout << "dV = " << dV << endl;
-      //cout << "T_C_HQ = " << T_C_HQ << endl;
-      //cout << "Boltzmann factor = " << BoltzmannFactor << endl;
-      if(BoltzmannFactor > 1){
-	for(int ipair=0; ipair<totalNNs; ipair++){
-	  pairing[ipair] = pairing_new[ipair];
-	}
-      }
-      //If it is less than unity, accept the permutation at a rate that maintains detailed balance:
-      else{
-	double rdouble = gsl_rng_uniform(gsl_rand);
-	//cout << "rdouble = " << rdouble << endl;
-	if(rdouble < BoltzmannFactor){
-	  for(int ipair=0; ipair<totalNNs; ipair++){
-	    pairing[ipair] = pairing_new[ipair];
-	  }
-	}
-      }
-      ////Output the new permutation for testing:
-      //for(int ipair=0; ipair<totalNNs; ipair++){
-      //cout << pairing[ipair] << " ";
-      //}
-      //cout << endl;
-    }
-
-    ////Output the new permutation for testing:
-    //cout << "The new permutation: " ;
-    //for(int ipair=0; ipair<totalNNs; ipair++){
-    //cout << pairing[ipair] << " ";
-    //}
-    //cout << endl;
-
-    //Now that the pairings have been sampled, we loop through the full event, adding J/Psi's, 
-    //Upsilons, b\bar{c} states, c\bar{b} states, and unhadronized free heavy quarks to the 
-    //event record:
-    for(int ie=0; ie<totalNNs; ie++){
-      int i1, i2;
-      if(plist[0]->at(2*ie).id()>0) i1 = 2*ie;
-      else i1 = 2*ie+1;
-      if(plist[0]->at(2*pairing[ie]).id()<0) i2 = 2*pairing[ie];
-      else i2 = 2*pairing[ie]+1;
-      int id1 = plist[0]->at(i1).id();
-      int id2 = plist[0]->at(i2).id();
-      //Distinguish between diagonal and recombinant production:
-      int status;
-      if(ie == pairing[ie]) status = 81;
-      else status = 82;
-      
-      //Determine again the binding energy in the CM frame:
-      //The separation of the quarks in the lab frame:
-      double dx = plist[0]->at(i1).x()-plist[0]->at(i2).x();
-      double dy = plist[0]->at(i1).y()-plist[0]->at(i2).y();
-      double dz = plist[0]->at(i1).z()-plist[0]->at(i2).z();
-      double r = sqrt(dx*dx+dy*dy+dz*dz);
-      //After kinetic freezeout, the evolution of the heavy quarks is completely adiabatic. Therefore, 
-      //the Cornell potential should be used to determine the binding energy of the pair:
-      double potential;
-      //if(notevolved[ie] == 1){
-      //potential = CornellPotential(0.);
-      //}
-      potential = CornellPotential(r);
-
-      //The relative momentum of the pair:
-      Vec4 p1 = plist[0]->at(i1).p();
-      Vec4 p2 = plist[0]->at(i2).p();
-      double M1 = plist[0]->at(i1).mass();
-      double M2 = plist[0]->at(i2).mass();
-
-      double p1mu[4], p2mu[4];
-      p1mu[1] = p1.px();
-      p1mu[2] = p1.py();
-      p1mu[3] = p1.pz();
-      p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
-      p2mu[1] = p2.px();
-      p2mu[2] = p2.py();
-      p2mu[3] = p2.pz();
-      p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
-
-      double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
-			  -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
-			  -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
-			  -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
-
-      //Finally, the energy of the pair in the CM frame:
-      double E_CM = M_inv+potential;
-
-      hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);
-    }
-  }
+//  if(fullEvent == 1 && totalNNs > 1 ){
+//    //Determining recombinant production in a full event will be more difficult, but crucial. 
+//    //First, the element of the permutation group describing the pairing of heavy quarks. 
+//    //The quark from collision i, i=0, ..., totalNNs, is paired with the anti-quark in collision
+//    //pairing[i]:
+//    int pairing[totalNNs];
+//    for(int ipair=0; ipair<totalNNs; ipair++){
+//      pairing[ipair] = ipair;
+//    }
+//
+//    //Whether or not the initial heavy quark pair is not hadronizing statistically. This can happen for two reasons:
+//    //either the pair forms quarkonium and does not interact strongly with the medium, or the pair never 
+//    //experienced in-medium evolution.
+//    int notstatistical[totalNNs];
+//    //int notevolved[totalNNs];
+//    for(int ipair=0; ipair<totalNNs; ipair++){
+//      notstatistical[totalNNs] = 0.;
+//      //notevolved[totalNNs] = 0.;
+//
+//      //First, those pairs which do not hadronize statistically due to being bound:
+//      int id1, id2;
+//      id1 = plist[0]->at(2*ipair).id();
+//      id2 = plist[0]->at(2*ipair+1).id();
+//
+//      double dx, dy, dz;
+//      dx = plist[0]->at(2*ipair).x()-plist[0]->at(2*ipair+1).x();
+//      dy = plist[0]->at(2*ipair).y()-plist[0]->at(2*ipair+1).y();
+//      dz = plist[0]->at(2*ipair).z()-plist[0]->at(2*ipair+1).z();
+//
+//      double r = sqrt(dx*dx+dy*dy+dz*dz);
+//      double potential = CornellPotential(r);
+//
+//      //The relative momentum of the pair:
+//      Vec4 p1 = plist[0]->at(2*ipair).p();
+//      Vec4 p2 = plist[0]->at(2*ipair+1).p();
+//
+//      double M1 = plist[0]->at(2*ipair).mass();
+//      double M2 = plist[0]->at(2*ipair+1).mass();
+//
+//      double p1mu[4], p2mu[4];
+//      p1mu[1] = p1.px();
+//      p1mu[2] = p1.py();
+//      p1mu[3] = p1.pz();
+//      p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+//      p2mu[1] = p2.px();
+//      p2mu[2] = p2.py();
+//      p2mu[3] = p2.pz();
+//      p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
+//
+//      double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
+//        -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
+//        -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
+//        -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+//
+//      //Finally, the energy of the pair in the CM frame:
+//      double E_CM = M_inv+potential;
+//
+//      //All that for this:
+//      if((abs(id1) ==4 && abs(id2) == 4) && E_CM<E_CCB_BOUND) notstatistical[ipair] = 1;
+//      if((abs(id1) ==5 && abs(id2) == 5) && E_CM<E_BBB_BOUND) notstatistical[ipair] = 1;
+//      if(( (abs(id1) ==4 && abs(id2) == 5) || (abs(id1) == 5 && abs(id2) == 4) ) && E_CM<E_BBC_BOUND) notstatistical[ipair] = 1;
+//
+//      //Finally, whether or not the pair evolved in medium:
+//      //double z = 0.5*(plist[0]->at(2*ipair).z()+plist[0]->at(2*ipair+1).z());
+//      //double t_final = 0.5*(plist[0]->at(2*ipair).tFinal()+plist[0]->at(2*ipair+1).tFinal() );
+//      //double tau = sqrt(t_final*t_final-z*z);
+//
+//      //Only need to check the final time of one particle to see if both were evolved, when we are working with
+//      //examineHQ==2:
+//      double t_final = plist[0]->at(2*ipair).tFinal();
+//      if(t_final == 0.){
+//      notstatistical[ipair] = 1;
+//      //notevolved[ipair] = 1;
+//      }
+//    }
+//
+//    //We perform the Metropolis algorithm to determine the pairing of these heavy quarks:
+//    for(int iter=0; iter<N_SAMPLES; iter++){
+//      //Select a random 2-cycle:
+//      int cycle[2] ;
+//      cycle[0] = gsl_rng_uniform_int(gsl_rand, totalNNs);
+//      bool select_random = true;
+//      while(select_random){
+//        int random_int = gsl_rng_uniform_int(gsl_rand, totalNNs);
+//        if(random_int != cycle[0]){
+//          cycle[1] = random_int;
+//          select_random = false;
+//        }
+//      }
+//      
+//      //Skip the rest of the loop if the pair is not hadronizing statistically:
+//      if(notstatistical[cycle[0]]==1) continue;
+//      if(notstatistical[cycle[1]]==1) continue;
+//      
+//      int pairing_new[totalNNs];
+//      //The new pairing is mostly the same...
+//      for(int ipair=0; ipair<totalNNs; ipair++){
+//        pairing_new[ipair] = pairing[ipair];
+//      }
+//      //Except that it is multiplied on the left by the 2-cycle:
+//      pairing_new[cycle[0]]=pairing[cycle[1]];
+//      pairing_new[cycle[1]]=pairing[cycle[0]];
+//      
+//      //This is fine, but we need the exact locations of these particles in plist:
+//      int i1, i2, antiI1, antiI2;
+//      if(plist[0]->at(2*cycle[0]).id()>0) i1 = 2*cycle[0];
+//      else i1 = 2*cycle[0]+1;
+//      if(plist[0]->at(2*cycle[1]).id()>0) i2 = 2*cycle[1];
+//      else i2 = 2*cycle[1]+1;
+//      if(plist[0]->at(2*pairing[cycle[0]]).id()<0) antiI1 = 2*pairing[cycle[0]];
+//      else antiI1 = 2*pairing[cycle[0]]+1;
+//      if(plist[0]->at(2*pairing[cycle[1]]).id()<0) antiI2 = 2*pairing[cycle[1]];
+//      else antiI2 = 2*pairing[cycle[1]]+1;
+//      
+//      //Determine whether or not to accept or reject this pairing,
+//      //based on the Metropolis algorithm.
+//      //First, determine the difference in the total potential energy for the new and old pairings:
+//      double r1, r2, r1new, r2new;
+//      double dV;
+//      
+//      //We are going to reuse these dx variables for calculating the various r's and ultimately, dV:
+//      double dxtemp, dytemp, dztemp;
+//      dxtemp = plist[0]->at(i1).x()-plist[0]->at(antiI1).x();
+//      dytemp = plist[0]->at(i1).y()-plist[0]->at(antiI1).y();
+//      dztemp = plist[0]->at(i1).z()-plist[0]->at(antiI1).z();
+//      r1 = sqrt(dxtemp*dxtemp+dytemp*dytemp+dztemp*dztemp);
+//      dxtemp = plist[0]->at(i2).x()-plist[0]->at(antiI2).x();
+//      dytemp = plist[0]->at(i2).y()-plist[0]->at(antiI2).y();
+//      dztemp = plist[0]->at(i2).z()-plist[0]->at(antiI2).z();
+//      r2 = sqrt(dxtemp*dxtemp+dytemp*dytemp+dztemp*dztemp);
+//      dxtemp = plist[0]->at(i1).x()-plist[0]->at(antiI2).x();
+//      dytemp = plist[0]->at(i1).y()-plist[0]->at(antiI2).y();
+//      dztemp = plist[0]->at(i1).z()-plist[0]->at(antiI2).z();
+//      r1new = sqrt(dxtemp*dxtemp+dytemp*dytemp+dztemp*dztemp);
+//      dxtemp = plist[0]->at(i2).x()-plist[0]->at(antiI1).x();
+//      dytemp = plist[0]->at(i2).y()-plist[0]->at(antiI1).y();
+//      dztemp = plist[0]->at(i2).z()-plist[0]->at(antiI1).z();
+//      r2new = sqrt(dxtemp*dxtemp+dytemp*dytemp+dztemp*dztemp);
+//
+//      //cout << "r1 = " << r1 << ", r2 = " << r2 << ", r1new = " << r1new << ", r2new = " << r2new << endl;
+//
+//      dV = CornellPotential(r1new)+CornellPotential(r2new)-CornellPotential(r1)-CornellPotential(r2);
+//      double BoltzmannFactor = exp(-dV/T_C_HQ);
+//
+//      //The Metropolis algorithm: if the Boltzmann factor is greater than unity, immediately accept the permutation
+//      //(this is arbitrary but determines the next step):
+//      //cout << "dV = " << dV << endl;
+//      //cout << "T_C_HQ = " << T_C_HQ << endl;
+//      //cout << "Boltzmann factor = " << BoltzmannFactor << endl;
+//      if(BoltzmannFactor > 1){
+//         for(int ipair=0; ipair<totalNNs; ipair++){
+//           pairing[ipair] = pairing_new[ipair];
+//         }
+//      }
+//      //If it is less than unity, accept the permutation at a rate that maintains detailed balance:
+//      else{
+//         double rdouble = gsl_rng_uniform(gsl_rand);
+//         //cout << "rdouble = " << rdouble << endl;
+//         if(rdouble < BoltzmannFactor){
+//           for(int ipair=0; ipair<totalNNs; ipair++){
+//             pairing[ipair] = pairing_new[ipair];
+//           }
+//         }
+//      }
+//      ////Output the new permutation for testing:
+//      //for(int ipair=0; ipair<totalNNs; ipair++){
+//      //cout << pairing[ipair] << " ";
+//      //}
+//      //cout << endl;
+//    }
+//
+//    ////Output the new permutation for testing:
+//    //cout << "The new permutation: " ;
+//    //for(int ipair=0; ipair<totalNNs; ipair++){
+//    //cout << pairing[ipair] << " ";
+//    //}
+//    //cout << endl;
+//
+//    //Now that the pairings have been sampled, we loop through the full event, adding J/Psi's, 
+//    //Upsilons, b\bar{c} states, c\bar{b} states, and unhadronized free heavy quarks to the 
+//    //event record:
+//    for(int ie=0; ie<totalNNs; ie++){
+//      int i1, i2;
+//      if(plist[0]->at(2*ie).id()>0) i1 = 2*ie;
+//      else i1 = 2*ie+1;
+//      if(plist[0]->at(2*pairing[ie]).id()<0) i2 = 2*pairing[ie];
+//      else i2 = 2*pairing[ie]+1;
+//      int id1 = plist[0]->at(i1).id();
+//      int id2 = plist[0]->at(i2).id();
+//      //Distinguish between diagonal and recombinant production:
+//      int status;
+//      if(ie == pairing[ie]) status = 81;
+//      else status = 82;
+//      
+//      //Determine again the binding energy in the CM frame:
+//      //The separation of the quarks in the lab frame:
+//      double dx = plist[0]->at(i1).x()-plist[0]->at(i2).x();
+//      double dy = plist[0]->at(i1).y()-plist[0]->at(i2).y();
+//      double dz = plist[0]->at(i1).z()-plist[0]->at(i2).z();
+//      double r = sqrt(dx*dx+dy*dy+dz*dz);
+//      //After kinetic freezeout, the evolution of the heavy quarks is completely adiabatic. Therefore, 
+//      //the Cornell potential should be used to determine the binding energy of the pair:
+//      double potential;
+//      //if(notevolved[ie] == 1){
+//      //potential = CornellPotential(0.);
+//      //}
+//      potential = CornellPotential(r);
+//
+//      //The relative momentum of the pair:
+//      Vec4 p1 = plist[0]->at(i1).p();
+//      Vec4 p2 = plist[0]->at(i2).p();
+//      double M1 = plist[0]->at(i1).mass();
+//      double M2 = plist[0]->at(i2).mass();
+//
+//      double p1mu[4], p2mu[4];
+//      p1mu[1] = p1.px();
+//      p1mu[2] = p1.py();
+//      p1mu[3] = p1.pz();
+//      p1mu[0] = sqrt(M1*M1+p1mu[1]*p1mu[1]+p1mu[2]*p1mu[2]+p1mu[3]*p1mu[3]);
+//      p2mu[1] = p2.px();
+//      p2mu[2] = p2.py();
+//      p2mu[3] = p2.pz();
+//      p2mu[0] = sqrt(M2*M2+p2mu[1]*p2mu[1]+p2mu[2]*p2mu[2]+p2mu[3]*p2mu[3]);
+//
+//      double M_inv = sqrt((p1mu[0]+p2mu[0])*(p1mu[0]+p2mu[0])
+//        -(p1mu[1]+p2mu[1])*(p1mu[1]+p2mu[1])
+//        -(p1mu[2]+p2mu[2])*(p1mu[2]+p2mu[2])
+//        -(p1mu[3]+p2mu[3])*(p1mu[3]+p2mu[3]) );
+//
+//      //Finally, the energy of the pair in the CM frame:
+//      double E_CM = M_inv+potential;
+//
+//      hadronizeByColorEvaporation(id1, id2, E_CM, p1mu, p2mu, M1, M2, status);
+//    }
+//  }
+  return 0;
 } 
 
 // Uses the rejection method:
@@ -6045,24 +7503,249 @@ int MARTINI::isBound(int id1, int id2, double E_CM){
   return isBound;
 }
 
+int MARTINI::check_coalescence(int id1, double *pmu, double M1, double x, double y, double z, double t){
+    double tau;
+
+    HydroInfo hydroInfo;// antihydroInfo;
+    PreHydroInfo prehydroInfo;// antihydroInfo;
+  
+    if(z*z<t*t) tau = sqrt(t*t-z*z); else return false;    // determine tau (z*z) should always be less than (t*t)
+    double umu[4], pmuRest[4];
+    if(tau<hydroTau0 && tau > prehydroTau0 && prehydroevolution == 1)
+    {
+      prehydroInfo = hydroSetup->getPreHydroValues(x, y, z, t);
+      double eta_local = 0.5*log((t+z)/(t-z));
+      double cosh_eta = cosh(eta_local);
+      double sinh_eta = sinh(eta_local);
+      umu[0] = prehydroInfo.utau*cosh_eta;  // gamma factor
+      umu[1] = prehydroInfo.ux; 
+      umu[2] = prehydroInfo.uy; 
+      umu[3] = prehydroInfo.utau*sinh_eta;
+      LorentzBooster(umu, pmu, pmuRest);                      // Boost into the fluid's rest frame
+    } else if (tau >= hydroTau0)
+    {
+      hydroInfo = hydroSetup->getHydroValues(x, y, z, t); 
+    
+      double vx = hydroInfo.vx;
+      double vy = hydroInfo.vy;
+      double vz = hydroInfo.vz;
+      double beta = sqrt(vx*vx+vy*vy+vz*vz);                           // absolute value of flow velocity in units of c
+      double gamma = 1./sqrt(1.-beta*beta);                            // gamma factor
+      umu[0] = gamma;
+      umu[1] = gamma*vx;
+      umu[2] = gamma*vy;
+      umu[3] = gamma*vz;
+      LorentzBooster(umu, pmu, pmuRest);                      // Boost into the fluid's rest frame
+    }
+
+    double pHQ = sqrt(pmuRest[1]*pmuRest[1] + pmuRest[2]*pmuRest[2] + pmuRest[3]*pmuRest[3]);
+    double probability_to_coalesce = hqRates->get_coalesence_prob(pHQ);
+    double probability_to_coalesce_meson = hqRates->get_coalesence_meson_prob(pHQ);
+    double random = gsl_rng_uniform(gsl_rand);
+
+    int decision = 0;
+
+    if (random < coal_N_factor*probability_to_coalesce) decision = 2; //Coalescening
+    if (random < coal_N_factor*probability_to_coalesce && random < coal_N_factor*probability_to_coalesce_meson) decision = 1;//Coalescening to meson
+
+    return decision;
+}
+
+bool MARTINI::hadronize_by_coalescence(int id1, double *pHQ, double M, double x, double y, double z, double t){
+   Vec4 pL;
+   double pLight[4];
+   bool coalesence_complete = false;
+   int counter = 0;
+
+   while(!coalesence_complete && counter < 100000)
+   {
+     counter++;
+     pL = random->thermal_mass(T, 1, M);
+     pLight[1] = pL.px();
+     pLight[2] = pL.py();
+     pLight[3] = pL.pz();
+     pLight[0] = sqrt(M*M+pLight[1]*pLight[1]+pLight[2]*pLight[2]+pLight[3]*pLight[3]); //vecp loaded into an array for ease with LorentzBooster
+
+     double Coal_normal = hqRates->get_Coal_normalization();
+
+     double tau;
+
+     HydroInfo hydroInfo;// antihydroInfo;
+     PreHydroInfo prehydroInfo;// antihydroInfo;
+  
+     if(z*z<t*t) tau = sqrt(t*t-z*z); else break;    // determine tau (z*z) should always be less than (t*t)
+     double umu[4], pLLab[4];
+     if(tau<hydroTau0 && tau > prehydroTau0 && prehydroevolution == 1)
+     {
+       prehydroInfo = hydroSetup->getPreHydroValues(x, y, z, t);
+       double eta_local = 0.5*log((t+z)/(t-z));
+       double cosh_eta = cosh(eta_local);
+       double sinh_eta = sinh(eta_local);
+       umu[0] = prehydroInfo.utau*cosh_eta;  // gamma factor
+       umu[1] = -1.*prehydroInfo.ux; 
+       umu[2] = -1.*prehydroInfo.uy; 
+       umu[3] = prehydroInfo.utau*sinh_eta;
+       LorentzBooster(umu, pLight, pLLab);                      // Boost into the fluid's rest frame
+     } else if (tau >= hydroTau0)
+     {
+       hydroInfo = hydroSetup->getHydroValues(x, y, z, t); 
+     
+       double vx = hydroInfo.vx;
+       double vy = hydroInfo.vy;
+       double vz = hydroInfo.vz;
+       double beta = sqrt(vx*vx+vy*vy+vz*vz);                           // absolute value of flow velocity in units of c
+       double gamma = 1./sqrt(1.-beta*beta);                            // gamma factor
+       umu[0] = gamma;
+       umu[1] = -1.*gamma*vx;
+       umu[2] = -1.*gamma*vy;
+       umu[3] = -1.*gamma*vz;
+       LorentzBooster(umu, pLight, pLLab);                      // Boost into the fluid's rest frame
+     }
+
+     double v_cm[4];
+     for (int ii = 1; ii <= 3; ii++)
+     {
+       v_cm[ii] = (pLLab[ii] + pHQ[ii])/(pLLab[0]+pHQ[0]);
+     }
+     double gamma = 1./(sqrt(1. - v_cm[1]*v_cm[1] - v_cm[2]*v_cm[2] - v_cm[3]*v_cm[3]));
+
+     double pLQ_cm[4], pHQ_cm[4];
+
+     for (int ii = 1; ii <= 3; ii++)
+     {
+       pLQ_cm[ii] = gamma*(pLLab[ii] - pLLab[0]*v_cm[ii]);
+       pHQ_cm[ii] = gamma*(pHQ[ii]   - pHQ[0]*v_cm[ii]);
+     }
+     pLQ_cm[0] = gamma*(pLLab[0] - pLLab[1]*v_cm[1] - pLLab[2]*v_cm[2] - pLLab[3]*v_cm[3]);
+     pHQ_cm[0] = gamma*(pHQ[0]   - pHQ[1]*v_cm[1]   - pHQ[2]*v_cm[2]   - pHQ[3]*v_cm[3]);
+
+     double relK[4];
+     for (int ii = 1; ii <= 3; ii++)
+     {
+       relK[ii] = (pHQ_cm[0]*pLQ_cm[ii] - pLQ_cm[0]*pHQ_cm[ii])/(pLQ_cm[0]+pHQ_cm[0]);
+     }
+     double relKsq = relK[1]*relK[1] + relK[2]*relK[2] + relK[3]*relK[3];
+
+     double sigma = coal_sigma;
+
+     double prob = exp(-relKsq*sigma*sigma);
+     prob *= Coal_normal*coal_N_factor*pow(2.*sqrt(M_PI)*sigma, 3.)/36.;
+
+     double random_num = gsl_rng_uniform(gsl_rand);
+
+     if( random_num < prob)
+     {
+       coalesence_complete = true;
+       double pnew[4];
+
+       for (int ii = 0; ii < 4; ii++)
+       {
+         pnew[ii] = pHQ[ii] + pLLab[ii];
+       }
+
+       Vec4 pmeson;
+
+       pmeson.p(pnew[1],pnew[2], pnew[3], pnew[0]);
+       //For now, we put all D-mesons into the pseudoscalar ground state; it may make sense at some point to 
+       //fragment into D^+, D^-, D^*... based on the energy considerations of Peterson fragmentation:
+       pythia.event.append(id1*411/abs(id1), 81, 0, 0, pmeson, DMASS);
+     }
+
+   }
+   return coalesence_complete;
+}
+
+//void MARTINI::hadronizeOneHeavyQuark(int id, double *pmu, double M){
+//
+//  double z;
+//  z = SamplePetersonFunction(M);
+//
+//  double pnew[4];
+//  pnew[1] = z*pmu[1];
+//  pnew[2] = z*pmu[2];
+//  pnew[3] = z*pmu[3];
+//
+//  Vec4 pnewvec;
+//
+//  if(abs(id)==4){
+//    pnew[0] = sqrt(pnew[1]*pnew[1]+pnew[2]*pnew[2]+pnew[3]*pnew[3]+DMASS*DMASS);
+//    pnewvec.p(pnew[1],pnew[2], pnew[3], pnew[0]);
+//    pythia.event.append(id*411/abs(id), 81, 0, 0, pnewvec, DMASS);
+//  }
+//  else{
+//    pnew[0] = sqrt(pnew[1]*pnew[1]+pnew[2]*pnew[2]+pnew[3]*pnew[3]+BMASS*BMASS);
+//    pnewvec.p(pnew[1],pnew[2], pnew[3], pnew[0]);
+//    pythia.event.append(id*511/abs(id), 81, 0, 0, pnewvec, BMASS);
+//  }
+//}
+
 void MARTINI::hadronizeOneHeavyQuark(int id, double *pmu, double M){
 
+  double pmag = sqrt(pmu[1]*pmu[1] + pmu[2]*pmu[2] + pmu[3]*pmu[3]);
+
+  // e1  = pT/|pT|, e2 = 
+  double e1[3], e2[3], v[3];
+  if (pmu[3]/pmag < 0.99) {
+    v[0] = 0.; v[1] = 0.; v[2] = 1.;
+  } else {
+    v[0] = 0.; v[1] = 1.; v[2] = 0.;
+  }
+  e1[0] = (pmu[2]/pmag)*v[2] - (pmu[3]/pmag)*v[1];
+  e1[1] = (pmu[3]/pmag)*v[0] - (pmu[1]/pmag)*v[2];
+  e1[2] = (pmu[1]/pmag)*v[1] - (pmu[2]/pmag)*v[0];
+  double e1_norm = sqrt(e1[0]*e1[0] + e1[1]*e1[1] + e1[2]*e1[2]);
+  for (int ii = 0; ii < 3; ii++) e1[ii] /= e1_norm;
+
+  e2[0] = (pmu[2]/pmag)*e1[2] - (pmu[3]/pmag)*e1[1];
+  e2[1] = (pmu[3]/pmag)*e1[0] - (pmu[1]/pmag)*e1[2];
+  e2[2] = (pmu[1]/pmag)*e1[1] - (pmu[2]/pmag)*e1[0];
+  double e2_norm = sqrt(e2[0]*e2[0] + e2[1]*e2[1] + e2[2]*e2[2]);
+  for (int ii = 0; ii < 3; ii++) e2[ii] /= e2_norm;
+
   double z;
+  double sigma_kt = 0.335;//0.;//GeV
   z = SamplePetersonFunction(M);
+  if(abs(id)==4){
+    if (z*(pmu[0] + pmag) < DMASS) z = DMASS/(pmu[0] + pmag);
+  } else if(abs(id)==5){
+    if (z*(pmu[0] + pmag) < BMASS) z = BMASS/(pmu[0] + pmag);
+  } else {
+    return;
+  }
+
+  double p_plus_h = z*(pmu[0] + pmag);
+  double kx = gsl_ran_gaussian(gsl_rand, sigma_kt);
+  double ky = gsl_ran_gaussian(gsl_rand, sigma_kt);
+  double kt_sq = kx*kx + ky*ky;
+  double p_minus_h;
+  //double p_minus_h = (DMASS*DMASS + kt_sq)/(2.*p_plus_h);
+  if(abs(id)==4){
+    p_minus_h = (DMASS*DMASS + kt_sq)/(p_plus_h);
+  } else if(abs(id)==5){
+    p_minus_h = (BMASS*BMASS + kt_sq)/(p_plus_h);
+  } else {
+    return;
+  }
+
+  double E_h_col  = 0.5*(p_plus_h + p_minus_h);
+  double pz_h_col = 0.5*(p_plus_h - p_minus_h);
 
   double pnew[4];
-  pnew[1] = z*pmu[1];
-  pnew[2] = z*pmu[2];
-  pnew[3] = z*pmu[3];
+  pnew[1] = (pmu[1]/pmag)*pz_h_col + kx*e1[0] + ky*e2[0];
+  pnew[2] = (pmu[2]/pmag)*pz_h_col + kx*e1[1] + ky*e2[1];
+  pnew[3] = (pmu[3]/pmag)*pz_h_col + kx*e1[2] + ky*e2[2];
 
   Vec4 pnewvec;
 
   if(abs(id)==4){
     pnew[0] = sqrt(pnew[1]*pnew[1]+pnew[2]*pnew[2]+pnew[3]*pnew[3]+DMASS*DMASS);
+    //cout << pnew[1] << " " << z*pmu[1] << " " << pnew[2] << " " << z*pmu[2] << " " << pnew[3] << " " << z*pmu[3] << " " << pnew[0] << " " << sqrt(DMASS*DMASS+z*z*pmu[1]*pmu[1]+z*z*pmu[2]*pmu[2]+z*z*pmu[3]*pmu[3]) << endl;
+    //if (sqrt(z*z*pmu[1]*pmu[1]+z*z*pmu[2]*pmu[2]) > 5. || sqrt(pnew[1]*pnew[1]+pnew[2]*pnew[2]) > 5.) cout << sqrt(pnew[1]*pnew[1]+pnew[2]*pnew[2]) << " " << sqrt(z*z*pmu[1]*pmu[1]+z*z*pmu[2]*pmu[2]) << endl;
+    //cout << pmag << " " << e1[0] << " " << e1[1] << " " << e1[2] << "... " << e2[0] << " " << e2[1] << " " << e2[2] << "... " << pmu[1]/pmag << " " << pmu[2]/pmag << " " << pmu[3]/pmag << endl;
     pnewvec.p(pnew[1],pnew[2], pnew[3], pnew[0]);
     pythia.event.append(id*411/abs(id), 81, 0, 0, pnewvec, DMASS);
   }
-  else{
+  else if (abs(id) == 5) {
     pnew[0] = sqrt(pnew[1]*pnew[1]+pnew[2]*pnew[2]+pnew[3]*pnew[3]+BMASS*BMASS);
     pnewvec.p(pnew[1],pnew[2], pnew[3], pnew[0]);
     pythia.event.append(id*511/abs(id), 81, 0, 0, pnewvec, BMASS);
@@ -6192,7 +7875,7 @@ void MARTINI::hadronizeByColorEvaporation(int id1, int id2, double E_CM, double 
     if(E_CM > E_BBC_BOUND){
       double z1, z2;
       z1 = SamplePetersonFunction(M1);
-      z2 = SamplePetersonFunction(M2);	
+      z2 = SamplePetersonFunction(M2);  
       //cout << "z1 = " << z1 << ", z2 = " << z2 << endl;
       double pnew1[4], pnew2[4];
       
@@ -6207,28 +7890,28 @@ void MARTINI::hadronizeByColorEvaporation(int id1, int id2, double E_CM, double 
       //For now, we put all D-mesons into the pseudoscalar ground state; it may make sense at some point to 
       //fragment into D^+, D^-, D^*... based on the energy considerations of Peterson fragmentation:
       if(abs(id1)==4){
-	pnew1[0] = sqrt(pnew1[1]*pnew1[1]+pnew1[2]*pnew1[2]+pnew1[3]*pnew1[3]+DMASS*DMASS);
-	Vec4 pnew1vec;
-	pnew1vec.p(pnew1[1],pnew1[2], pnew1[3], pnew1[0]);
-	pythia.event.append(id1*411/abs(id1), 81, 0, 0, pnew1vec, DMASS);
+  pnew1[0] = sqrt(pnew1[1]*pnew1[1]+pnew1[2]*pnew1[2]+pnew1[3]*pnew1[3]+DMASS*DMASS);
+  Vec4 pnew1vec;
+  pnew1vec.p(pnew1[1],pnew1[2], pnew1[3], pnew1[0]);
+  pythia.event.append(id1*411/abs(id1), 81, 0, 0, pnew1vec, DMASS);
       }
       else{
-	pnew1[0] = sqrt(pnew1[1]*pnew1[1]+pnew1[2]*pnew1[2]+pnew1[3]*pnew1[3]+BMASS*BMASS);
-	Vec4 pnew1vec;
-	pnew1vec.p(pnew1[1],pnew1[2], pnew1[3], pnew1[0]);
-	pythia.event.append(id1*511/abs(id1), 81, 0, 0, pnew1vec, BMASS);
+  pnew1[0] = sqrt(pnew1[1]*pnew1[1]+pnew1[2]*pnew1[2]+pnew1[3]*pnew1[3]+BMASS*BMASS);
+  Vec4 pnew1vec;
+  pnew1vec.p(pnew1[1],pnew1[2], pnew1[3], pnew1[0]);
+  pythia.event.append(id1*511/abs(id1), 81, 0, 0, pnew1vec, BMASS);
       }
       if(abs(id2)==4){
-	pnew2[0] = sqrt(pnew2[1]*pnew2[1]+pnew2[2]*pnew2[2]+pnew2[3]*pnew2[3]+DMASS*DMASS);
-	Vec4 pnew2vec;
-	pnew2vec.p(pnew2[1],pnew2[2], pnew2[3], pnew2[0]);
-	pythia.event.append(id2*411/abs(id2), 81, 0, 0, pnew2vec, DMASS);
+  pnew2[0] = sqrt(pnew2[1]*pnew2[1]+pnew2[2]*pnew2[2]+pnew2[3]*pnew2[3]+DMASS*DMASS);
+  Vec4 pnew2vec;
+  pnew2vec.p(pnew2[1],pnew2[2], pnew2[3], pnew2[0]);
+  pythia.event.append(id2*411/abs(id2), 81, 0, 0, pnew2vec, DMASS);
       }
       else{
-	pnew2[0] = sqrt(pnew2[1]*pnew2[1]+pnew2[2]*pnew2[2]+pnew2[3]*pnew2[3]+BMASS*BMASS);
-	Vec4 pnew2vec;
-	pnew2vec.p(pnew2[1],pnew2[2], pnew2[3], pnew2[0]);
-	pythia.event.append(id2*511/abs(id2), 81, 0, 0, pnew2vec, BMASS);
+  pnew2[0] = sqrt(pnew2[1]*pnew2[1]+pnew2[2]*pnew2[2]+pnew2[3]*pnew2[3]+BMASS*BMASS);
+  Vec4 pnew2vec;
+  pnew2vec.p(pnew2[1],pnew2[2], pnew2[3], pnew2[0]);
+  pythia.event.append(id2*511/abs(id2), 81, 0, 0, pnew2vec, BMASS);
       }
     }
   }

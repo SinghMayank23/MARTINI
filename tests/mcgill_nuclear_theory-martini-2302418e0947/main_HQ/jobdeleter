@@ -1,0 +1,6 @@
+c=543149
+while [ $c -le 543362 ]
+do 
+   qdel $c
+   (( c++ ))
+done

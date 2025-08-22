@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <math.h>
-#include "MARTINI.h"
+#include "src/MARTINI.h"
 #include "TH1.h"
 #include "TH2.h"
 //#define PI 3.14159265359

@@ -1,0 +1,107 @@
+\chapter{How to write your own program}
+\label{usage}\index{Implementation}
+\section{Essentials}
+To write your own program including #MARTINI#, you need to have a line
+\begin{verbatim} #include "MARTINI.h"\end{verbatim}
+in your main program.
+Then, three commands are essential to initialize #MARTINI#.
+Here is a short beginning of an example main program, declaring the object #martini#,
+which is an instance of the class #MARTINI#:\\
+~\\
+\begin{boxedverbatim}
+int main(int argc, char* argv[]) 
+{
+  MARTINI martini;
+  martini.readFile("setup.dat");
+  martini.init(argc, argv);
+  ...
+}
+\end{boxedverbatim}
+
+~\\
+The second command is not really mandatory, but 
+makes the use of your own parameter sets a lot easier. If you do not change any paramter from its default
+you do not need this. If you only whish to change a few parameters, you can do this using #martini.readString("string")#.
+Note that the way parameters are set is completely analogous to PYTHIA~8.1. The third command actually initializes martini.
+Currently the command prompt arguments that are passed to #martini.init# have no function.
+Note that it is essential to set all parameters \textbf{before} calling #martini.init(argc, argv)# so that #MARTINI# really initializes
+with the parameter set you desire.
+To see what parameters #MARTINI# is using, include the line
+\begin{verbatim} martini.settings.listAll(); \end{verbatim}
+Again, note that this is just like in PYTHIA~8.1. To understand the whole settings scheme please refer to the PYTHIA~8.1 online
+manual at e.g. #http://home.thep.lu.se/~torbjorn/php8130/Welcome.php# under #Settings Scheme#. 
+Just replace #pythia# with #martini# and that is how it works for #MARTINI#.
+
+To modify PYTHIA parameters when using #MARTINI# it goes the same way. Just read in the string containing the PYTHIA parameter
+name and value, either within your setup file (e.g. #"setup.dat"#) or using #martini.readString("pythiaParameterString")#.
+There are no #MARTINI# parameters that conincide with names of PYTHIA parameters. So it will be clear what you want to change.
+
+A main program includes the genration of an event and the subsequent evolution:\\
+~\\
+\begin{boxedverbatim}
+  int runs=martini.returnRuns();
+
+  vector<Parton> ** plist;          // pointer to array of vector<Parton> objects
+  plist = new vector<Parton> *[2];  
+  plist[0] = new vector<Parton>;    // plist[0] is the main list that holds the 
+                                    // high momentum partons that are evolved
+
+  for (int j=0; j<runs; j++)        // loop over all events
+    {
+      plist[0]=martini.next();
+      ... 
+    }
+\end{boxedverbatim} 
+
+~\\
+First declare a #vector# of #Parton# objects, which is then filled in every event by using #plist[0]=martini.next()#.
+After that you are free to extract the event information and do binnings or whatever - that is the ``...'' part.
+Alternatively, one could write ones own #MARTINI::next# routine, e.g. when one wants to fill the initial hard parton list
+with something other than PYTHIA (e.g. one parton with fixed energy and momentum). This could look like in the following\\
+~\\
+\begin{boxedverbatim}
+   Parton jp1; 
+   jp1.id(1); //make the parton an up quark
+   jp1.p(Ejet,0.,0.); //set the parton's momentum
+   jp1.col(101); jp1.acol(102); //set color and anti-color index
+   jp1.x(0.); jp1.y(0.); jp1.z(0.); //set initial position
+   jp1.xini(jp1.x()); jp1.yini(jp1.y()); jp1.zini(jp1.z());
+ 
+   mt = static_cast<int>(maxTime/dtfm+0.0001); // compute number of time steps
+   for (int j=0; j<runs; j++)     // loop over all events
+    {
+      counter = 0;                // reset counter in the beginning of every event
+      plist[0]->clear();          // clear the parton list
+      if( martini.returnFixedEnergy() == 0 ) // if options ask for PYTHIA event, do this
+        {
+          martini.generateEvent(plist[0]); 
+        }
+       else                       // if options want a parton with fixed energy, do this
+        {
+          plist[0]->push_back( jp1 ); // add the previously defined parton to the list     
+        }
+      if (martini.returnEvolution() == 1)    // evolve in medium if settings want it
+        {
+          for(int i=0; i<mt; i++) // loop over all time steps 
+            {
+              counter = martini.evolve(plist, counter, i);
+              counter+=1;
+            }
+        }
+     ...
+    }
+\end{boxedverbatim}
+
+~\\
+First, the parton object is declared and filled with information on kind of parton, momentum, position, and color.
+Then, the loop over runs starts and there is a choice between PYTHIA event\\ (#martini.returnFixedEnergy() == 0#)
+and our own initial setup, which in this simple case just adds the one parton #jp1# to the list. Then the evolution
+over the #mt# time steps is started (if the user wanted an evolution (#martini.returnEvolution() == 1#).
+Note the use of #counter# which allows to identify every step, every parton, and by that within #MARTINI# every color index uniquely.
+#counter# is also increased within #MARTINI::evolve#.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

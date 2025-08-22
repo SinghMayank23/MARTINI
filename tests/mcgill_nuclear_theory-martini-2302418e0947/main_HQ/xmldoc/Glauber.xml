@@ -1,0 +1,19 @@
+<word name="Glauber:Target" default="Au">
+The name of the target nucleus <code>Glauber:Target</code> = Au
+</word>
+
+<word name="Glauber:Projectile" default="Au">
+The name of the projectile nucleus <code>Glauber:Projectile</code> = Au
+</word>
+
+<mode name="Glauber:MaxInterpolationPoints" default="100" min="10">
+number of points for interpolation<code>Glauber:MaxInterpolationPoints</code> = 10
+</mode>
+
+<parm name="Glauber:b" default="0.0" min="0.0">
+impact parameter in fm<code>Glauber:b</code> = 0.0
+</parm>
+
+<flag name="Glauber:Envelope" default="off">
+use envelope on x-y distribution or not
+</flag>

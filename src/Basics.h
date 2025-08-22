@@ -32,6 +32,31 @@ struct HydroInfo
   double veta;
 };
   
+struct PreHydroInfo
+{
+  double T;
+  double ux;
+  double uy;
+  double utau;
+};
+  
+struct HydroInfoViscous
+{
+  double Wtautau;
+  double Wtaux;
+  double Wtauy;
+  double Wtaueta;
+  double Wxx;
+  double Wxy;
+  double Wxeta;
+  double Wyy;
+  double Wyeta;
+  double Wetaeta;
+  double BulkPi;
+  double Entropy;
+  double cs2;
+};
+  
 struct Norms 
 {
   double Gamma;

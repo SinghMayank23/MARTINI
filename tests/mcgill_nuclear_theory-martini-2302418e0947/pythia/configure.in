@@ -1,0 +1,12 @@
+AC_INIT(main.cpp)
+AM_INIT_AUTOMAKE(main,0.1)
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_RANLIB
+CXXFLAGS="-L/usr/local/lib/ -lgsl -lgslcblas -lm"
+
+AC_SUBST(CXXFLAGS)
+
+AC_PROG_INSTALL
+
+AC_OUTPUT(Makefile)

@@ -15,13 +15,17 @@ using namespace Pythia8;
 class Parton
 {
     private:
-        Vec4 itsP;         // momentum
-        Vec4 itsAtSplitP;  // Sangyong: momentum at the split
+        Vec4 itsP;           // momentum
+        Vec4 itsInitialP;    // Mayank: Initial momentum
+        Vec4 itsEndOfPreeqP; // Mayank: Momentum at end of Preeq
+        Vec4 itsAtSplitP;    // Sangyong: momentum at the split
+        Vec4 itsOldP;        // momentum during the previous timestep
         
         double itsX;       // X position
         double itsY;       // Y position
         double itsZ;       // Z position 
         double itstFinal;  // final t for fragmentation
+	double itsprevtau; //proper-time for previous tau step
         
         double itsCreationTau; // the proper time tau at which the photon was emitted
                                // RMY Nov. 4th 2021
@@ -32,6 +36,8 @@ class Parton
         int itsElasticCollisions; // counts a parton's number of elastic collisions
         double itsMass;    // mass
         int itsFrozen;     // indicates whether parton is not evolving anymore
+        int itsFormed;     // indicates whether parton is formed or not
+        int itsInHydro;    // indicates whether parton is formed or not
         int itsStatus;     // status from PYTHIA
         int itsSource;     // ONLY FOR PHOTONS: Origin of the photon: 0/1/2 Initial/conversion/AMY
                            // RY: extended for QCD partons, encoding what created them.
@@ -43,7 +49,11 @@ class Parton
                          
         int itsisCharged;
         int itsRecoil;     // if it is a recoil particle or not
+  int itsAntiI;        // The position on the list of the heavy anti-quark created in the same pQCD event as this parton.
         
+  double itsOldX;       // X position one timestep before
+  double itsOldY;       // Y position one timestep before
+  double itsOldZ;       // Z position one timestep before
         //Sangyong's additions start
         int itsDaughter; // daughter's current position in the plist. initialize to -1 (means nobody's daughter)
         int itsMother; // mother's current position in the plist. initialize to -1 (means nobody's mother)
@@ -62,6 +72,15 @@ class Parton
         Vec4 p() const { return itsP; }
         void p (Vec4 value) { itsP=value; }
         void p (double px, double py, double pz) { itsP.px(px);  itsP.py(py); itsP.pz(pz); itsP.e(sqrt(px*px+py*py+pz*pz+itsMass*itsMass)); }
+        Vec4 Initialp() const { return itsInitialP; }
+        void Initialp (Vec4 value) { itsInitialP=value; }
+        void Initialp (double px, double py, double pz) { itsInitialP.px(px);  itsInitialP.py(py); itsInitialP.pz(pz); itsInitialP.e(sqrt(px*px+py*py+pz*pz+itsMass*itsMass)); }
+        Vec4 EndOfPreeqp() const { return itsEndOfPreeqP; }
+        void EndOfPreeqp (Vec4 value) { itsEndOfPreeqP=value; }
+        void EndOfPreeqp (double px, double py, double pz) { itsEndOfPreeqP.px(px);  itsEndOfPreeqP.py(py); itsEndOfPreeqP.pz(pz); itsEndOfPreeqP.e(sqrt(px*px+py*py+pz*pz+itsMass*itsMass)); }
+  Vec4 pOld() const { return itsOldP; }
+  void pOld (Vec4 value) { itsOldP=value; }
+  void pOld (double px, double py, double pz) { itsOldP.px(px);  itsOldP.py(py); itsOldP.pz(pz); itsOldP.e(sqrt(px*px+py*py+pz*pz+itsMass*itsMass)); }
          
         //Sangyong's additions start
         Vec4 p_at_split() const { return itsAtSplitP; }
@@ -75,13 +94,22 @@ class Parton
         double y() const { return itsY; }
         double z() const { return itsZ; }
         double tFinal() const { return itstFinal; }
+	double prevtau() const { return itsprevtau; }
         double tauAtEmission() const {return itsCreationTau;}
         void x (double value) { itsX=value; }
         void y (double value) { itsY=value; }
         void z (double value) { itsZ=value; }
         void tFinal (double value) { itstFinal=value; }
+        void prevtau (double value) { itsprevtau=value; }
         void tauAtEmission(double value) { itsCreationTau=value; }
         
+  double xOld() const { return itsOldX; }
+  double yOld() const { return itsOldY; }
+  double zOld() const { return itsOldZ; }
+  void xOld (double value) { itsOldX=value; }
+  void yOld (double value) { itsOldY=value; }
+  void zOld (double value) { itsOldZ=value; }
+
         // id
         int  id() const { return itsID; }
         void id(int value) { itsID=value; }
@@ -98,9 +126,21 @@ class Parton
         int acol() const { return itsACol; }
         void acol(int value) { itsACol=value; }
         
+  // antiI
+  int antiI() const {return itsAntiI; }
+  void antiI(int value) { itsAntiI=value; }
+  
         // frozen
         int frozen() const { return itsFrozen; }
         void frozen(int value) { itsFrozen=value; }
+        
+        // formed
+        int formed() const { return itsFormed; }
+        void formed(int value) { itsFormed=value; }
+        
+        // inhydro
+        int inhydro() const { return itsInHydro; }
+        void inhydro(int value) { itsInHydro=value; }
         
         // status
         int status() const { return itsStatus; }

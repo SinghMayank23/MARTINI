@@ -1,0 +1,32 @@
+!setup_Pythia_pp_ALICE_pi-_weight.dat
+
+Beams:idA = 2212		! first beam, p = 2212, pbar = -2212
+Beams:idB = 2212		! second beam, p = 2212, pbar = -2212
+Beams:eCM = 2760.		! CM energy of collision
+Random:setSeed = on
+Random:seed = 0
+
+HardQCD:all = on		!  switch on all QCD jet + jet processes
+PartonLevel:all = on
+HadronLevel:all = on
+
+Main:subrun = 0
+PhaseSpace:pTHatMin = 0.
+PhaseSpace:pTHatMax = 20.
+
+Main:subrun = 1 
+PhaseSpace:pTHatMin = 20. 
+PhaseSpace:pTHatMax = 40.
+
+Main:subrun = 2 
+PhaseSpace:pTHatMin = 40. 
+PhaseSpace:pTHatMax = 60.
+
+Main:subrun = 3 
+PhaseSpace:pTHatMin = 60. 
+PhaseSpace:pTHatMax = 80.
+
+Main:subrun = 4 
+PhaseSpace:pTHatMin = 80. 
+PhaseSpace:pTHatMax = 0.
+

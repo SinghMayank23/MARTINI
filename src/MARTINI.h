@@ -24,7 +24,11 @@
 #include "Rates.h"
 #include "Elastic.h"
 #include "HydroCell.h"
+#include "PreHydroCell.h"
+#include "HydroCellViscous.h"
 #include "HydroSetup.h"
+#include "HQratecell.h"
+#include "HQRates.h"
 #include "Testing.h"
 #include "Information.h"
 #include "Glauber.h"
@@ -53,10 +57,12 @@ class MARTINI
         Rates   *rates;
         Elastic *elastic;
         HydroSetup *hydroSetup;
+        HQRates *hqRates;
         Glauber *glauber;
         binarycollision_info *binary_info_ptr;
         Information info;
         vector<HydroCell> * lattice;     
+        vector<HydroCellViscous> * lattice_viscous;     
         
         vector<ReturnValue> nucleusA;  // list of x and y coordinates of nucleons in nucleus A      
         vector<ReturnValue> nucleusB;  // list of x and y coordinates of nucleons in nucleus B 
@@ -65,6 +71,9 @@ class MARTINI
         
         int runs;                // number of events
         int evolution;           // do evolution or not
+	int prehydroevolution;   // do IPGlasma energy loss or not
+        int evolutionshear;      // do shear evolution or not
+        int evolutionbulk;       // do bulk evolution or not
         double cmEnergy;         // center of mass energy
         double maxTime;          // maximal time in fm
         double T;                // dynamic temperature in GeV
@@ -95,6 +104,11 @@ class MARTINI
         int nuclearEffects;      // 0: no nuclear effects, 1: nuclear effects EKS98
         
         int tauEtaCoordinates;
+        double prehydroTau0;     // tau_0 in the IPGlasma history files
+	double prehydroDtau;
+	double prehydroXmax;
+	double prehydroDx;
+	string pre_evolution_name;
         double hydroTau0;        // tau_0 in the hydro data files
         double hydroTauMax;      // tau_max in the hydro data files
         double hydroDtau;        // step dtau in fm/c in the hydro data files
@@ -147,9 +161,14 @@ class MARTINI
         
         //These settings were added for handling the coordinates of the collisions from MUSIC. -CFY 11/2/2010
         int nbinFromFile;
+        int NColl;
         int file_number;
         string evolution_name;
+        string IPG_filename;
+        string shear_name;
+        string bulk_name;
         string background_file_name;
+        string binary_filename;
         //The array of the coordinates of the collisions.
         double **binary;
         int Nbin;
@@ -157,6 +176,14 @@ class MARTINI
         //These settings were added for runs examining heavy quarks. -CFY 5/24/2011
         int examineHQ;
         int setInitialPToZero;
+        int HQ_rate_type;//0:constant TwoPiTD_HQ, 1:T-dependent, 2:T&p dependent, 3:Lattice_based(includes Nf=0 rate below hydroTau0)
+	double HQ_Lattice_rate_factor;
+        int HQ_scat_rad_flag;
+        string HQ_rate_path;
+	string coal_prob_path;
+        bool do_coalesence;
+        double coal_sigma;
+        double coal_N_factor;
         double totalHQXSec;
         double charmWidth;
         double bottomWidth;
@@ -212,11 +239,14 @@ class MARTINI
         // Hadronizes a single heavy quark into an open heavy flavor meson:
         void hadronizeOneHeavyQuark(int id, double *pmu, double M);
         /// This hadronizes heavy quarks in a full event according to a simple thermal model by C. Young.
+        bool hadronize_by_coalescence(int id, double *pmu, double M, double x, double y, double z, double t);
+        int check_coalescence(int id1, double *pmu, double M1, double x, double y, double z, double t);
         int hadronizeHeavyQuarks(vector<Parton> ** plist);
         void hadronizeByColorEvaporation(int id1, int id2, double E_CM, double *p1mu, double *p2mu, double M1, double M2, int status);  
         int generateEventHeavyQuarks(vector<Parton> *plist);
+        int generateEventHeavyQuarks_w_colllist_OR_IPGfile(vector<Parton> *plist);
         int evolveHeavyQuarks(vector<Parton>  **plist, int counter, int it);
-        int evolveAndHadronizeHeavyQuarks(vector<Parton>  **plist, int counter, int it);
+        int evolveAndHadronizeHeavyQuarks(vector<Parton>  **plist, double* hydro_T, double* prehydro_T, int* hydro_counter, int* prehydro_counter, int counter, int it);
         double CornellPotential(double r);
         double CornellPotential(double r, int id1, int id2);
         double F(double r, double T);

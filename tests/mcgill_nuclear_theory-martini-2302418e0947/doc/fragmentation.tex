@@ -1,0 +1,62 @@
+\chapter{Fragmentation}
+\label{fragmentation}\index{Fragmentation}
+
+The alternative fragmentation mechanism does not need MARTINI to keep track of the color structure of the shower.
+Instead, we connect color strings in the end, when a parton exits the QGP phase or its evolution stops.
+It is more likely that a high momentum parton connects to a close-by medium parton than a jet parton which went in the other direction 
+initially. Assuming that the elastic collisions in the plasma randomize the color structure anyway, this should be a more realistic description.
+
+So once a parton is done with its evolution we go into its cell and determine all its neighbours, be it jets or medium 
+partons. Of course, since the medium is described by hydrodynamics there are no individual medium partons in the code yet.
+So we add them to the cell. How many do we add? That is determined solely by the temperature. 
+The density of gluons and quarks per degree of freedom are given by
+\begin{align}
+  n_g^1(T) &= \frac{4\pi}{(2\pi)^3}\int_0^\infty p^2 \frac{1}{\exp(p/T)-1} dp = \frac{\zeta(3)}{\pi^2}T^3\,,\\
+  n_{u,d,s,\bar{u},\bar{d},\bar{s}}^1(T) &= \frac{4\pi}{(2\pi)^3}\int_0^\infty p^2 \frac{1}{\exp(p/T)+1} dp = \frac{3 \zeta(3)}{4 \pi^2}T^3\,.
+\end{align}
+Now, quarks and anti-quarks have $2\,N_c$ degrees of freedom per flavor, gluons have $2\,(N_c^2-1)$, so that the densities are
+\begin{align}
+  n_g(T) &= \frac{16\,\zeta(3)}{\pi^2}T^3\,,\\
+  n_{u,d,s,\bar{u},\bar{d},\bar{s}}(T) &= \frac{9\,\zeta(3)}{2 \pi^2}T^3\,,
+\end{align}
+for $N_c=3$.
+The number of medium partons that we add per cell is then given by
+\begin{align}
+  N_{g}(T) &= V\, n_{g}(T)\,,\\
+  N_{u,d,s,\bar{u},\bar{d},\bar{s}}(T) &= V\, n_{u,d,s,\bar{u},\bar{d},\bar{s}}(T)\,,
+\end{align}
+where $V$ is the volume of that cell. We should take the size of a hydro cell with constant temperature.
+We could also allow partons from neighboring cells to connect to the jet parton - maybe that is a good test.
+
+We can now sample the number from some probability distribution with average $N$
+or just add the exact number per cell. I'd say for now it is sufficient not to sample.
+Then we sample the position within the cell (from a uniform distribution) and the momentum from the corresponding thermal 
+distribution. Note that the momentum of the medium parton has then to be boosted into the 'lab-frame'.
+
+Once the medium partons are added we can start connecting strings. we have to make sure that the group of partons that we
+submit to the PYTHIA fragmentation routine is overall color neutral, i.e. that all strings are connected.
+
+So we start with one of the jet partons in the cell and randomly select a partner for it (all other partons in the cell, 
+medium or jet get the same probability).
+ 
+If the jet parton is a quark, we can connect its string to either a gluon or an anti-quark. If we happen to choose an anti-quark,
+we are done with this jet parton. If we choose a gluon, then we also have to connect the gluon to either another gluon or an anti-quark.
+So, choosing gluons demands continuing more strings.
+
+The same happens if the jet parton was an anti-quark. Just that the chain has to end with a quark now.
+
+If the first jet parton is a gluon, we need to connect it to both a quark and anti-quark and possibly intermediate gluons.
+
+When this chain is terminated, we move on to the next jet parton
+that hasn't been connected and do the same. If we are left with a jet parton but no possible partners, 
+we sample one (or two if it is a gluon) more medium parton(s) (randomly u,d, or s (anti-)quark), connect it/them to it and finish.   
+
+To do all this effecitvely, we should first sort all jet partons into groups determined by their position, i.e., by the cell they are in.
+Then we have $N_{\rm cells}$ sub-lists for which we can do the above procedure.
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual"
+%%% End: 

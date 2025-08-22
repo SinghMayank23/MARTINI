@@ -27,8 +27,8 @@
 #define MB_c 6.1
 #define MExcitedB_c 7.2
 #define EPS_C 0.15
-//#define CHARM_MASS 1.27
-#define CHARM_MASS 1.45
+#define CHARM_MASS 1.27
+//#define CHARM_MASS 1.45
 #define BOTTOM_MASS 4.2
 
 using namespace std;

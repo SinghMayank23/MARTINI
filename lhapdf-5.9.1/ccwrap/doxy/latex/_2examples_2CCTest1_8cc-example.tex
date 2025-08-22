@@ -1,0 +1,92 @@
+\section{/examples/\+C\+C\+Test1.\+cc}
+This is an example of a program using the recommended C++ interface to \doxyref{L\+H\+A\+P\+DF}{p.}{namespaceLHAPDF}.
+
+
+\begin{DoxyCodeInclude}
+\textcolor{comment}{// Simple test program to test functionality of}
+\textcolor{comment}{// the LHAPDF C++ wrapper.}
+\textcolor{comment}{// Use this as a template for your program.}
+\textcolor{comment}{//}
+\textcolor{comment}{// Original author: Stefan Gieseke 2005}
+\textcolor{comment}{// Adapted for LHAPDF v5+ by Mike Whalley.}
+\textcolor{comment}{// Further updates for >= v5.4 by Andy Buckley.}
+
+\textcolor{preprocessor}{#include "LHAPDF/LHAPDF.h"}
+\textcolor{preprocessor}{#include <iterator>}
+\textcolor{preprocessor}{#include <iostream>}
+\textcolor{preprocessor}{#include <cstdlib>}
+\textcolor{keyword}{using namespace }std;
+
+\textcolor{comment}{// NB. You might want to also have}
+\textcolor{comment}{// using namespace LHAPDF;}
+\textcolor{comment}{// for convenience.}
+
+
+\textcolor{keywordtype}{int} main() \{
+  \textcolor{keyword}{const} \textcolor{keywordtype}{int} SUBSET = 0;
+  \textcolor{keyword}{const} \textcolor{keywordtype}{string} NAME = \textcolor{stringliteral}{"CT10"};
+
+  LHAPDF::initPDFSet(NAME, LHAPDF::LHGRID, SUBSET);
+
+  \textcolor{keyword}{const} \textcolor{keywordtype}{double} Q = 10.0, mz = 91.2;
+  cout << \textcolor{stringliteral}{"alphas(mz) = "} << LHAPDF::alphasPDF(mz) << endl;
+  cout << \textcolor{stringliteral}{"qcdlam4    = "} << LHAPDF::getLam4(SUBSET) << endl;
+  cout << \textcolor{stringliteral}{"qcdlam5    = "} << LHAPDF::getLam5(SUBSET) << endl;
+  cout << \textcolor{stringliteral}{"orderPDF   = "} << LHAPDF::getOrderPDF() << endl;
+  cout << \textcolor{stringliteral}{"xmin       = "} << LHAPDF::getXmin(SUBSET) << endl;
+  cout << \textcolor{stringliteral}{"xmax       = "} << LHAPDF::getXmax(SUBSET) << endl;
+  cout << \textcolor{stringliteral}{"q2min      = "} << LHAPDF::getQ2min(SUBSET) << endl;
+  cout << \textcolor{stringliteral}{"q2max      = "} << LHAPDF::getQ2max(SUBSET) << endl;
+  cout << \textcolor{stringliteral}{"orderalfas = "} << LHAPDF::getOrderAlphaS() << endl;
+  cout << \textcolor{stringliteral}{"num flav   = "} << LHAPDF::getNf() << endl;
+  cout << \textcolor{stringliteral}{"name       = "} << NAME << endl;
+  cout << \textcolor{stringliteral}{"number     = "} << LHAPDF::numberPDF() << endl;
+  cout << endl;
+
+
+  \textcolor{comment}{// LHAPDF::extrapolate();}
+
+  \textcolor{keyword}{const} \textcolor{keywordtype}{int} NUMBER = LHAPDF::numberPDF();
+
+
+  \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} n = 0; n < NUMBER + 1; ++n) \{
+    cout << \textcolor{stringliteral}{"Set number: "} << n << endl;
+    LHAPDF::initPDF(n);
+    \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} ix = 1; ix < 11; ++ix) \{
+      \textcolor{keyword}{const} \textcolor{keywordtype}{double} x = (ix - 0.5) / 10.0;
+      cout << \textcolor{stringliteral}{"x="} << x << \textcolor{stringliteral}{", Q="} << Q << \textcolor{stringliteral}{", f=0: "} << LHAPDF::xfx(x, Q, 0) << endl;
+    \}
+    cout << endl;
+  \}
+
+
+  \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} n = 0; n < NUMBER + 1; ++n) \{
+    cout << \textcolor{stringliteral}{"Set number: "} << n << endl;
+    LHAPDF::initPDF(n);
+    \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} ix = 1; ix < 11; ++ix) \{
+      \textcolor{keyword}{const} \textcolor{keywordtype}{double} x = (ix - 0.5) / 10.0;
+      cout << \textcolor{stringliteral}{"x="} << x << \textcolor{stringliteral}{", Q="} << Q << \textcolor{stringliteral}{": "};
+      vector<double> result = LHAPDF::xfx(x, Q);
+      std::copy(result.begin(), result.end(), ostream\_iterator<double>(cout,\textcolor{stringliteral}{"\(\backslash\)t"}));
+      cout << endl;
+    \}
+    cout << endl;
+  \}
+
+
+  cout << string().insert(0, 40, \textcolor{charliteral}{'-'}) << endl << endl;
+  cout << \textcolor{stringliteral}{"Checking LHAPDF with package "} << endl;
+  cout << NAME << \textcolor{stringliteral}{" set number "} << SUBSET << \textcolor{stringliteral}{"/"} << LHAPDF::numberPDF() << endl << endl;
+  cout << \textcolor{stringliteral}{"LHAPDF::getDescription() gives:"} << endl;
+  LHAPDF::getDescription();
+
+  \textcolor{keywordflow}{return} EXIT\_SUCCESS;
+\}
+
+
+\textcolor{preprocessor}{#include "FortranWrappers.h"}
+\textcolor{preprocessor}{#ifdef FC\_DUMMY\_MAIN}
+\textcolor{keywordtype}{int} FC\_DUMMY\_MAIN() \{ \textcolor{keywordflow}{return} 1; \}
+\textcolor{preprocessor}{#endif}
+\end{DoxyCodeInclude}
+ 

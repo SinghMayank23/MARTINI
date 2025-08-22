@@ -1,0 +1,13 @@
+!setup_Pythia_pp_ALICE_pi-.dat
+
+Beams:idA = 2212
+Beams:idB = 2212
+Beams:eCM = 2760.
+Random:setSeed = on
+Random:seed = 0
+
+!PhaseSpace:pTHatMin = 0.
+!PhaseSpace:pTHatMax = 10.
+HardQCD:all = on						!  switch on all QCD jet + jet processes
+PartonLevel:all = on
+HadronLevel:all = on

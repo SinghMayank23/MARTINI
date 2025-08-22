@@ -1,0 +1,10 @@
+SHELL = /bin/sh
+ARCH = Linux-gcc4
+MYLCGPLATFORM = slc4_ia32_gcc34
+SHAREDLIBS = no
+FC = gfortran
+CC = gcc
+FFLAGS = -O2
+CFLAGS = -O2
+CXXFLAGS = -O2 -ansi -pedantic -W -Wall -Wshadow
+FLIBS = -lgfortran -lgfortranbegin

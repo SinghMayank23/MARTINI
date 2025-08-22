@@ -1,5 +1,5 @@
-lhapdfpath=/home/rmyazdi/scratch/LHAPDF6
-pythiapath=/home/rmyazdi/scratch/pythia8209
+lhapdfpath=/global/homes/s/singhm/MARTINI/lhapdf-5.9.1/lib
+pythiapath=/global/homes/s/singhm/MARTINI/pythia8209
 
 LOCAL_LIB=../lib
 

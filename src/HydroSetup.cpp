@@ -20,12 +20,18 @@ using namespace std;
 HydroSetup::HydroSetup()  // constructor
 {
     lattice = new vector<HydroCell>;
+    prehydro_lattice = new vector<PreHydroCell>;
+    lattice_viscous = new vector<HydroCellViscous>;
 }
 
 HydroSetup::~HydroSetup()   // destructor
 {
     lattice->clear();
     delete lattice;
+    prehydro_lattice->clear();
+    delete prehydro_lattice;
+    lattice_viscous->clear();
+    delete lattice_viscous;
 }
 
 // all hydro data is stored in tau steps (not t) - the t and z in the MARTINI 
@@ -34,7 +40,9 @@ void HydroSetup::readHydroData(
     double tau0, double taumax, double dtau, 
     double xmax, double zmax, double dx, double dz, 
     int nskip_tau, int nskip_x, int nskip_z, 
-    int whichHydro, double Tfinal, int taueta_coord, string evolution_name)
+    int whichHydro, double Tfinal, int taueta_coord,
+    int shearflag, int bulkflag, string evolution_name,
+    string shear_name, string bulk_name)
 {
     lattice->clear();
 
@@ -63,16 +71,17 @@ void HydroSetup::readHydroData(
         exit(1);
     }
     else if (whichHydro==6)
-    // 3+1D MUSIC hydro (Schenke, Jeon, Gale)
+    // 2+1D MUSIC hydro (Schenke, Jeon, Gale)
     // with a text file format
     {
-        cout << "Using 3+1D Jeon Schenke hydro reading data"
+        cout << "Using 2+1D Jeon Schenke hydro reading data"
              << " in a text file format ..." << endl;
-        boost_invariant = false;
+        boost_invariant = true;
 
         itaumax = static_cast<int>((taumax-tau0)/dtau+0.001);
         ixmax = static_cast<int>(1.+2*xmax/dx+0.001);
-        ietamax = static_cast<int>(2*zmax/dz+0.001);
+//        ietamax = static_cast<int>(2*zmax/dz+0.001);
+        ietamax = 1;
         
         // read in temperature, QGP fraction , flow velocity
         // The name of the evolution file: evolution_name
@@ -181,7 +190,9 @@ void HydroSetup::readHydroData(
         cout << "Using 2+1D Jeon Schenke hydro reading data"
              << " in a binary file format ..." << endl;
         //ixmax = static_cast<int>(2*xmax/dx+0.001); // with 0.001 I get ixmax = 99 which is not true. for now use + 1.0
-        ixmax = static_cast<int>(2*xmax/dx + 1.);
+        //ixmax = static_cast<int>(2*xmax/dx + 1.);
+        ixmax = static_cast<int>(2*xmax/dx);
+	cout << "ixmax = " << ixmax << endl;
         ietamax = 1;
 
         // read in temperature, QGP fraction , flow velocity
@@ -231,6 +242,177 @@ void HydroSetup::readHydroData(
         std::fclose(fin);
         cout << endl;
         cout << "number of fluid cells: " << lattice->size() << endl;
+
+        if(shearflag == 1 && bulkflag == 1)
+        {
+            std::FILE *shearfin;
+            std::FILE *bulkfin;
+            string shear_file_name = shear_name;
+            string bulk_file_name = bulk_name;
+            cout << "Shear evolution file name = " << shear_file_name << endl;
+            cout << "Bulk evolution file name = " << bulk_file_name << endl;
+            shearfin = std::fopen(shear_file_name.c_str(), "rb");
+            bulkfin = std::fopen(bulk_file_name.c_str(), "rb");
+            if(shearfin == NULL)
+	        {
+	            cerr << "[HydroSetup::readHydroData]: ERROR: Unable to open file " 
+                       << shear_file_name << endl;
+	            exit(1);
+	        }
+            if(bulkfin == NULL)
+	        {
+	            cerr << "[HydroSetup::readHydroData]: ERROR: Unable to open file " 
+                       << bulk_file_name << endl;
+	            exit(1);
+	        }
+
+            float Wtautau, Wtaux, Wtauy, Wtaueta, Wxx;
+            float Wxy, Wxeta, Wyy, Wyeta, Wetaeta;
+            float BulkPi, Entropy, cs2;
+
+            HydroCellViscous newCellV;  
+            int size = sizeof(float);
+            while ( true )
+	        {
+                int status_sh = 0;
+                status_sh = std::fread(&Wtautau, size, 1, shearfin);
+                status_sh += std::fread(&Wtaux, size, 1, shearfin);
+                status_sh += std::fread(&Wtauy, size, 1, shearfin);
+                status_sh += std::fread(&Wtaueta, size, 1, shearfin);
+                status_sh += std::fread(&Wxx, size, 1, shearfin);
+                status_sh = std::fread(&Wxy, size, 1, shearfin);
+                status_sh += std::fread(&Wxeta, size, 1, shearfin);
+                status_sh += std::fread(&Wyy, size, 1, shearfin);
+                status_sh += std::fread(&Wyeta, size, 1, shearfin);
+                status_sh += std::fread(&Wetaeta, size, 1, shearfin);
+
+                int status_B = 0;
+                status_B = std::fread(&BulkPi, size, 1, bulkfin);
+                status_B += std::fread(&Entropy, size, 1, bulkfin);
+                status_B += std::fread(&cs2, size, 1, bulkfin);
+                
+                if(status_sh != 10) break;
+                if(status_B  != 3) break;
+
+                newCellV.Wtautau = Wtautau;
+                newCellV.Wtaux   = Wtaux  ;
+                newCellV.Wtauy   = Wtauy  ;
+                newCellV.Wtaueta = Wtaueta;
+                newCellV.Wxx     = Wxx    ;
+                newCellV.Wxy     = Wxy    ;
+                newCellV.Wxeta   = Wxeta  ;
+                newCellV.Wyy     = Wyy    ;
+                newCellV.Wyeta   = Wyeta  ;
+                newCellV.Wetaeta = Wetaeta;
+                newCellV.BulkPi  = BulkPi ;
+                newCellV.Entropy = Entropy;
+                newCellV.cs2     = cs2    ;
+                
+                lattice_viscous->push_back(newCellV);
+            }
+            std::fclose(shearfin);
+            std::fclose(bulkfin);
+            cout << endl;
+            cout << "number of viscous fluid cells: " << lattice_viscous->size() << endl;
+        } else if (shearflag == 1 && bulkflag == 0)
+        {
+            std::FILE *shearfin;
+            string shear_file_name = shear_name;
+            cout << "Shear evolution file name = " << shear_file_name << endl;
+            shearfin = std::fopen(shear_file_name.c_str(), "rb");
+            if(shearfin == NULL)
+	        {
+	            cerr << "[HydroSetup::readHydroData]: ERROR: Unable to open file " 
+                       << shear_file_name << endl;
+	            exit(1);
+	        }
+
+            float Wtautau, Wtaux, Wtauy, Wtaueta, Wxx;
+            float Wxy, Wxeta, Wyy, Wyeta, Wetaeta;
+
+            HydroCellViscous newCellV;  
+            int size = sizeof(float);
+            while ( true )
+	        {
+                int status_sh = 0;
+                status_sh = std::fread(&Wtautau, size, 1, shearfin);
+                status_sh += std::fread(&Wtaux, size, 1, shearfin);
+                status_sh += std::fread(&Wtauy, size, 1, shearfin);
+                status_sh += std::fread(&Wtaueta, size, 1, shearfin);
+                status_sh += std::fread(&Wxx, size, 1, shearfin);
+                status_sh = std::fread(&Wxy, size, 1, shearfin);
+                status_sh += std::fread(&Wxeta, size, 1, shearfin);
+                status_sh += std::fread(&Wyy, size, 1, shearfin);
+                status_sh += std::fread(&Wyeta, size, 1, shearfin);
+                status_sh += std::fread(&Wetaeta, size, 1, shearfin);
+
+                if(status_sh != 10) break;
+
+                newCellV.Wtautau = Wtautau;
+                newCellV.Wtaux   = Wtaux  ;
+                newCellV.Wtauy   = Wtauy  ;
+                newCellV.Wtaueta = Wtaueta;
+                newCellV.Wxx     = Wxx    ;
+                newCellV.Wxy     = Wxy    ;
+                newCellV.Wxeta   = Wxeta  ;
+                newCellV.Wyy     = Wyy    ;
+                newCellV.Wyeta   = Wyeta  ;
+                newCellV.Wetaeta = Wetaeta;
+                newCellV.BulkPi  = 0.     ;//No bulk history files. These
+                newCellV.Entropy = 0.     ;//values are never used
+                newCellV.cs2     = 0.     ;
+                
+                lattice_viscous->push_back(newCellV);
+            }
+            std::fclose(shearfin);
+            cout << endl;
+            cout << "number of viscous fluid cells: " << lattice_viscous->size() << endl;
+        } else if (shearflag == 0 && bulkflag == 1)
+        {
+            std::FILE *bulkfin;
+            string bulk_file_name = bulk_name;
+            cout << "Bulk evolution file name = " << bulk_file_name << endl;
+            bulkfin = std::fopen(bulk_file_name.c_str(), "rb");
+            if(bulkfin == NULL)
+	        {
+	            cerr << "[HydroSetup::readHydroData]: ERROR: Unable to open file " 
+                       << bulk_file_name << endl;
+	            exit(1);
+	        }
+
+            float BulkPi, Entropy, cs2;
+
+            HydroCellViscous newCellV;  
+            int size = sizeof(float);
+            while ( true )
+	        {
+                int status_B = 0;
+                status_B = std::fread(&BulkPi, size, 1, bulkfin);
+                status_B += std::fread(&Entropy, size, 1, bulkfin);
+                status_B += std::fread(&cs2, size, 1, bulkfin);
+                
+                if(status_B  != 3) break;
+
+                newCellV.Wtautau = 0.     ;
+                newCellV.Wtaux   = 0.     ;
+                newCellV.Wtauy   = 0.     ;
+                newCellV.Wtaueta = 0.     ;
+                newCellV.Wxx     = 0.     ;
+                newCellV.Wxy     = 0.     ;
+                newCellV.Wxeta   = 0.     ;
+                newCellV.Wyy     = 0.     ;
+                newCellV.Wyeta   = 0.     ;
+                newCellV.Wetaeta = 0.     ;
+                newCellV.BulkPi  = BulkPi ;
+                newCellV.Entropy = Entropy;
+                newCellV.cs2     = cs2    ;
+                
+                lattice_viscous->push_back(newCellV);
+            }
+            std::fclose(bulkfin);
+            cout << endl;
+            cout << "number of viscous fluid cells: " << lattice_viscous->size() << endl;
+        }
     }
     else if (whichHydro==9)
     // 3+1D MUSIC hydro (Schenke, Jeon, Gale)
@@ -297,8 +479,7 @@ void HydroSetup::readHydroData(
     {
         hydroTauMax = (hydroTau0 
             + hydroDtau*(int)((double)lattice->size()
-              /((2.*hydroXmax/hydroDx+1.)*(2.*hydroXmax/hydroDx+1.)
-                *2.*(hydroZmax/hydroDz))));
+              /((2.*hydroXmax/hydroDx)*(2.*hydroXmax/hydroDx))));
         itaumax = static_cast<int>((hydroTauMax-hydroTau0)/hydroDtau+0.001);
     }
     if(whichHydro == 7)
@@ -339,6 +520,79 @@ void HydroSetup::readHydroData(
     //output_temperature_evolution_list_format("temperature_evol_test");
 }
 
+//Will read IPGlasma history files
+void HydroSetup::readPreHydroData(
+    double tau0, double taumax, double dtau, 
+    double xmax, double dx, string pre_evolution_name)
+{
+    prehydro_lattice->clear();
+
+    // get hydro grid information
+    prehydroTau0 = tau0;
+    prehydroTauMax = taumax;
+    prehydroDtau = dtau;
+    prehydroXmax = xmax;
+    prehydroDx = dx;
+
+    cout << "Using history files from Bjoern's"
+         << " IP Glasma ..." << endl;
+
+    ipretaumax = static_cast<int>(1+(taumax-tau0)/dtau+0.001);
+    iprexmax = static_cast<int>(2*xmax/dx+0.001);
+    ipreetamax = static_cast<int>(1); //Set to one, boost invariance
+
+    for (int itau = 0; itau < ipretaumax; itau++)
+    {
+      int itaup1 = itau + 1;
+      string pre_evolution_file_name = pre_evolution_name + std::to_string(itaup1) + "-0.dat";
+      ifstream fin;
+      fin.open(pre_evolution_file_name.c_str(), ios::in);
+      double epsilon, utau, ux, uy, ueta;
+      string dummy;
+      if(!fin)
+      {
+          cerr << "[HydroSetup::readPreHydroData]: ERROR: Unable to open file "
+             << pre_evolution_file_name << endl;
+          exit(1);
+      }
+
+      fin >> dummy >> dummy >> dummy >> dummy >> dummy //Read and discard the first line
+          >> dummy >> dummy >> dummy >> dummy >> dummy
+          >> dummy >> dummy >> dummy >> dummy >> dummy;
+      for (int iy = 0; iy < iprexmax; iy++)
+      for (int ix = 0; ix < iprexmax; ix++)
+      {
+        PreHydroCell newCell;
+	fin >> dummy >> dummy >> dummy
+	    >> epsilon >> utau >> ux >> uy >> ueta
+	    >> dummy >> dummy >> dummy >> dummy >> dummy
+	    >> dummy >> dummy >> dummy >> dummy >> dummy;
+
+	epsilon *= pow(hbarc,3.);
+
+	double temp = pow(15.*epsilon/(8.*M_PI*M_PI),0.25);
+	//double temp = pow(30.*epsilon/(34.25*M_PI*M_PI),0.25);
+
+	newCell.T = temp;//in GeV
+	newCell.utau = utau;
+	newCell.ux = ux;
+	newCell.uy = uy;
+
+	prehydro_lattice->push_back(newCell);
+      }
+
+      fin.close();
+
+    }
+    cout << endl;
+    cout << "number of pre-hydro cells: " << prehydro_lattice->size() << endl;
+
+    cout << "prehydroTau0 = " << prehydroTau0 << endl;
+    cout << "prehydroTauMax = " << prehydroTauMax << endl;
+    cout << "prehydroDtau = " << prehydroDtau << endl;
+    cout << "prehydroXmax = " << prehydroXmax << endl;
+    cout << "prehydroDx = " << prehydroDx << endl;
+}
 //For interpolation of evolution files in tau-eta coordinates. Only the 
 //reading of MUSIC's evolution_xyeta.dat file is implemented here. 
 //For simplicity, hydroZmax refers to MUSIC's eta_size, and similarly for 
@@ -369,7 +623,7 @@ HydroInfo HydroSetup::getHydroValues(double x, double y, double z, double t)
     }
 
     int ieta = floor((hydroZmax+eta)/hydroDz+0.0001);
-    if(hydroWhichHydro == 8)
+    if(hydroWhichHydro == 8 || hydroWhichHydro == 6)
         ieta = 0;
 
     int itau = floor((tau-hydroTau0)/hydroDtau+0.0001);       
@@ -554,6 +808,13 @@ HydroInfo HydroSetup::getHydroValues(double x, double y, double z, double t)
       veta = 0.0;
   }
 
+  if (t>z) {//For PbPb 5.02  Phys. Rev. C. 104, 064903
+    eta = 0.5*log((t+z)/(t-z));
+    double factor = 1.;
+    if (abs(eta) > 3.6) factor = exp(-1.*pow((abs(eta)-3.6),2.)/(2.*0.7*0.7));
+    if (abs(eta) > 3.6) factor = pow(factor,0.25);
+    T *= factor;
+  }
   info.T = T;
   info.QGPfrac = QGPfrac;
   info.vx = vx;
@@ -561,6 +822,449 @@ HydroInfo HydroSetup::getHydroValues(double x, double y, double z, double t)
   info.vz = vz;
   info.veta = veta;
   
+  return(info);
+}
+
+PreHydroInfo HydroSetup::getPreHydroValues(double x, double y, double z, double t)
+{
+    double tau, eta;
+    if(use_tau_eta_coordinate == 1)
+    {
+        if(t*t>z*z)
+        {
+            tau = sqrt(t*t-z*z);
+            eta = 0.5*log((t+z)/(t-z));
+        }
+        else
+        {
+            tau = 0.;
+            eta = 0.;
+        }
+    }
+    else
+    {
+        // if the medium is given in cartesian coordinates 
+        // set tau and eta to t and z
+        tau = t;
+        eta = z;
+    }
+
+    int ieta = 0.;
+
+    int itau = floor((tau-prehydroTau0)/prehydroDtau+0.0001);       
+    int ix = floor((prehydroXmax+x)/prehydroDx+0.0001);
+    int iy = floor((prehydroXmax+y)/prehydroDx+0.0001);
+
+    double xfrac = (x-( (double)ix*prehydroDx-prehydroXmax ))/prehydroDx;
+    double yfrac = (y-( (double)iy*prehydroDx-prehydroXmax ))/prehydroDx;
+    double taufrac = (tau-prehydroTau0)/prehydroDtau-(double)itau;
+    double etafrac = 0.;
+
+    PreHydroInfo info;
+    if ( ix < 0 || ix >= iprexmax ) 
+    {
+        cout << "[MARTINI:HydroSetup::getPreHydroValues]: "
+             << "WARNING - x out of range x=" << x 
+             << ", ix=" << ix << ", ixmax=" << iprexmax << endl;
+        cout << "x=" << x << " y=" << y << " eta=" << eta 
+             << " ix=" << ix << " iy=" << iy << " ieta=" << ieta << endl;
+        cout << "t=" << t << " tau=" << tau 
+             << " itau=" << itau << " itaumax=" << ipretaumax << endl;
+
+        info.T = 0.0;
+        info.ux = 0.0;
+        info.uy = 0.0;
+        info.utau = 1.0;
+        return(info);
+    }
+    if ( iy < 0 || iy >= iprexmax )
+    {
+        cout << "[MARTINI:HydroSetup::getPreHydroValues]: "
+             << "WARNING - y out of range, y=" << y << ", iy="  << iy 
+             << ", iymax=" << iprexmax << endl;
+        cout << "x=" << x << " y=" << y << " eta=" << eta 
+             << " ix=" << ix << " iy=" << iy << " ieta=" << ieta << endl;
+        cout << "t=" << t << " tau=" << tau 
+             << " itau=" << itau << " itaumax=" << ipretaumax << endl;
+
+        info.T = 0.0;
+        info.ux = 0.0;
+        info.uy = 0.0;
+        info.utau = 1.0;
+        return(info);
+    }
+    if ( itau < 0 || itau >= ipretaumax )
+    {
+        cout << "[MARTINI:HydroSetup::getPreHydroValues]: WARNING - "
+             << "tau out of range, itau=" << itau << ", itaumax=" << ipretaumax 
+             << endl;
+
+        info.T = 0.0;
+        info.ux = 0.0;
+        info.uy = 0.0;
+        info.utau = 1.0;
+        return(info);
+    }
+  
+  //The array of positions on the 4-dimensional rectangle:
+  int position[2][2][2][2];
+  for(int ipx=0; ipx<2; ipx++)
+  {
+      int px;
+      if(ipx==0 || ix==iprexmax-1 ) 
+          px = ix;
+      else 
+          px = ix+1;
+      for(int ipy=0; ipy<2; ipy++)
+      {
+          int py;
+          if(ipy==0 || iy==iprexmax-1 )
+              py = iy;
+          else 
+              py = iy+1;
+          for(int ipeta=0; ipeta<2; ipeta++)
+          {
+              int peta;
+              if(ipeta==0 || ieta==ipreetamax-1 ) 
+                  peta = ieta;
+              else 
+                  peta = ieta+1;
+              for(int iptau=0; iptau<2; iptau++)
+              {
+                  int ptau;
+                  if(iptau==0 || itau==ipretaumax-1 ) 
+                      ptau = itau;
+                  else 
+                      ptau = itau+1;
+                  position[ipx][ipy][ipeta][iptau] = (
+                                  py+iprexmax*(px+iprexmax*(peta+ipreetamax*ptau)));
+              }
+          }
+      }
+  }
+
+  //And now, the interpolation:
+  double T;
+  double ux;
+  double uy;
+  double utau;
+  T = ux = uy = utau = 0.;
+
+  PreHydroCell PreHydroCell_temp1, PreHydroCell_temp2;
+  for(int iptau = 0; iptau < 2; iptau++)
+  {
+      double taufactor;
+      if(iptau == 0) 
+          taufactor = 1. - taufrac;
+      else 
+          taufactor = taufrac;
+      for(int ipeta = 0; ipeta < 2; ipeta++)
+      {
+          double etafactor;
+          if(ipeta == 0) 
+              etafactor = 1. - etafrac;
+          else 
+              etafactor = etafrac;
+          for(int ipy = 0; ipy < 2; ipy++)
+          {
+              double yfactor;
+              if(ipy == 0) 
+                  yfactor = 1. - yfrac;
+              else 
+                  yfactor = yfrac;
+                  
+              double prefrac = yfactor*etafactor*taufactor;
+
+              PreHydroCell_temp1 = (*prehydro_lattice)[position[0][ipy][ipeta][iptau]];
+              PreHydroCell_temp2 = (*prehydro_lattice)[position[1][ipy][ipeta][iptau]];
+
+              T += prefrac*( (1. - xfrac)*PreHydroCell_temp1.T
+                              + xfrac*PreHydroCell_temp2.T );
+              ux += prefrac*( (1. - xfrac)*PreHydroCell_temp1.ux
+                              + xfrac*PreHydroCell_temp2.ux );
+              uy += prefrac*( (1. - xfrac)*PreHydroCell_temp1.uy
+                              + xfrac*PreHydroCell_temp2.uy );
+//              utau += prefrac*( (1. - xfrac)*PreHydroCell_temp1.utau
+//                              + xfrac*PreHydroCell_temp2.utau );
+          }
+      }
+  }
+ 
+  utau = sqrt(1. + ux*ux + uy*uy);
+
+  if (t>z) {//For PbPb 5.02  Phys. Rev. C. 104, 064903
+    eta = 0.5*log((t+z)/(t-z));
+    double factor = 1.;
+    if (abs(eta) > 3.6) factor = exp(-1.*pow((abs(eta)-3.6),2.)/(2.*0.7*0.7));
+    if (abs(eta) > 3.6) factor = pow(factor,0.25);
+    T *= factor;
+  }
+
+  info.T = T;
+  info.ux = ux;
+  info.uy = uy;
+  info.utau = utau;
+  
+  return(info);
+}
+
+HydroInfoViscous HydroSetup::getHydroViscousValues(double x, double y, double z, double t)
+{
+    double tau, eta;
+    if(use_tau_eta_coordinate == 1)
+    {
+        if(t*t>z*z)
+        {
+            tau = sqrt(t*t-z*z);
+            eta = 0.5*log((t+z)/(t-z));
+        }
+        else
+        {
+            tau = 0.;
+            eta = 0.;
+        }
+    }
+    else
+    {
+        // if the medium is given in cartesian coordinates 
+        // set tau and eta to t and z
+        tau = t;
+        eta = z;
+    }
+
+    int ieta = floor((hydroZmax+eta)/hydroDz+0.0001);
+    if(hydroWhichHydro == 8)
+        ieta = 0;
+
+    int itau = floor((tau-hydroTau0)/hydroDtau+0.0001);       
+    int ix = floor((hydroXmax+x)/hydroDx+0.0001);
+    int iy = floor((hydroXmax+y)/hydroDx+0.0001);
+
+    double xfrac = (x-( (double)ix*hydroDx-hydroXmax ))/hydroDx;
+    double yfrac = (y-( (double)iy*hydroDx-hydroXmax ))/hydroDx;
+    double etafrac = eta/hydroDz-(double)ieta+0.5*(double)ietamax;
+    double taufrac = (tau-hydroTau0)/hydroDtau-(double)itau;
+
+    HydroInfoViscous info;
+    if ( ix < 0 || ix >= ixmax ) 
+    {
+        cout << "[MARTINI:HydroSetup::getHydroValues]: "
+             << "WARNING - x out of range x=" << x 
+             << ", ix=" << ix << ", ixmax=" << ixmax << endl;
+        cout << "x=" << x << " y=" << y << " eta=" << eta 
+             << " ix=" << ix << " iy=" << iy << " ieta=" << ieta << endl;
+        cout << "t=" << t << " tau=" << tau 
+             << " itau=" << itau << " itaumax=" << itaumax << endl;
+
+        info.Wtautau = 0.0;
+        info.Wtaux = 0.0;
+        info.Wtauy = 0.0;
+        info.Wtaueta = 0.0;
+        info.Wxx = 0.0;
+        info.Wxy = 0.0;
+        info.Wxeta = 0.0;
+        info.Wyy = 0.0;
+        info.Wyeta = 0.0;
+        info.Wetaeta = 0.0;
+        info.BulkPi = 0.0;
+        info.Entropy = 0.0;
+        info.cs2 = 0.0;
+        return(info);
+    }
+    if ( iy < 0 || iy >= ixmax )
+    {
+        cout << "[MARTINI:HydroSetup::getHydroValues]: "
+             << "WARNING - y out of range, y=" << y << ", iy="  << iy 
+             << ", iymax=" << ixmax << endl;
+        cout << "x=" << x << " y=" << y << " eta=" << eta 
+             << " ix=" << ix << " iy=" << iy << " ieta=" << ieta << endl;
+        cout << "t=" << t << " tau=" << tau 
+             << " itau=" << itau << " itaumax=" << itaumax << endl;
+
+        info.Wtautau = 0.0;
+        info.Wtaux = 0.0;
+        info.Wtauy = 0.0;
+        info.Wtaueta = 0.0;
+        info.Wxx = 0.0;
+        info.Wxy = 0.0;
+        info.Wxeta = 0.0;
+        info.Wyy = 0.0;
+        info.Wyeta = 0.0;
+        info.Wetaeta = 0.0;
+        info.BulkPi = 0.0;
+        info.Entropy = 0.0;
+        info.cs2 = 0.0;
+        return(info);
+    }
+    if ( itau < 0 || itau >= itaumax )
+    {
+        cout << "[MARTINI:HydroSetup::getHydroValues]: WARNING - "
+             << "tau out of range, itau=" << itau << ", itaumax=" << itaumax 
+             << endl;
+        cout << "[MARTINI:HydroSetup::getHydroValues]: tau= " << tau 
+             << ", hydroTauMax = " << hydroTauMax 
+             << ", hydroDtau = " << hydroDtau << endl;
+
+        info.Wtautau = 0.0;
+        info.Wtaux = 0.0;
+        info.Wtauy = 0.0;
+        info.Wtaueta = 0.0;
+        info.Wxx = 0.0;
+        info.Wxy = 0.0;
+        info.Wxeta = 0.0;
+        info.Wyy = 0.0;
+        info.Wyeta = 0.0;
+        info.Wetaeta = 0.0;
+        info.BulkPi = 0.0;
+        info.Entropy = 0.0;
+        info.cs2 = 0.0;
+        return(info);
+    }
+    if ( ieta < 0 || ieta >= ietamax  ) 
+    {
+        cout << "[MARTINI:HydroSetup::getHydroValues]: WARNING - "
+             << "eta out of range, ieta=" << ieta << ", ietamax=" << ietamax 
+             << endl;
+        
+        info.Wtautau = 0.0;
+        info.Wtaux = 0.0;
+        info.Wtauy = 0.0;
+        info.Wtaueta = 0.0;
+        info.Wxx = 0.0;
+        info.Wxy = 0.0;
+        info.Wxeta = 0.0;
+        info.Wyy = 0.0;
+        info.Wyeta = 0.0;
+        info.Wetaeta = 0.0;
+        info.BulkPi = 0.0;
+        info.Entropy = 0.0;
+        info.cs2 = 0.0;
+        return(info);
+    }
+  
+  //The array of positions on the 4-dimensional rectangle:
+  int position[2][2][2][2];
+  for(int ipx=0; ipx<2; ipx++)
+  {
+      int px;
+      if(ipx==0 || ix==ixmax-1 ) 
+          px = ix;
+      else 
+          px = ix+1;
+      for(int ipy=0; ipy<2; ipy++)
+      {
+          int py;
+          if(ipy==0 || iy==ixmax-1 )
+              py = iy;
+          else 
+              py = iy+1;
+          for(int ipeta=0; ipeta<2; ipeta++)
+          {
+              int peta;
+              if(ipeta==0 || ieta==ietamax-1 ) 
+                  peta = ieta;
+              else 
+                  peta = ieta+1;
+              for(int iptau=0; iptau<2; iptau++)
+              {
+                  int ptau;
+                  if(iptau==0 || itau==itaumax-1 ) 
+                      ptau = itau;
+                  else 
+                      ptau = itau+1;
+                  position[ipx][ipy][ipeta][iptau] = (
+                                  px+ixmax*(py+ixmax*(peta+ietamax*ptau)));
+              }
+          }
+      }
+  }
+
+  //And now, the interpolation:
+  double Wtautau = 0.0;
+  double Wtaux = 0.0;
+  double Wtauy = 0.0;
+  double Wtaueta = 0.0;
+  double Wxx = 0.0;
+  double Wxy = 0.0;
+  double Wxeta = 0.0;
+  double Wyy = 0.0;
+  double Wyeta = 0.0;
+  double Wetaeta = 0.0;
+  double BulkPi = 0.0;
+  double Entropy = 0.0;
+  double cs2 = 0.0;
+
+  HydroCellViscous HydroCell_temp1, HydroCell_temp2;
+  for(int iptau = 0; iptau < 2; iptau++)
+  {
+      double taufactor;
+      if(iptau == 0) 
+          taufactor = 1. - taufrac;
+      else 
+          taufactor = taufrac;
+      for(int ipeta = 0; ipeta < 2; ipeta++)
+      {
+          double etafactor;
+          if(ipeta == 0) 
+              etafactor = 1. - etafrac;
+          else 
+              etafactor = etafrac;
+          for(int ipy = 0; ipy < 2; ipy++)
+          {
+              double yfactor;
+              if(ipy == 0) 
+                  yfactor = 1. - yfrac;
+              else 
+                  yfactor = yfrac;
+                  
+              double prefrac = yfactor*etafactor*taufactor;
+
+              HydroCell_temp1 = (*lattice_viscous)[position[0][ipy][ipeta][iptau]];
+              HydroCell_temp2 = (*lattice_viscous)[position[1][ipy][ipeta][iptau]];
+
+              Wtautau += prefrac*( (1. - xfrac)*HydroCell_temp1.Wtautau
+                              + xfrac*HydroCell_temp2.Wtautau );
+              Wtaux   += prefrac*( (1. - xfrac)*HydroCell_temp1.Wtaux
+                              + xfrac*HydroCell_temp2.Wtaux   );
+              Wtauy   += prefrac*( (1. - xfrac)*HydroCell_temp1.Wtauy
+                              + xfrac*HydroCell_temp2.Wtauy   );
+              Wtaueta += prefrac*( (1. - xfrac)*HydroCell_temp1.Wtaueta
+                              + xfrac*HydroCell_temp2.Wtaueta );
+              Wxx     += prefrac*( (1. - xfrac)*HydroCell_temp1.Wxx
+                              + xfrac*HydroCell_temp2.Wxx     );
+              Wxy     += prefrac*( (1. - xfrac)*HydroCell_temp1.Wxy
+                              + xfrac*HydroCell_temp2.Wxy     );
+              Wxeta   += prefrac*( (1. - xfrac)*HydroCell_temp1.Wxeta
+                              + xfrac*HydroCell_temp2.Wxeta   );
+              Wyy     += prefrac*( (1. - xfrac)*HydroCell_temp1.Wyy
+                              + xfrac*HydroCell_temp2.Wyy   );
+              Wyeta   += prefrac*( (1. - xfrac)*HydroCell_temp1.Wyeta
+                              + xfrac*HydroCell_temp2.Wyeta   );
+              Wetaeta += prefrac*( (1. - xfrac)*HydroCell_temp1.Wetaeta
+                              + xfrac*HydroCell_temp2.Wetaeta );
+              BulkPi  += prefrac*( (1. - xfrac)*HydroCell_temp1.BulkPi
+                              + xfrac*HydroCell_temp2.BulkPi  );
+              Entropy += prefrac*( (1. - xfrac)*HydroCell_temp1.Entropy
+                              + xfrac*HydroCell_temp2.Entropy );
+              cs2     += prefrac*( (1. - xfrac)*HydroCell_temp1.cs2
+                              + xfrac*HydroCell_temp2.cs2   );
+          }
+      }
+  }
+  
+  info.Wtautau = Wtautau;
+  info.Wtaux   = Wtaux  ;
+  info.Wtauy   = Wtauy  ;
+  info.Wtaueta = Wtaueta;
+  info.Wxx     = Wxx    ;
+  info.Wxy     = Wxy    ;
+  info.Wxeta   = Wxeta  ;
+  info.Wyy     = Wyy    ;
+  info.Wyeta   = Wyeta  ;
+  info.Wetaeta = Wetaeta;
+  info.BulkPi  = BulkPi ;
+  info.Entropy = Entropy;
+  info.cs2     = cs2    ;
   return(info);
 }
 

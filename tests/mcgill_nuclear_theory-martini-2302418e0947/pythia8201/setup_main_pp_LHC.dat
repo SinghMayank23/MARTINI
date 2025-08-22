@@ -1,0 +1,11 @@
+!setup file for Pythia events.
+
+Beams:idA = 2212
+Beams:idB = 2212
+Beams:eCM = 2760.
+
+HardQCD:all = on						!  switch on all QCD jet + jet processes
+PartonLevel:all = on
+HadronLevel:all = on
+Tune:pp = 3
+Next:numberShowEvent = 0

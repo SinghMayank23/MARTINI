@@ -11,6 +11,8 @@
 #include<vector>
 #include<cstring>
 #include "HydroCell.h"
+#include "PreHydroCell.h"
+#include "HydroCellViscous.h"
 #include "Basics.h"
 
 using namespace std;
@@ -30,6 +32,12 @@ class HydroSetup
                                  // the z-direction for 3D hydro
                                  
         double hydroTfinal;      // temperature at which jet energy loss stops
+        double prehydroTau0;        // tau_0 in the hydro data files
+        double prehydroTauMax;      // tau_max in the hydro data files
+        double prehydroDtau;        // step dtau in fm/c in the hydro data files
+        double prehydroXmax;        // maximum x in fm in the hydro data files 
+                                 // [-xmax, +xmax] for both x and y
+        double prehydroDx;          // step dx in fm in the hydro data files
 
         int hydroWhichHydro;     // choose a hydro evolution model to use
         int use_tau_eta_coordinate; 
@@ -37,8 +45,11 @@ class HydroSetup
         bool boost_invariant;
 
         int itaumax, ixmax, ietamax;
+        int ipretaumax, iprexmax, ipreetamax;
 
         vector<HydroCell> *lattice; // array to store hydro information
+        vector<PreHydroCell> *prehydro_lattice; // array to store hydro information
+        vector<HydroCellViscous> *lattice_viscous; // array to store hydro information
 
     public:
         HydroSetup();   //constructor
@@ -58,10 +69,15 @@ class HydroSetup
         void readHydroData(double tau0, double taumax, double dtau, 
 		     double xmax, double zmax, double dx, double dz, 
                  int nskip_tau, int nskip_x, int nskip_z,
-                 int whichHydro, double Tfinal, int taueta_coord,
-                 string evolution_name);
+                 int whichHydro, double Tfinal, int taueta_coord, int shearflag,
+                 int bulkflag,
+                 string evolution_name, string shear_name, string bulk_name);
+	void readPreHydroData(double tau0, double taumax, double dtau,
+                        double xmax, double dx, string pre_evolution_name);
         
         HydroInfo getHydroValues(double x, double y, double z, double t);
+        PreHydroInfo getPreHydroValues(double x, double y, double z, double t);
+        HydroInfoViscous getHydroViscousValues(double x, double y, double z, double t);
         
         void output_temperature_evolution(string filename_base);
         void update_grid_info(
