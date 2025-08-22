@@ -1,7 +1,9 @@
-main/main/
+main/
 lib/
 martini.tar.gz
 
+lhapdf-5.9.1/
+pythia8209
 # Prerequisites
 *.d
 
