@@ -1,9 +1,0 @@
-\section{Introduction}\label{index_intro}
-The \doxyref{L\+H\+A\+P\+DF}{p.}{namespaceLHAPDF} library provides a set of C++ wrapper functions for its Fortran subroutines. New users should browse this documentation and take a look at the {\ttfamily C\+C\+Test1.\+cc} and {\ttfamily C\+C\+Test2.\+cc} example program source files, which are good examples of how the wrapper is used.\section{Recent changes}\label{index_changes}
-The \doxyref{L\+H\+A\+P\+DF}{p.}{namespaceLHAPDF} wrapper has been improved in several ways for the \doxyref{L\+H\+A\+P\+DF}{p.}{namespaceLHAPDF} v5.\+4 release\+:
-
-\begin{DoxyItemize}
-\item String passing to the Fortran functions from C++ now correctly passes the hidden length argument, fixing problems on 64 bit systems; \item The {\ttfamily \doxyref{L\+H\+A\+P\+D\+F\+Wrap}{p.}{classLHAPDFWrap}} class has been deprecated in favour of a set of wrapper functions in the {\ttfamily \doxyref{L\+H\+A\+P\+DF}{p.}{namespaceLHAPDF}} namespace. The class interface was misleading, since no persistent state was involved and two class instances would not have been independent; \item Proper C++ {\ttfamily std\+::string} arguments can now be used for set names\+: {\ttfamily char$\ast$} string arguments can still be passed, due to implicit conversion via the string(char$\ast$) constructor.\end{DoxyItemize}
-\section{Credits}\label{index_credits}
-\begin{DoxyItemize}
-\item Originally by Stefan Gieseke. \item Adapted for L\+H\+A\+P\+D\+Fv4 by Mike Whalley. \item Adapted for L\+H\+A\+P\+D\+Fv5 by Craig Group/\+Mike Whalley. \item v5.\+4\+: Fortran portability, tidying, extensions and conversion to namespaced functions by Andy Buckley. \item v5.\+4.\+1\+: Rationalised init functions and deprecated \char`\"{}\+M\char`\"{} functions by Andy Buckley. \item v5.\+5.\+1\+: Added P\+D\+F\+Set\+Info set metadata struct, and associated querying based on reading the P\+D\+Fsets.\+index file. \end{DoxyItemize}

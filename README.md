@@ -43,3 +43,9 @@ MARTINI gives a choice of radiation rate sets:
 ### Contact ###
 For help or more information, the current code master is Rouzbeh Yazdi and can be contacted
 at rouzbeh.modarresi-yazdi@mail.mcgill.ca
+
+### Heavy Flavor###
+
+Heavy flavor module, including pre-equilibrium energy loss has been added.
+
+This code works with LHAPDF-5.9.1 and PYTHIA-8.209
